@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Test - Find the Issue</title>
+    <style>
+        body { font-family: monospace; background: #000; color: #0f0; padding: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #0f0; }
+        .pass { color: #0f0; }
+        .fail { color: #f00; }
+        .info { color: #ff0; }
+    </style>
+</head>
+<body>
+    <h1>FM-Base Debug Test</h1>
+    <div id="results"></div>
+    
+    <!-- Test pages -->
+    <div id="overview-page" style="display:none;">Overview</div>
+    <div id="squad-page" style="display:none;">Squad</div>
+    
+    <script>
+        const log = (msg, type = 'info') => {
+            const div = document.createElement('div');
+            div.className = `test ${type}`;
+            div.textContent = msg;
+            document.getElementById('results').appendChild(div);
+        };
+        
+        // Test 1: Can we find elements immediately?
+        log('Test 1: Immediate element access');
+        const immediate = document.getElementById('overview-page');
+        log(immediate ? '✓ Found overview-page immediately' : '✗ Cannot find overview-page', immediate ? 'pass' : 'fail');
+        
+        // Test 2: Document ready state
+        log(`Test 2: Document state = ${document.readyState}`, 'info');
+        
+        // Test 3: After DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Test 3: DOMContentLoaded fired');
+            const afterDCL = document.getElementById('overview-page');
+            log(afterDCL ? '✓ Found after DOMContentLoaded' : '✗ Not found after DOMContentLoaded', afterDCL ? 'pass' : 'fail');
+        });
+        
+        // Test 4: After window.load
+        window.addEventListener('load', () => {
+            log('Test 4: window.load fired');
+            const afterLoad = document.getElementById('overview-page');
+            log(afterLoad ? '✓ Found after window.load' : '✗ Not found after window.load', afterLoad ? 'pass' : 'fail');
+            
+            // Test 5: List all elements with content-page class
+            log('Test 5: Finding all content-page elements');
+            const pages = document.querySelectorAll('.content-page');
+            log(`Found ${pages.length} elements with class 'content-page'`);
+            pages.forEach(p => log(`  - ${p.id || 'no id'}`, 'info'));
+            
+            // Test 6: Check if main.html structure exists
+            log('Test 6: Check for main.html structure');
+            const mainPanel = document.querySelector('.main-panel');
+            log(mainPanel ? '✓ Found .main-panel' : '✗ No .main-panel', mainPanel ? 'pass' : 'fail');
+            
+            const appContainer = document.querySelector('.app-container');
+            log(appContainer ? '✓ Found .app-container' : '✗ No .app-container', appContainer ? 'pass' : 'fail');
+        });
+        
+        // Test 7: Try setTimeout
+        setTimeout(() => {
+            log('Test 7: After 100ms timeout');
+            const afterTimeout = document.getElementById('overview-page');
+            log(afterTimeout ? '✓ Found after timeout' : '✗ Not found after timeout', afterTimeout ? 'pass' : 'fail');
+        }, 100);
+    </script>
+</body>
+</html>

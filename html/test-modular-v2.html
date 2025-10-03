@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Manager UI - Modular v2</title>
+    
+    <!-- Load CSS styles inline for simplicity -->
+    <style>
+        :root {
+            --primary-300: #60a5fa;
+            --primary-400: #3b82f6;
+            --primary-500: #2563eb;
+            --accent-300: #fca5a5;
+            --accent-400: #f87171;
+            --accent-500: #ef4444;
+            --neutral-100: #f3f4f6;
+            --neutral-200: #e5e7eb;
+            --neutral-300: #d1d5db;
+            --neutral-400: #9ca3af;
+            --neutral-500: #6b7280;
+            --neutral-600: #4b5563;
+            --neutral-700: #374151;
+            --neutral-800: #1f2937;
+            --neutral-900: #111827;
+            --text-primary: #ffffff;
+            --text-secondary: #d1d5db;
+            --text-disabled: #6b7280;
+            --text-success: #10b981;
+            --text-warning: #f59e0b;
+            --text-error: #ef4444;
+            --background-primary: #0f172a;
+            --background-secondary: #1e293b;
+            --border-radius: 8px;
+            --font-size-xs: 12px;
+            --font-size-sm: 14px;
+            --font-size-base: 16px;
+            --font-size-lg: 18px;
+            --font-size-xl: 20px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--background-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        .main-header {
+            background: var(--neutral-800);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--neutral-700);
+        }
+        
+        .formation-interface {
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+        }
+        
+        .formation-content {
+            flex: 1;
+            display: flex;
+            gap: 12px;
+            height: 100%;
+        }
+        
+        .formation-details {
+            flex: 0 0 30%;
+            background: var(--neutral-800);
+            border-radius: var(--border-radius);
+            padding: 16px;
+        }
+        
+        .tactical-column {
+            flex: 0 0 30%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .soccer-field {
+            flex: 1;
+            background: linear-gradient(135deg, #1a5c1a 0%, #2d7a2d 50%, #1a5c1a 100%);
+            border-radius: var(--border-radius);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .soccer-field svg {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        .player-selection {
+            flex: 0 0 40%;
+            background: var(--neutral-800);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .selection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--neutral-600);
+        }
+        
+        .controls-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn {
+            background: transparent;
+            color: var(--primary-400);
+            border: 1px solid var(--primary-400);
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            cursor: pointer;
+            min-width: 70px;
+            height: 28px;
+        }
+        
+        .btn-danger {
+            color: var(--accent-400);
+            border-color: var(--accent-400);
+        }
+        
+        .player-list {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+        }
+        
+        @keyframes pulse {
+            from { opacity: 0.3; }
+            to { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-header">
+        <h1>Football Manager UI - Modular Architecture</h1>
+    </div>
+    
+    <div class="formation-interface">
+        <div class="formation-content">
+            <!-- Formation Details (30%) -->
+            <div class="formation-details">
+                <h3>Formation Details</h3>
+                <div style="margin-top: 16px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Formation</span>
+                        <span>4-2-3-1 Wide</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Tactic</span>
+                        <span>Fluid Counter-Attack</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Familiarity</span>
+                        <span style="color: var(--text-success);">95%</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Current Phase</span>
+                        <span>In Possession</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tactical Column (30%) -->
+            <div class="tactical-column">
+                <div class="soccer-field">
+                    <svg id="formation-players" viewBox="0 -1 68 109" preserveAspectRatio="xMidYMid meet">
+                        <!-- Field Background -->
+                        <rect x="0" y="0" width="68" height="108" fill="#0e7c3a" pointer-events="none"/>
+                        
+                        <!-- FIFA Field Markings -->
+                        <g stroke="white" stroke-width="0.15" fill="none" pointer-events="none">
+                            <rect x="0" y="0" width="68" height="108"/>
+                            <line x1="0" y1="54" x2="68" y2="54"/>
+                            <circle cx="34" cy="54" r="9.15"/>
+                            <circle cx="34" cy="54" r="0.2" fill="white"/>
+                            <rect x="13.84" y="0" width="40.32" height="16.5"/>
+                            <rect x="13.84" y="91.5" width="40.32" height="16.5"/>
+                            <rect x="24.84" y="0" width="18.32" height="5.5"/>
+                            <rect x="24.84" y="102.5" width="18.32" height="5.5"/>
+                            <circle cx="34" cy="11" r="0.2" fill="white"/>
+                            <circle cx="34" cy="97" r="0.2" fill="white"/>
+                            <rect x="30.34" y="-0.3" width="7.32" height="0.3" fill="white"/>
+                            <rect x="30.34" y="108" width="7.32" height="0.3" fill="white"/>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Player Selection (40%) -->
+            <div class="player-selection">
+                <div class="selection-header">
+                    <select id="selection-info" class="btn" style="min-width: auto;">
+                        <option>Selection Info</option>
+                        <option>Show Position</option>
+                        <option>Show Rating</option>
+                        <option>Show Morale</option>
+                    </select>
+                    
+                    <div class="controls-group">
+                        <button class="btn" onclick="showSquadAnalysis()">Analysis</button>
+                        <button class="btn" onclick="openFilterDialog()">Filter</button>
+                        <select class="btn" onchange="autoPickFormation(this.value)" style="min-width: auto;">
+                            <option value="">Auto-Pick</option>
+                            <option value="head">Head Coach</option>
+                            <option value="assistant">Assistant</option>
+                            <option value="scout">Scout</option>
+                        </select>
+                        <button class="btn btn-danger" onclick="clearFormation()">Clear</button>
+                    </div>
+                </div>
+                
+                <div class="player-list">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-400);">Starting XI</h4>
+                    <div id="formation-all-players">
+                        <!-- Player slots will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load modules -->
+    <script src="js/fm-config.js"></script>
+    <script src="js/fm-player-data.js"></script>
+    <script src="js/fm-formation.js"></script>
+    <script src="js/fm-ui-components.js"></script>
+    
+    <script>
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Initializing Modular Football Manager UI...');
+            
+            // Initialize formation rendering
+            if (window.FM_FORMATION && window.FM_FORMATION.renderFormationPlayers) {
+                window.FM_FORMATION.renderFormationPlayers();
+                console.log('✅ Formation rendering initialized');
+            }
+            
+            // Initialize player selection
+            if (window.renderCombinedPlayerList) {
+                window.renderCombinedPlayerList();
+                console.log('✅ Player selection initialized');
+            }
+            
+            console.log('✅ Modular FM UI initialized successfully');
+        });
+    </script>
+</body>
+</html>

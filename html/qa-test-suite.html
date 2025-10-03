@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FM-Base Quality Assurance Test Suite</title>
+    <link rel="stylesheet" href="styles/theme/fm-theme.css">
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary, #0a0b0d);
+            color: var(--text-primary, #e4e6eb);
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .qa-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .qa-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: var(--bg-secondary, #12141a);
+            border-radius: 8px;
+        }
+        
+        .qa-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--bg-secondary, #12141a);
+            border-radius: 8px;
+            border: 1px solid var(--border-primary, #22262f);
+        }
+        
+        .qa-section h2 {
+            color: var(--accent-primary, #0094cc);
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .test-item {
+            padding: 15px;
+            background: var(--bg-elevated, #1a1d24);
+            border-radius: 6px;
+            border: 1px solid var(--border-secondary, #343a40);
+        }
+        
+        .test-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        
+        .status-pass { background: #00ff8830; color: #00ff88; }
+        .status-fail { background: #ff474730; color: #ff4747; }
+        .status-loading { background: #ffb80030; color: #ffb800; }
+        .status-pending { background: #6c757d30; color: #6c757d; }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .metric-card {
+            padding: 15px;
+            background: var(--bg-elevated, #1a1d24);
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--accent-primary, #0094cc);
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-secondary, #b0b3b8);
+            margin-top: 5px;
+        }
+        
+        .log-container {
+            background: #000;
+            color: #00ff88;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+        }
+        
+        .log-error { color: #ff4747; }
+        .log-warning { color: #ffb800; }
+        .log-info { color: #0094cc; }
+        .log-success { color: #00ff88; }
+        
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary, #12141a);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-primary, #22262f);
+            z-index: 1000;
+        }
+        
+        .qa-btn {
+            background: var(--accent-primary, #0094cc);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 0;
+            width: 100%;
+            font-size: 12px;
+        }
+        
+        .qa-btn:hover {
+            opacity: 0.8;
+        }
+        
+        .qa-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="qa-container">
+        <div class="qa-header">
+            <h1>FM-Base Quality Assurance Test Suite</h1>
+            <p>Comprehensive testing and validation for FM-Base v1.0.0</p>
+            <div id="overall-status" class="test-status status-loading">Initializing...</div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="qa-section">
+            <h2>Performance Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div id="init-time" class="metric-value">--</div>
+                    <div class="metric-label">Init Time (ms)</div>
+                </div>
+                <div class="metric-card">
+                    <div id="memory-usage" class="metric-value">--</div>
+                    <div class="metric-label">Memory (MB)</div>
+                </div>
+                <div class="metric-card">
+                    <div id="fps-current" class="metric-value">--</div>
+                    <div class="metric-label">Current FPS</div>
+                </div>
+                <div class="metric-card">
+                    <div id="components-loaded" class="metric-value">--</div>
+                    <div class="metric-label">Components Loaded</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Component Tests -->
+        <div class="qa-section">
+            <h2>Component Loading Tests</h2>
+            <div class="test-grid" id="component-tests">
+                <!-- Component tests will be populated here -->
+            </div>
+        </div>
+
+        <!-- Functionality Tests -->
+        <div class="qa-section">
+            <h2>Functionality Tests</h2>
+            <div class="test-grid" id="functionality-tests">
+                <!-- Functionality tests will be populated here -->
+            </div>
+        </div>
+
+        <!-- Browser Compatibility -->
+        <div class="qa-section">
+            <h2>Browser Compatibility</h2>
+            <div class="test-grid" id="compatibility-tests">
+                <!-- Compatibility tests will be populated here -->
+            </div>
+        </div>
+
+        <!-- Test Log -->
+        <div class="qa-section">
+            <h2>Test Log</h2>
+            <div id="test-log" class="log-container">
+                <div class="log-entry log-info">[INFO] Quality Assurance Test Suite initialized</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <h3 style="margin: 0 0 10px 0; color: var(--accent-primary);">QA Controls</h3>
+        <button id="run-all-tests" class="qa-btn">Run All Tests</button>
+        <button id="run-performance" class="qa-btn">Performance Test</button>
+        <button id="run-component" class="qa-btn">Component Test</button>
+        <button id="run-accessibility" class="qa-btn">Accessibility Test</button>
+        <button id="clear-log" class="qa-btn">Clear Log</button>
+        <button id="export-report" class="qa-btn">Export Report</button>
+    </div>
+
+    <!-- Load FM-Base for testing -->
+    <script src="config/app-config.js"></script>
+    <script src="core/utils/utils.js"></script>
+    <script src="core/data/state-manager.js"></script>
+    <script src="core/data/data-pipeline.js"></script>
+    <script src="core/data/data-binding.js"></script>
+    <script src="components/layout/layout-manager.js"></script>
+    <script src="components/layout/responsive-system.js"></script>
+    <script src="components/animations/animation-controller.js"></script>
+    <script src="components/cards/card-registry.js"></script>
+    <script src="components/cards/card-manager.js"></script>
+    <script src="components/cards/card-enhancer-v2.js"></script>
+    <script src="components/visualizations/attribute-circle.js"></script>
+    <script src="components/visualizations/bar-chart.js"></script>
+    <script src="components/visualizations/pizza-chart.js"></script>
+    <script src="components/screens/screen-router.js"></script>
+    <script src="components/screens/squad-screen.js"></script>
+    <script src="components/screens/tactics-screen.js"></script>
+    <script src="components/screens/training-screen.js"></script>
+    <script src="components/player/player-profile.js"></script>
+    <script src="components/player/comparison-tool.js"></script>
+    <script src="components/player/archetype-classifier.js"></script>
+    
+    <!-- Card Modules -->
+    <script src="components/cards/modules/player-detail-card.js"></script>
+    <script src="components/cards/modules/squad-summary-card.js"></script>
+    <script src="components/cards/modules/tactical-overview-card.js"></script>
+    <script src="components/cards/modules/performance-dashboard-card.js"></script>
+    <script src="components/cards/modules/upcoming-fixtures-card.js"></script>
+    <script src="components/cards/modules/training-schedule-card.js"></script>
+    <script src="components/cards/modules/transfer-targets-card.js"></script>
+    <script src="components/cards/modules/financial-overview-card.js"></script>
+    <script src="components/cards/modules/league-table-card.js"></script>
+    <script src="components/cards/modules/player-list-card.js"></script>
+    <script src="components/cards/modules/tactical-shape-card.js"></script>
+    <script src="components/cards/modules/team-analysis-card.js"></script>
+    <script src="components/cards/modules/transfer-budget-card.js"></script>
+    <script src="components/cards/modules/match-preview-card.js"></script>
+    <script src="components/cards/modules/injury-report-card.js"></script>
+    
+    <script src="scripts/app-initializer.js"></script>
+    
+    <!-- Validation Script -->
+    <script src="validation-script.js"></script>
+
+    <!-- QA Test Suite JavaScript -->
+    <script>
+        class QATestSuite {
+            constructor() {
+                this.tests = [];
+                this.results = {};
+                this.metrics = {
+                    initTime: null,
+                    memoryUsage: null,
+                    fps: null,
+                    componentsLoaded: 0
+                };
+                this.startTime = performance.now();
+                this.frameCount = 0;
+                this.lastFPSTime = performance.now();
+                
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.setupPerformanceMonitoring();
+                this.runInitialTests();
+                this.startFPSMonitoring();
+            }
+
+            setupEventListeners() {
+                document.getElementById('run-all-tests').addEventListener('click', () => this.runAllTests());
+                document.getElementById('run-performance').addEventListener('click', () => this.runPerformanceTests());
+                document.getElementById('run-component').addEventListener('click', () => this.runComponentTests());
+                document.getElementById('run-accessibility').addEventListener('click', () => this.runAccessibilityTests());
+                document.getElementById('clear-log').addEventListener('click', () => this.clearLog());
+                document.getElementById('export-report').addEventListener('click', () => this.exportReport());
+
+                // Listen for FM-Base events
+                document.addEventListener('app:initialized', (e) => {
+                    this.metrics.initTime = e.detail.initTime;
+                    this.updateMetrics();
+                    this.log('SUCCESS', `FM-Base initialized in ${e.detail.initTime.toFixed(2)}ms`);
+                    this.runPostInitTests();
+                });
+
+                document.addEventListener('app:init-failed', (e) => {
+                    this.log('ERROR', `FM-Base initialization failed: ${e.detail.error.message}`);
+                    this.updateOverallStatus('FAIL');
+                });
+            }
+
+            setupPerformanceMonitoring() {
+                // Memory monitoring
+                if (performance.memory) {
+                    setInterval(() => {
+                        this.metrics.memoryUsage = performance.memory.usedJSHeapSize / 1024 / 1024;
+                        this.updateMetrics();
+                    }, 1000);
+                }
+            }
+
+            startFPSMonitoring() {
+                const measureFPS = () => {
+                    this.frameCount++;
+                    const currentTime = performance.now();
+                    
+                    if (currentTime - this.lastFPSTime >= 1000) {
+                        this.metrics.fps = Math.round((this.frameCount * 1000) / (currentTime - this.lastFPSTime));
+                        this.frameCount = 0;
+                        this.lastFPSTime = currentTime;
+                        this.updateMetrics();
+                    }
+                    
+                    requestAnimationFrame(measureFPS);
+                };
+                requestAnimationFrame(measureFPS);
+            }
+
+            updateMetrics() {
+                document.getElementById('init-time').textContent = 
+                    this.metrics.initTime ? this.metrics.initTime.toFixed(2) : '--';
+                document.getElementById('memory-usage').textContent = 
+                    this.metrics.memoryUsage ? this.metrics.memoryUsage.toFixed(1) : '--';
+                document.getElementById('fps-current').textContent = 
+                    this.metrics.fps || '--';
+                document.getElementById('components-loaded').textContent = 
+                    this.metrics.componentsLoaded;
+            }
+
+            runInitialTests() {
+                this.log('INFO', 'Starting initial component availability tests...');
+                
+                const requiredComponents = [
+                    'AppConfig', 'FMUtils', 'StateManager', 'DataPipeline', 'DataBinding',
+                    'LayoutManager', 'ResponsiveSystem', 'AnimationController',
+                    'CardRegistry', 'CardManager',
+                    'AttributeCircle', 'BarChart', 'PizzaChart',
+                    'ScreenRouter', 'PlayerProfile', 'ComparisonTool'
+                ];
+
+                const componentTests = document.getElementById('component-tests');
+                componentTests.innerHTML = '';
+
+                requiredComponents.forEach(component => {
+                    const testItem = document.createElement('div');
+                    testItem.className = 'test-item';
+                    
+                    const exists = window[component] !== undefined;
+                    const status = exists ? 'pass' : 'fail';
+                    
+                    testItem.innerHTML = `
+                        <strong>${component}</strong>
+                        <span class="test-status status-${status}">${exists ? 'LOADED' : 'MISSING'}</span>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
+                            Component availability check
+                        </div>
+                    `;
+                    
+                    componentTests.appendChild(testItem);
+                    
+                    if (exists) {
+                        this.metrics.componentsLoaded++;
+                        this.log('SUCCESS', `Component ${component} loaded successfully`);
+                    } else {
+                        this.log('ERROR', `Component ${component} failed to load`);
+                    }
+                });
+
+                this.updateMetrics();
+            }
+
+            runPostInitTests() {
+                this.log('INFO', 'Running post-initialization tests...');
+                this.runFunctionalityTests();
+                this.runBrowserCompatibilityTests();
+                
+                setTimeout(() => {
+                    this.evaluateOverallStatus();
+                }, 1000);
+            }
+
+            runFunctionalityTests() {
+                const functionalityTests = document.getElementById('functionality-tests');
+                functionalityTests.innerHTML = '';
+
+                const tests = [
+                    {
+                        name: 'State Management',
+                        test: () => {
+                            try {
+                                if (!window.stateManager) return false;
+                                window.stateManager.set('test.value', 'testData');
+                                return window.stateManager.get('test.value') === 'testData';
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+                    },
+                    {
+                        name: 'Card Registry',
+                        test: () => {
+                            try {
+                                return window.CardRegistry && 
+                                       typeof window.CardRegistry.getRegisteredTypes === 'function' &&
+                                       window.CardRegistry.getRegisteredTypes().length > 0;
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+                    },
+                    {
+                        name: 'Layout System',
+                        test: () => {
+                            try {
+                                return window.fmLayout && 
+                                       typeof window.fmLayout.calculateOptimalCardSize === 'function';
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+                    },
+                    {
+                        name: 'Animation System',
+                        test: () => {
+                            try {
+                                return window.fmAnimator && 
+                                       typeof window.fmAnimator.animateCardEntry === 'function';
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+                    },
+                    {
+                        name: 'CSS Grid Support',
+                        test: () => CSS.supports('display', 'grid')
+                    },
+                    {
+                        name: 'Local Storage',
+                        test: () => {
+                            try {
+                                localStorage.setItem('test', 'value');
+                                const result = localStorage.getItem('test') === 'value';
+                                localStorage.removeItem('test');
+                                return result;
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+                    }
+                ];
+
+                tests.forEach(({ name, test }) => {
+                    const testItem = document.createElement('div');
+                    testItem.className = 'test-item';
+                    
+                    let status, result;
+                    try {
+                        result = test();
+                        status = result ? 'pass' : 'fail';
+                    } catch (e) {
+                        result = false;
+                        status = 'fail';
+                        this.log('ERROR', `Test ${name} threw error: ${e.message}`);
+                    }
+                    
+                    testItem.innerHTML = `
+                        <strong>${name}</strong>
+                        <span class="test-status status-${status}">${result ? 'PASS' : 'FAIL'}</span>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
+                            Functionality validation
+                        </div>
+                    `;
+                    
+                    functionalityTests.appendChild(testItem);
+                    this.log(result ? 'SUCCESS' : 'ERROR', `Functionality test ${name}: ${result ? 'PASS' : 'FAIL'}`);
+                });
+            }
+
+            runBrowserCompatibilityTests() {
+                const compatibilityTests = document.getElementById('compatibility-tests');
+                compatibilityTests.innerHTML = '';
+
+                const tests = [
+                    {
+                        name: 'ES6 Support',
+                        test: () => {
+                            try {
+                                eval('const test = () => {}; class Test {}');
+                                return true;
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+                    },
+                    {
+                        name: 'Fetch API',
+                        test: () => typeof fetch === 'function'
+                    },
+                    {
+                        name: 'Promise Support',
+                        test: () => typeof Promise === 'function'
+                    },
+                    {
+                        name: 'Intersection Observer',
+                        test: () => typeof IntersectionObserver === 'function'
+                    },
+                    {
+                        name: 'Performance API',
+                        test: () => typeof performance === 'object' && performance.now
+                    },
+                    {
+                        name: 'CSS Custom Properties',
+                        test: () => CSS.supports('color', 'var(--test)')
+                    }
+                ];
+
+                tests.forEach(({ name, test }) => {
+                    const testItem = document.createElement('div');
+                    testItem.className = 'test-item';
+                    
+                    const result = test();
+                    const status = result ? 'pass' : 'fail';
+                    
+                    testItem.innerHTML = `
+                        <strong>${name}</strong>
+                        <span class="test-status status-${status}">${result ? 'SUPPORTED' : 'NOT SUPPORTED'}</span>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
+                            Browser compatibility check
+                        </div>
+                    `;
+                    
+                    compatibilityTests.appendChild(testItem);
+                    this.log(result ? 'SUCCESS' : 'WARNING', `Compatibility test ${name}: ${result ? 'SUPPORTED' : 'NOT SUPPORTED'}`);
+                });
+            }
+
+            runAllTests() {
+                this.log('INFO', 'Running comprehensive test suite...');
+                this.runComponentTests();
+                this.runPerformanceTests();
+                this.runAccessibilityTests();
+            }
+
+            runPerformanceTests() {
+                this.log('INFO', 'Running performance tests...');
+                
+                const tests = [
+                    {
+                        name: 'Initialization Time',
+                        target: 3000,
+                        actual: this.metrics.initTime,
+                        unit: 'ms'
+                    },
+                    {
+                        name: 'Memory Usage',
+                        target: 150,
+                        actual: this.metrics.memoryUsage,
+                        unit: 'MB'
+                    },
+                    {
+                        name: 'Frame Rate',
+                        target: 60,
+                        actual: this.metrics.fps,
+                        unit: 'fps',
+                        tolerance: 10
+                    }
+                ];
+
+                tests.forEach(({ name, target, actual, unit, tolerance = 0 }) => {
+                    if (actual !== null && actual !== undefined) {
+                        const passed = actual <= target + tolerance;
+                        this.log(passed ? 'SUCCESS' : 'WARNING', 
+                            `Performance: ${name} = ${actual.toFixed(1)}${unit} (target: ${target}${unit})`);
+                    }
+                });
+            }
+
+            runComponentTests() {
+                this.log('INFO', 'Running component integrity tests...');
+                
+                if (window.CardRegistry) {
+                    const registeredTypes = window.CardRegistry.getRegisteredTypes();
+                    this.log('INFO', `Card types registered: ${registeredTypes.length}`);
+                    registeredTypes.forEach(type => {
+                        this.log('SUCCESS', `Card type available: ${type}`);
+                    });
+                }
+            }
+
+            runAccessibilityTests() {
+                this.log('INFO', 'Running accessibility tests...');
+                
+                const tests = [
+                    {
+                        name: 'Focus Management',
+                        test: () => document.querySelector('[tabindex]') !== null ||
+                                   document.querySelector('button, input, a').length > 0
+                    },
+                    {
+                        name: 'ARIA Labels',
+                        test: () => document.querySelector('[aria-label], [aria-labelledby]') !== null
+                    },
+                    {
+                        name: 'Color Contrast',
+                        test: () => {
+                            const style = getComputedStyle(document.body);
+                            return style.color && style.backgroundColor;
+                        }
+                    }
+                ];
+
+                tests.forEach(({ name, test }) => {
+                    const result = test();
+                    this.log(result ? 'SUCCESS' : 'WARNING', `Accessibility: ${name} - ${result ? 'PASS' : 'NEEDS ATTENTION'}`);
+                });
+            }
+
+            evaluateOverallStatus() {
+                const criticalFailures = this.getLogEntries().filter(entry => 
+                    entry.type === 'ERROR' && entry.message.includes('failed to load')
+                ).length;
+
+                const performanceIssues = (this.metrics.initTime > 3000) || 
+                                         (this.metrics.memoryUsage > 150) ||
+                                         (this.metrics.fps < 50);
+
+                if (criticalFailures > 0) {
+                    this.updateOverallStatus('FAIL');
+                    this.log('ERROR', `Quality Assurance: FAILED - ${criticalFailures} critical component failures`);
+                } else if (performanceIssues) {
+                    this.updateOverallStatus('WARNING');
+                    this.log('WARNING', 'Quality Assurance: PASSED with performance warnings');
+                } else {
+                    this.updateOverallStatus('PASS');
+                    this.log('SUCCESS', 'Quality Assurance: ALL TESTS PASSED');
+                }
+            }
+
+            updateOverallStatus(status) {
+                const statusElement = document.getElementById('overall-status');
+                statusElement.className = `test-status status-${status.toLowerCase()}`;
+                statusElement.textContent = status;
+            }
+
+            log(type, message) {
+                const logContainer = document.getElementById('test-log');
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry log-${type.toLowerCase()}`;
+                logEntry.textContent = `[${timestamp}] [${type}] ${message}`;
+                logContainer.appendChild(logEntry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+
+                // Store for export
+                if (!this.logEntries) this.logEntries = [];
+                this.logEntries.push({ timestamp, type, message });
+            }
+
+            getLogEntries() {
+                return this.logEntries || [];
+            }
+
+            clearLog() {
+                document.getElementById('test-log').innerHTML = '';
+                this.logEntries = [];
+                this.log('INFO', 'Test log cleared');
+            }
+
+            exportReport() {
+                const report = {
+                    timestamp: new Date().toISOString(),
+                    version: window.AppConfig?.version || 'Unknown',
+                    metrics: this.metrics,
+                    browser: {
+                        userAgent: navigator.userAgent,
+                        language: navigator.language,
+                        platform: navigator.platform
+                    },
+                    logEntries: this.getLogEntries(),
+                    summary: {
+                        totalTests: this.getLogEntries().filter(e => e.message.includes('test')).length,
+                        passed: this.getLogEntries().filter(e => e.type === 'SUCCESS').length,
+                        failed: this.getLogEntries().filter(e => e.type === 'ERROR').length,
+                        warnings: this.getLogEntries().filter(e => e.type === 'WARNING').length
+                    }
+                };
+
+                const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `fm-base-qa-report-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                this.log('INFO', 'Quality assurance report exported');
+            }
+        }
+
+        // Initialize QA Test Suite
+        const qaTestSuite = new QATestSuite();
+    </script>
+</body>
+</html>

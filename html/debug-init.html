@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FM-Base Debug Initialization</title>
+    <style>
+        body {
+            background: #1a1a1a;
+            color: #fff;
+            font-family: monospace;
+            padding: 20px;
+        }
+        .log {
+            background: #2a2a2a;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .info { color: #2196f3; }
+    </style>
+</head>
+<body>
+    <h1>FM-Base Debug Initialization</h1>
+    <div id="log"></div>
+
+    <script>
+        const log = (message, type = 'info') => {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            console.log(message);
+        };
+
+        log('Starting debug initialization...');
+    </script>
+
+    <!-- Load components in order -->
+    <script>log('Loading config/app-config.js...', 'info');</script>
+    <script src="config/app-config.js"></script>
+    
+    <script>log('Loading core/utils/utils.js...', 'info');</script>
+    <script src="core/utils/utils.js"></script>
+    
+    <script>log('Loading core/data/state-manager.js...', 'info');</script>
+    <script src="core/data/state-manager.js"></script>
+    
+    <script>log('Loading core/data/data-pipeline.js...', 'info');</script>
+    <script src="core/data/data-pipeline.js"></script>
+    
+    <script>log('Loading core/data/data-binding.js...', 'info');</script>
+    <script src="core/data/data-binding.js"></script>
+
+    <script>
+        // Test AnimationController separately
+        log('Testing AnimationController class definition...', 'info');
+        
+        class TestAnimationController {
+            constructor() {
+                log('  - Constructor called', 'info');
+                this.testProp = 'test';
+                
+                // Test if methods exist before binding
+                if (typeof this.testMethod === 'function') {
+                    log('  - testMethod exists, binding...', 'success');
+                    this.testMethod = this.testMethod.bind(this);
+                } else {
+                    log('  - testMethod does NOT exist!', 'error');
+                }
+            }
+            
+            testMethod() {
+                return 'test';
+            }
+        }
+        
+        try {
+            const testController = new TestAnimationController();
+            log('TestAnimationController created successfully', 'success');
+        } catch (e) {
+            log('TestAnimationController failed: ' + e.message, 'error');
+        }
+    </script>
+
+    <script>log('Loading components/animations/animation-controller.js...', 'info');</script>
+    <script src="components/animations/animation-controller.js"></script>
+    
+    <script>
+        // Check what was loaded
+        log('Checking loaded components:', 'info');
+        
+        const components = [
+            'AppConfig',
+            'FMUtils', 
+            'fmUtils',
+            'StateManager',
+            'stateManager',
+            'DataPipeline',
+            'dataPipeline',
+            'DataBinding',
+            'dataBinding',
+            'AnimationController',
+            'fmAnimator'
+        ];
+        
+        components.forEach(comp => {
+            if (window[comp]) {
+                const type = typeof window[comp];
+                if (type === 'function') {
+                    log(`  ✓ ${comp} loaded (class/function)`, 'success');
+                } else if (type === 'object') {
+                    log(`  ✓ ${comp} loaded (instance)`, 'success');
+                } else {
+                    log(`  ✓ ${comp} loaded (${type})`, 'success');
+                }
+            } else {
+                log(`  ✗ ${comp} NOT loaded`, 'error');
+            }
+        });
+        
+        // Try to create AnimationController manually
+        log('Attempting manual AnimationController creation...', 'info');
+        try {
+            if (window.AnimationController) {
+                const testAnim = new window.AnimationController();
+                log('Manual AnimationController created successfully!', 'success');
+                
+                // Check if methods exist
+                log('Checking AnimationController methods:', 'info');
+                const methods = ['animateCardEntry', 'animateCardExit', 'staggerCards', 'transitionPages'];
+                methods.forEach(method => {
+                    if (typeof testAnim[method] === 'function') {
+                        log(`  ✓ ${method} exists`, 'success');
+                    } else {
+                        log(`  ✗ ${method} NOT found`, 'error');
+                    }
+                });
+            } else {
+                log('AnimationController class not available', 'error');
+            }
+        } catch (e) {
+            log('Failed to create AnimationController: ' + e.message, 'error');
+            log('Stack trace: ' + e.stack, 'error');
+        }
+    </script>
+
+    <script>log('Loading components/layout/layout-manager.js...', 'info');</script>
+    <script src="components/layout/layout-manager.js"></script>
+    
+    <script>log('Loading components/layout/responsive-system.js...', 'info');</script>
+    <script src="components/layout/responsive-system.js"></script>
+
+    <script>
+        // Final check
+        log('Final component check:', 'info');
+        
+        try {
+            // Check LayoutManager
+            if (window.LayoutManager) {
+                const lm = new window.LayoutManager();
+                log('  ✓ LayoutManager instantiation successful', 'success');
+            }
+        } catch (e) {
+            log('  ✗ LayoutManager failed: ' + e.message, 'error');
+        }
+        
+        try {
+            // Check ResponsiveSystem
+            if (window.ResponsiveSystem) {
+                const rs = new window.ResponsiveSystem();
+                log('  ✓ ResponsiveSystem instantiation successful', 'success');
+            }
+        } catch (e) {
+            log('  ✗ ResponsiveSystem failed: ' + e.message, 'error');
+        }
+        
+        log('Debug initialization complete!', 'info');
+    </script>
+</body>
+</html>

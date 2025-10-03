@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Quick Header Test</title>
+    <style>
+        body { 
+            margin: 0; 
+            font-family: Arial, sans-serif; 
+            background: #1a1d24; 
+            color: white;
+        }
+        
+        .test-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 9999;
+            max-width: 300px;
+        }
+        
+        .good { color: #00ff00; }
+        .bad { color: #ff0000; }
+        .info { color: #00aaff; }
+        
+        iframe {
+            width: 100%;
+            height: calc(100vh - 40px);
+            border: none;
+        }
+        
+        .controls {
+            background: #333;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        button {
+            margin: 5px;
+            padding: 5px 15px;
+            background: #0077a3;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button onclick="runHeaderTest()">🔍 Test Headers</button>
+        <button onclick="testInteractivity()">🎮 Test Buttons</button>
+        <button onclick="reloadFrame()">🔄 Reload</button>
+    </div>
+    
+    <div class="test-info" id="results">
+        <strong>Header Analysis:</strong><br>
+        Click "Test Headers" to analyze...
+    </div>
+    
+    <iframe id="mainFrame" src="main.html"></iframe>
+
+    <script>
+        function runHeaderTest() {
+            const iframe = document.getElementById('mainFrame');
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Count headers
+                const mainHeaders = doc.querySelectorAll('.header');
+                const cardHeaders = doc.querySelectorAll('.card-header');
+                const allHeaders = doc.querySelectorAll('header, .header, .card-header, [class*="header"]');
+                
+                // Check if this is problematic
+                const hasMainHeader = mainHeaders.length === 1;
+                const hasCardHeaders = cardHeaders.length > 0;
+                const isArchitectureCorrect = hasMainHeader && hasCardHeaders;
+                
+                let analysis = '<strong>📊 Header Analysis:</strong><br>';
+                analysis += `<span class="${mainHeaders.length === 1 ? 'good' : 'bad'}">Main headers: ${mainHeaders.length}</span><br>`;
+                analysis += `<span class="${cardHeaders.length > 0 ? 'good' : 'bad'}">Card headers: ${cardHeaders.length}</span><br>`;
+                analysis += `<span class="info">Total elements with "header": ${allHeaders.length}</span><br><br>`;
+                
+                if (isArchitectureCorrect) {
+                    analysis += '<span class="good">✅ CORRECT ARCHITECTURE</span><br>';
+                    analysis += '<span class="info">This is standard FM-style UI:</span><br>';
+                    analysis += '<span class="info">• Main header = Global nav</span><br>';
+                    analysis += '<span class="info">• Card headers = Card titles</span><br>';
+                } else {
+                    analysis += '<span class="bad">❌ ARCHITECTURE ISSUE</span><br>';
+                    if (mainHeaders.length !== 1) {
+                        analysis += `<span class="bad">• Expected 1 main header, found ${mainHeaders.length}</span><br>`;
+                    }
+                    if (cardHeaders.length === 0) {
+                        analysis += '<span class="bad">• No card headers found</span><br>';
+                    }
+                }
+                
+                // Check for actual problems
+                const problems = [];
+                
+                // Check z-index conflicts
+                mainHeaders.forEach(header => {
+                    const style = doc.defaultView.getComputedStyle(header);
+                    const zIndex = parseInt(style.zIndex);
+                    if (isNaN(zIndex) || zIndex < 100) {
+                        problems.push('Main header z-index too low');
+                    }
+                });
+                
+                // Check for overlapping elements
+                if (mainHeaders.length > 0 && cardHeaders.length > 0) {
+                    const mainHeader = mainHeaders[0];
+                    const mainRect = mainHeader.getBoundingClientRect();
+                    
+                    cardHeaders.forEach((cardHeader, index) => {
+                        const cardRect = cardHeader.getBoundingClientRect();
+                        if (cardRect.top < mainRect.bottom) {
+                            problems.push(`Card header ${index + 1} overlaps main header`);
+                        }
+                    });
+                }
+                
+                if (problems.length > 0) {
+                    analysis += '<br><span class="bad">⚠️ ISSUES FOUND:</span><br>';
+                    problems.forEach(problem => {
+                        analysis += `<span class="bad">• ${problem}</span><br>`;
+                    });
+                } else {
+                    analysis += '<br><span class="good">✅ No layout conflicts detected</span>';
+                }
+                
+                resultsDiv.innerHTML = analysis;
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<span class="bad">❌ Error: ${error.message}</span>`;
+            }
+        }
+        
+        function testInteractivity() {
+            const iframe = document.getElementById('mainFrame');
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Test card header clicks
+                const cardHeaders = doc.querySelectorAll('.card-header');
+                const clickableHeaders = Array.from(cardHeaders).filter(header => {
+                    return header.onclick || header.ondblclick || 
+                           header.style.cursor === 'pointer' || 
+                           header.getAttribute('ondblclick');
+                });
+                
+                // Test buttons
+                const buttons = doc.querySelectorAll('.card button, .card-menu-btn');
+                const workingButtons = Array.from(buttons).filter(button => {
+                    const style = doc.defaultView.getComputedStyle(button);
+                    return style.pointerEvents !== 'none';
+                });
+                
+                let analysis = '<strong>🎮 Interactivity Test:</strong><br>';
+                analysis += `<span class="${clickableHeaders.length === cardHeaders.length ? 'good' : 'info'}">Clickable headers: ${clickableHeaders.length}/${cardHeaders.length}</span><br>`;
+                analysis += `<span class="${workingButtons.length === buttons.length ? 'good' : 'bad'}">Working buttons: ${workingButtons.length}/${buttons.length}</span><br>`;
+                
+                // Test actual click
+                if (buttons.length > 0) {
+                    const testButton = buttons[0];
+                    testButton.style.backgroundColor = 'lime';
+                    setTimeout(() => {
+                        testButton.style.backgroundColor = '';
+                    }, 1000);
+                    analysis += '<span class="info">💡 First button highlighted for 1sec</span><br>';
+                }
+                
+                resultsDiv.innerHTML = analysis;
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<span class="bad">❌ Error: ${error.message}</span>`;
+            }
+        }
+        
+        function reloadFrame() {
+            document.getElementById('mainFrame').src = 'main.html';
+            document.getElementById('results').innerHTML = '<strong>Header Analysis:</strong><br>Reloading...';
+        }
+        
+        // Auto-test after load
+        setTimeout(() => {
+            const iframe = document.getElementById('mainFrame');
+            iframe.onload = function() {
+                setTimeout(runHeaderTest, 1000);
+            };
+        }, 100);
+    </script>
+</body>
+</html>

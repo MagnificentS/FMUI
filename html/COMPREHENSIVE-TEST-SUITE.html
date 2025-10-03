@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>🧪 Comprehensive Test Suite - Proper Header Architecture</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            background: #0a0b0d;
+            color: #e4e6eb;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        .test-dashboard {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            grid-template-rows: 60px 1fr;
+            height: 100vh;
+        }
+        
+        .test-header {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #1a1d24, #22262f);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .test-btn {
+            padding: 8px 16px;
+            background: #0077a3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .test-btn:hover {
+            background: #0094cc;
+            transform: translateY(-1px);
+        }
+        
+        .test-btn.success { background: #00ff88; color: #000; }
+        .test-btn.danger { background: #ff4757; }
+        .test-btn.warning { background: #ffa502; }
+        
+        .test-sidebar {
+            background: #12141a;
+            border-right: 1px solid #333;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .test-main {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .test-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .test-section {
+            margin: 16px 0;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            border-left: 3px solid #0077a3;
+        }
+        
+        .test-section h3 {
+            margin: 0 0 8px 0;
+            color: #0094cc;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .test-results {
+            font-size: 11px;
+            line-height: 1.4;
+        }
+        
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        
+        .test-status {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .status-pass { background: #00ff88; color: #000; }
+        .status-fail { background: #ff4757; color: #fff; }
+        .status-warn { background: #ffa502; color: #000; }
+        .status-pending { background: #666; color: #fff; }
+        
+        .overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            min-width: 300px;
+            text-align: center;
+            z-index: 10000;
+        }
+        
+        .hidden { display: none; }
+        
+        .console-output {
+            background: #000;
+            color: #00ff88;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            height: 150px;
+            overflow-y: auto;
+            margin-top: 8px;
+            border: 1px solid #333;
+        }
+        
+        .architecture-diagram {
+            background: #1a1d24;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            line-height: 1.3;
+            border: 1px solid #333;
+            margin: 8px 0;
+        }
+        
+        .diagram-layer {
+            margin: 2px 0;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+        
+        .layer-primary { background: rgba(0, 148, 204, 0.2); }
+        .layer-secondary { background: rgba(255, 255, 255, 0.1); }
+        .layer-content { background: rgba(0, 255, 136, 0.1); }
+    </style>
+</head>
+<body>
+    <div class="test-dashboard">
+        <div class="test-header">
+            <h1 style="margin: 0; font-size: 16px; font-weight: 600;">🧪 Comprehensive Test Suite - Proper Header Architecture</h1>
+            <div class="test-controls">
+                <button class="test-btn success" onclick="runFullTest()">🚀 Run Full Test</button>
+                <button class="test-btn" onclick="testArchitecture()">🏗️ Test Architecture</button>
+                <button class="test-btn" onclick="testInteractions()">🎮 Test Interactions</button>
+                <button class="test-btn warning" onclick="analyzeIssues()">🔍 Analyze Issues</button>
+                <button class="test-btn danger" onclick="reloadTest()">🔄 Reload</button>
+            </div>
+        </div>
+        
+        <div class="test-sidebar">
+            <div class="test-section">
+                <h3>📊 Architecture Status</h3>
+                <div class="test-results" id="architecture-status">
+                    <div class="test-item">
+                        <span>Primary Header</span>
+                        <span class="test-status status-pending" id="primary-status">PENDING</span>
+                    </div>
+                    <div class="test-item">
+                        <span>Secondary Header</span>
+                        <span class="test-status status-pending" id="secondary-status">PENDING</span>
+                    </div>
+                    <div class="test-item">
+                        <span>Card System</span>
+                        <span class="test-status status-pending" id="card-status">PENDING</span>
+                    </div>
+                    <div class="test-item">
+                        <span>Widget System</span>
+                        <span class="test-status status-pending" id="widget-status">PENDING</span>
+                    </div>
+                    <div class="test-item">
+                        <span>Panel System</span>
+                        <span class="test-status status-pending" id="panel-status">PENDING</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="test-section">
+                <h3>🎮 Interaction Tests</h3>
+                <div class="test-results" id="interaction-results">
+                    <div class="test-item">
+                        <span>Navigation</span>
+                        <span class="test-status status-pending" id="nav-status">PENDING</span>
+                    </div>
+                    <div class="test-item">
+                        <span>Buttons</span>
+                        <span class="test-status status-pending" id="button-status">PENDING</span>
+                    </div>
+                    <div class="test-item">
+                        <span>Resize Handles</span>
+                        <span class="test-status status-pending" id="resize-status">PENDING</span>
+                    </div>
+                    <div class="test-item">
+                        <span>Form Controls</span>
+                        <span class="test-status status-pending" id="form-status">PENDING</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="test-section">
+                <h3>🏗️ Expected Architecture</h3>
+                <div class="architecture-diagram">
+                    <div class="diagram-layer layer-primary">┌─ PRIMARY HEADER (App Navigation) ─┐</div>
+                    <div class="diagram-layer layer-secondary">├─ SECONDARY HEADER (Tabs/Context) ─┤</div>
+                    <div class="diagram-layer layer-content">├─ CONTENT AREA ──────────────────┤</div>
+                    <div class="diagram-layer layer-content">│  ┌─WIDGET─┐ ┌─CARD─┐ ┌─PANEL─┐   │</div>
+                    <div class="diagram-layer layer-content">│  │ TOOLS  │ │ INFO │ │ DETAIL │  │</div>
+                    <div class="diagram-layer layer-content">│  └────────┘ └──────┘ └───────┘   │</div>
+                    <div class="diagram-layer layer-content">└─────────────────────────────────┘</div>
+                </div>
+            </div>
+            
+            <div class="test-section">
+                <h3>🖥️ Console Output</h3>
+                <div class="console-output" id="console-output">Waiting for test to start...</div>
+            </div>
+            
+            <div class="test-section">
+                <h3>⚠️ Issues Found</h3>
+                <div class="test-results" id="issues-list">
+                    <div class="test-item">No issues detected yet</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-main">
+            <iframe class="test-frame" id="main-frame" src="main.html"></iframe>
+            
+            <div class="overlay hidden" id="loading-overlay">
+                <h2>🔄 Running Tests...</h2>
+                <p>Please wait while we analyze the header architecture</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let testState = {
+            frameLoaded: false,
+            consoleOutput: '',
+            testResults: {},
+            issues: []
+        };
+
+        function updateStatus(statusId, status) {
+            const element = document.getElementById(statusId);
+            element.className = `test-status status-${status}`;
+            element.textContent = status.toUpperCase();
+        }
+
+        function addIssue(issue, severity = 'warning') {
+            testState.issues.push({ issue, severity, timestamp: Date.now() });
+            updateIssuesList();
+        }
+
+        function updateIssuesList() {
+            const issuesList = document.getElementById('issues-list');
+            
+            if (testState.issues.length === 0) {
+                issuesList.innerHTML = '<div class="test-item">No issues detected</div>';
+                return;
+            }
+            
+            const issuesHTML = testState.issues.map(item => `
+                <div class="test-item">
+                    <span style="color: ${item.severity === 'error' ? '#ff4757' : '#ffa502'}">${item.issue}</span>
+                    <span class="test-status status-${item.severity === 'error' ? 'fail' : 'warn'}">${item.severity.toUpperCase()}</span>
+                </div>
+            `).join('');
+            
+            issuesList.innerHTML = issuesHTML;
+        }
+
+        function captureConsoleFromFrame() {
+            try {
+                const iframe = document.getElementById('main-frame');
+                const iframeWindow = iframe.contentWindow;
+                
+                ['log', 'warn', 'error', 'info'].forEach(method => {
+                    const original = iframeWindow.console[method];
+                    iframeWindow.console[method] = function(...args) {
+                        testState.consoleOutput += `[${method.toUpperCase()}] ${args.join(' ')}\n`;
+                        updateConsoleDisplay();
+                        return original.apply(iframeWindow.console, args);
+                    };
+                });
+                
+            } catch (error) {
+                console.log('Could not capture iframe console:', error.message);
+            }
+        }
+
+        function updateConsoleDisplay() {
+            const output = document.getElementById('console-output');
+            output.textContent = testState.consoleOutput;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function runFullTest() {
+            console.log('🚀 Starting comprehensive test suite...');
+            
+            showLoadingOverlay();
+            
+            const iframe = document.getElementById('main-frame');
+            iframe.src = 'main.html';
+            
+            iframe.onload = function() {
+                testState.frameLoaded = true;
+                captureConsoleFromFrame();
+                
+                setTimeout(() => {
+                    testArchitecture();
+                    setTimeout(() => {
+                        testInteractions();
+                        setTimeout(() => {
+                            analyzeIssues();
+                            hideLoadingOverlay();
+                        }, 2000);
+                    }, 2000);
+                }, 3000);
+            };
+        }
+
+        function testArchitecture() {
+            console.log('🏗️ Testing header architecture...');
+            
+            try {
+                const iframe = document.getElementById('main-frame');
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Test primary header
+                const primaryHeaders = doc.querySelectorAll('.header');
+                const primaryVisible = Array.from(primaryHeaders).filter(h => {
+                    const style = doc.defaultView.getComputedStyle(h);
+                    return style.display !== 'none';
+                }).length;
+                
+                updateStatus('primary-status', primaryVisible === 1 ? 'pass' : 'fail');
+                if (primaryVisible !== 1) {
+                    addIssue(`Primary header count: ${primaryVisible} (should be 1)`, 'error');
+                }
+                
+                // Test secondary header (navigation)
+                const navContainers = doc.querySelectorAll('.nav-container');
+                const navVisible = Array.from(navContainers).filter(n => {
+                    const style = doc.defaultView.getComputedStyle(n);
+                    return style.display !== 'none';
+                }).length;
+                
+                updateStatus('secondary-status', navVisible === 1 ? 'pass' : 'fail');
+                if (navVisible !== 1) {
+                    addIssue(`Secondary header count: ${navVisible} (should be 1)`, 'error');
+                }
+                
+                // Test component classification
+                const cards = doc.querySelectorAll('.card');
+                const widgets = doc.querySelectorAll('.widget');
+                const panels = doc.querySelectorAll('.panel');
+                
+                updateStatus('card-status', cards.length > 0 ? 'pass' : 'fail');
+                updateStatus('widget-status', widgets.length > 0 ? 'pass' : 'warn');
+                updateStatus('panel-status', panels.length > 0 ? 'pass' : 'warn');
+                
+                console.log(`📊 Architecture Analysis: ${primaryVisible} primary, ${navVisible} secondary, ${cards.length} cards, ${widgets.length} widgets, ${panels.length} panels`);
+                
+            } catch (error) {
+                console.error('Architecture test failed:', error);
+                addIssue(`Architecture test error: ${error.message}`, 'error');
+            }
+        }
+
+        function testInteractions() {
+            console.log('🎮 Testing interactions...');
+            
+            try {
+                const iframe = document.getElementById('main-frame');
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Test navigation
+                const navTabs = doc.querySelectorAll('.nav-tab');
+                const workingTabs = Array.from(navTabs).filter(tab => {
+                    return tab.onclick || tab.getAttribute('onclick');
+                });
+                
+                updateStatus('nav-status', workingTabs.length === navTabs.length ? 'pass' : 'fail');
+                if (workingTabs.length !== navTabs.length) {
+                    addIssue(`Navigation: ${workingTabs.length}/${navTabs.length} tabs working`);
+                }
+                
+                // Test buttons
+                const buttons = doc.querySelectorAll('button');
+                const responsiveButtons = Array.from(buttons).filter(btn => {
+                    const style = doc.defaultView.getComputedStyle(btn);
+                    return style.pointerEvents !== 'none';
+                });
+                
+                updateStatus('button-status', responsiveButtons.length === buttons.length ? 'pass' : 'fail');
+                if (responsiveButtons.length !== buttons.length) {
+                    addIssue(`Buttons: ${responsiveButtons.length}/${buttons.length} responsive`);
+                }
+                
+                // Test resize handles
+                const resizeHandles = doc.querySelectorAll('.resize-handle, .resize-handle-bl');
+                let workingHandles = 0;
+                
+                resizeHandles.forEach(handle => {
+                    if (handle.onmousedown || handle.getAttribute('onmousedown')) {
+                        workingHandles++;
+                    }
+                });
+                
+                updateStatus('resize-status', workingHandles > 0 ? 'pass' : 'fail');
+                if (workingHandles === 0) {
+                    addIssue('Resize handles: No working handles found', 'error');
+                }
+                
+                // Test form controls
+                const selects = doc.querySelectorAll('select');
+                const selectsWithId = Array.from(selects).filter(s => s.id || s.name);
+                
+                updateStatus('form-status', selectsWithId.length === selects.length ? 'pass' : 'warn');
+                if (selectsWithId.length !== selects.length) {
+                    addIssue(`Form controls: ${selectsWithId.length}/${selects.length} have proper IDs`);
+                }
+                
+                console.log(`🎮 Interaction Analysis: ${workingTabs.length}/${navTabs.length} nav, ${responsiveButtons.length}/${buttons.length} buttons, ${workingHandles}/${resizeHandles.length} resize`);
+                
+            } catch (error) {
+                console.error('Interaction test failed:', error);
+                addIssue(`Interaction test error: ${error.message}`, 'error');
+            }
+        }
+
+        function analyzeIssues() {
+            console.log('🔍 Analyzing potential issues...');
+            
+            try {
+                const iframe = document.getElementById('main-frame');
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                const win = iframe.contentWindow;
+                
+                // Check for JavaScript errors in console output
+                if (testState.consoleOutput.includes('[ERROR]')) {
+                    addIssue('JavaScript errors detected in console', 'error');
+                }
+                
+                // Check for missing functions
+                const requiredFunctions = ['loadPageCards', 'switchTab', 'directFixSwitchToPage'];
+                requiredFunctions.forEach(funcName => {
+                    if (!win[funcName]) {
+                        addIssue(`Missing function: ${funcName}`, 'error');
+                    }
+                });
+                
+                // Check for proper header stacking
+                const primaryHeader = doc.querySelector('.header');
+                const secondaryHeader = doc.querySelector('.nav-container');
+                
+                if (primaryHeader && secondaryHeader) {
+                    const primaryRect = primaryHeader.getBoundingClientRect();
+                    const secondaryRect = secondaryHeader.getBoundingClientRect();
+                    
+                    if (secondaryRect.top <= primaryRect.bottom) {
+                        addIssue('Headers may be overlapping or improperly positioned');
+                    }
+                }
+                
+                // Check component distribution
+                const cards = doc.querySelectorAll('[data-component-type="card"]');
+                const widgets = doc.querySelectorAll('[data-component-type="widget"]');
+                const panels = doc.querySelectorAll('[data-component-type="panel"]');
+                
+                if (widgets.length === 0) {
+                    addIssue('No widgets detected - may need component classification', 'warning');
+                }
+                
+                console.log('🔍 Issue analysis complete');
+                
+            } catch (error) {
+                addIssue(`Issue analysis failed: ${error.message}`, 'error');
+            }
+        }
+
+        function showLoadingOverlay() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+        }
+
+        function hideLoadingOverlay() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+        }
+
+        function reloadTest() {
+            // Reset all statuses
+            ['primary-status', 'secondary-status', 'card-status', 'widget-status', 'panel-status',
+             'nav-status', 'button-status', 'resize-status', 'form-status'].forEach(id => {
+                updateStatus(id, 'pending');
+            });
+            
+            // Clear issues
+            testState.issues = [];
+            updateIssuesList();
+            
+            // Clear console
+            testState.consoleOutput = '';
+            updateConsoleDisplay();
+            
+            // Reload frame
+            const iframe = document.getElementById('main-frame');
+            iframe.src = 'about:blank';
+            setTimeout(() => {
+                iframe.src = 'main.html';
+            }, 500);
+        }
+
+        // Initialize
+        console.log('🧪 Comprehensive test suite ready');
+        console.log('📋 Instructions:');
+        console.log('  1. Click "Run Full Test" for automated testing');
+        console.log('  2. Watch status indicators turn green/red');
+        console.log('  3. Check issues panel for specific problems');
+        console.log('  4. Review console output for detailed logs');
+        
+        // Auto-load for immediate testing
+        setTimeout(() => {
+            document.getElementById('main-frame').src = 'main.html';
+        }, 1000);
+    </script>
+</body>
+</html>

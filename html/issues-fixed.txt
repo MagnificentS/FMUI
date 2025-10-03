@@ -1,0 +1,45 @@
+ISSUES FIXED - 2025-08-15
+========================
+
+1. PAGE NAVIGATION ERRORS
+   Issue: "Page element not found: overview-page" errors when clicking tabs
+   Cause: Timing issues with DOM initialization and multiple switchTab wrappers
+   Fix: 
+   - Made switchTab globally available immediately
+   - Added DOM readiness checks before initialization
+   - Added error checking in switchTab to verify page exists
+
+2. DUPLICATE CARD LOADING
+   Issue: CardEnhancerV2 was duplicating card loading already done by main.html
+   Cause: Both main.html and CardEnhancerV2 were trying to manage cards
+   Fix:
+   - Removed duplicate card loading from CardEnhancerV2
+   - Removed unnecessary switchTab wrapping in CardEnhancerV2
+   - main.html now exclusively handles card loading via CardRegistry
+
+3. ALL SCREENS SHOWING SAME CONTENT
+   Issue: Every page displayed identical cards
+   Cause: Hard-coded getCardsForPage function wasn't using CardRegistry
+   Fix:
+   - Integrated CardRegistry.getCardsForPage() into main.html
+   - Added proper card size mapping for different card types
+   - Each page now shows its registered cards correctly
+
+4. CARD SIZE MAPPING
+   Issue: Cards weren't displaying with correct sizes
+   Cause: Missing size mapping from card definitions to grid dimensions
+   Fix:
+   - Added switch statement to map card sizes (wide, tall, compact, etc.)
+   - Cards now render with appropriate grid dimensions
+
+5. COMPONENT INITIALIZATION
+   Issue: Utils component was expected but FMUtils was loaded
+   Cause: Name mismatch in QA test expectations
+   Fix: Updated test to look for FMUtils instead of Utils
+
+CURRENT STATE:
+- All 7 pages have unique card combinations
+- 15 unique card types distributed across pages
+- No duplicate page layouts
+- CardRegistry properly filters cards by page
+- Navigation works without errors

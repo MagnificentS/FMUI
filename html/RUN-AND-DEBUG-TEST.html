@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>🔍 Run and Debug Test - Live Testing</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0b0d;
+            color: #e4e6eb;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .debug-header {
+            background: #1a1d24;
+            padding: 10px 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .debug-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .debug-btn {
+            padding: 6px 12px;
+            background: #0077a3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .debug-btn:hover {
+            background: #0094cc;
+        }
+        
+        .debug-btn.danger {
+            background: #ff4757;
+        }
+        
+        .debug-btn.success {
+            background: #00ff88;
+            color: #000;
+        }
+        
+        .debug-status {
+            font-size: 12px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+        }
+        
+        .status-indicator.good { background: #00ff88; }
+        .status-indicator.bad { background: #ff4757; }
+        .status-indicator.pending { background: #ffa502; }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .debug-panel {
+            width: 300px;
+            background: #12141a;
+            border-right: 1px solid #333;
+            padding: 15px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        
+        .test-frame-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        .test-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .debug-section {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 5px;
+            border-left: 3px solid #0077a3;
+        }
+        
+        .debug-section h4 {
+            margin: 0 0 8px 0;
+            color: #0094cc;
+            font-size: 13px;
+        }
+        
+        .debug-list {
+            font-size: 11px;
+            line-height: 1.4;
+        }
+        
+        .debug-list li {
+            margin: 3px 0;
+            list-style: none;
+            padding-left: 15px;
+            position: relative;
+        }
+        
+        .debug-list li.good::before {
+            content: '✅';
+            position: absolute;
+            left: 0;
+        }
+        
+        .debug-list li.bad::before {
+            content: '❌';
+            position: absolute;
+            left: 0;
+        }
+        
+        .debug-list li.pending::before {
+            content: '⏳';
+            position: absolute;
+            left: 0;
+        }
+        
+        .console-output {
+            background: #000;
+            color: #00ff88;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .frame-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff88;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1000;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-header">
+        <h1 style="margin: 0; font-size: 16px;">🔍 Live Debug Test - Unified Header System</h1>
+        
+        <div class="debug-status">
+            <div class="status-item">
+                <div class="status-indicator pending" id="load-status"></div>
+                <span>Page Load</span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator pending" id="header-status"></div>
+                <span>Unified Header</span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator pending" id="nav-status"></div>
+                <span>Navigation</span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator pending" id="cards-status"></div>
+                <span>Card Overlays</span>
+            </div>
+        </div>
+        
+        <div class="debug-controls">
+            <button class="debug-btn success" onclick="loadAndTest()">▶️ Load & Test</button>
+            <button class="debug-btn" onclick="runDetailedTest()">🔬 Detailed Test</button>
+            <button class="debug-btn" onclick="testInteractions()">🎮 Test Interactions</button>
+            <button class="debug-btn danger" onclick="reloadFrame()">🔄 Reload</button>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="debug-panel">
+            <div class="debug-section">
+                <h4>📊 Real-Time Status</h4>
+                <ul class="debug-list" id="status-list">
+                    <li class="pending">Waiting for test to start...</li>
+                </ul>
+            </div>
+            
+            <div class="debug-section">
+                <h4>🔍 Header Analysis</h4>
+                <ul class="debug-list" id="header-analysis">
+                    <li class="pending">Analysis pending...</li>
+                </ul>
+            </div>
+            
+            <div class="debug-section">
+                <h4>🎮 Interaction Tests</h4>
+                <ul class="debug-list" id="interaction-tests">
+                    <li class="pending">Tests pending...</li>
+                </ul>
+            </div>
+            
+            <div class="debug-section">
+                <h4>🖥️ Console Output</h4>
+                <div class="console-output" id="console-output">Console output will appear here...</div>
+            </div>
+        </div>
+        
+        <div class="test-frame-container">
+            <div class="frame-overlay" id="frame-status">Loading...</div>
+            <iframe class="test-frame" id="main-frame" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <script>
+        let consoleCapture = '';
+        let testResults = {
+            pageLoaded: false,
+            headersAnalyzed: false,
+            navigationTested: false,
+            interactionsTested: false
+        };
+
+        // Capture console output from iframe
+        function setupConsoleCapture(iframe) {
+            try {
+                const iframeWindow = iframe.contentWindow;
+                
+                ['log', 'warn', 'error', 'info'].forEach(method => {
+                    const original = iframeWindow.console[method];
+                    iframeWindow.console[method] = function(...args) {
+                        consoleCapture += `[${method.toUpperCase()}] ${args.join(' ')}\n`;
+                        updateConsoleDisplay();
+                        return original.apply(iframeWindow.console, args);
+                    };
+                });
+                
+            } catch (error) {
+                console.log('Could not capture iframe console:', error.message);
+            }
+        }
+
+        function updateConsoleDisplay() {
+            const output = document.getElementById('console-output');
+            output.textContent = consoleCapture;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function updateStatus(elementId, status) {
+            const indicator = document.getElementById(elementId);
+            indicator.className = `status-indicator ${status}`;
+        }
+
+        function addStatusMessage(listId, message, status = 'good') {
+            const list = document.getElementById(listId);
+            const li = document.createElement('li');
+            li.className = status;
+            li.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            list.appendChild(li);
+            list.scrollTop = list.scrollHeight;
+        }
+
+        function loadAndTest() {
+            console.log('🚀 Starting load and test sequence...');
+            
+            addStatusMessage('status-list', 'Starting load and test sequence...', 'pending');
+            
+            const iframe = document.getElementById('main-frame');
+            const frameStatus = document.getElementById('frame-status');
+            
+            // Load the main page
+            frameStatus.textContent = 'Loading main.html...';
+            iframe.src = 'main.html';
+            
+            iframe.onload = function() {
+                testResults.pageLoaded = true;
+                updateStatus('load-status', 'good');
+                addStatusMessage('status-list', 'Page loaded successfully');
+                frameStatus.textContent = 'Page loaded - Running tests...';
+                
+                // Setup console capture
+                setupConsoleCapture(iframe);
+                
+                // Wait for scripts to execute, then test
+                setTimeout(() => {
+                    runHeaderAnalysis();
+                }, 3000);
+                
+                setTimeout(() => {
+                    testNavigationSystem();
+                }, 5000);
+                
+                setTimeout(() => {
+                    testCardSystem();
+                }, 7000);
+            };
+            
+            iframe.onerror = function() {
+                updateStatus('load-status', 'bad');
+                addStatusMessage('status-list', 'Failed to load main.html', 'bad');
+                frameStatus.textContent = 'Load failed!';
+            };
+        }
+
+        function runHeaderAnalysis() {
+            console.log('📋 Running header analysis...');
+            
+            try {
+                const iframe = document.getElementById('main-frame');
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Count different types of headers
+                const mainHeaders = doc.querySelectorAll('.header');
+                const cardHeaders = doc.querySelectorAll('.card-header');
+                const unifiedHeaders = doc.querySelectorAll('.unified-header');
+                const navContainers = doc.querySelectorAll('.nav-container');
+                
+                addStatusMessage('header-analysis', `Found ${mainHeaders.length} main headers`);
+                addStatusMessage('header-analysis', `Found ${cardHeaders.length} card headers`);
+                addStatusMessage('header-analysis', `Found ${unifiedHeaders.length} unified headers`);
+                addStatusMessage('header-analysis', `Found ${navContainers.length} nav containers`);
+                
+                // Check visibility
+                let hiddenMainHeaders = 0;
+                let hiddenCardHeaders = 0;
+                let hiddenNavContainers = 0;
+                
+                mainHeaders.forEach(header => {
+                    const style = doc.defaultView.getComputedStyle(header);
+                    if (style.display === 'none') hiddenMainHeaders++;
+                });
+                
+                cardHeaders.forEach(header => {
+                    const style = doc.defaultView.getComputedStyle(header);
+                    if (style.display === 'none') hiddenCardHeaders++;
+                });
+                
+                navContainers.forEach(nav => {
+                    const style = doc.defaultView.getComputedStyle(nav);
+                    if (style.display === 'none') hiddenNavContainers++;
+                });
+                
+                addStatusMessage('header-analysis', `Hidden main headers: ${hiddenMainHeaders}/${mainHeaders.length}`, 
+                    hiddenMainHeaders === mainHeaders.length ? 'good' : 'bad');
+                addStatusMessage('header-analysis', `Hidden card headers: ${hiddenCardHeaders}/${cardHeaders.length}`, 
+                    hiddenCardHeaders === cardHeaders.length ? 'good' : 'bad');
+                addStatusMessage('header-analysis', `Hidden nav containers: ${hiddenNavContainers}/${navContainers.length}`, 
+                    hiddenNavContainers === navContainers.length ? 'good' : 'bad');
+                
+                // Check unified header
+                if (unifiedHeaders.length === 1) {
+                    updateStatus('header-status', 'good');
+                    addStatusMessage('header-analysis', 'Unified header created successfully', 'good');
+                    
+                    // Test unified header structure
+                    const unifiedHeader = unifiedHeaders[0];
+                    const navItems = unifiedHeader.querySelectorAll('.nav-item');
+                    addStatusMessage('header-analysis', `Unified header has ${navItems.length} nav items`);
+                    
+                } else if (unifiedHeaders.length === 0) {
+                    updateStatus('header-status', 'bad');
+                    addStatusMessage('header-analysis', 'No unified header found!', 'bad');
+                } else {
+                    updateStatus('header-status', 'bad');
+                    addStatusMessage('header-analysis', `Multiple unified headers found: ${unifiedHeaders.length}`, 'bad');
+                }
+                
+                testResults.headersAnalyzed = true;
+                
+            } catch (error) {
+                updateStatus('header-status', 'bad');
+                addStatusMessage('header-analysis', `Analysis failed: ${error.message}`, 'bad');
+                console.error('Header analysis error:', error);
+            }
+        }
+
+        function testNavigationSystem() {
+            console.log('🧭 Testing navigation system...');
+            
+            try {
+                const iframe = document.getElementById('main-frame');
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                const win = iframe.contentWindow;
+                
+                // Find navigation items
+                const navItems = doc.querySelectorAll('.unified-nav .nav-item');
+                addStatusMessage('interaction-tests', `Found ${navItems.length} nav items in unified header`);
+                
+                if (navItems.length > 0) {
+                    // Test clicking the first nav item
+                    const firstNav = navItems[0];
+                    const originalBg = firstNav.style.backgroundColor;
+                    
+                    addStatusMessage('interaction-tests', `Testing click on "${firstNav.textContent}"...`, 'pending');
+                    
+                    // Simulate click
+                    firstNav.style.backgroundColor = 'lime';
+                    firstNav.click();
+                    
+                    setTimeout(() => {
+                        firstNav.style.backgroundColor = originalBg;
+                        addStatusMessage('interaction-tests', 'Navigation click test completed', 'good');
+                        updateStatus('nav-status', 'good');
+                    }, 1000);
+                    
+                    testResults.navigationTested = true;
+                } else {
+                    updateStatus('nav-status', 'bad');
+                    addStatusMessage('interaction-tests', 'No navigation items found in unified header', 'bad');
+                }
+                
+            } catch (error) {
+                updateStatus('nav-status', 'bad');
+                addStatusMessage('interaction-tests', `Navigation test failed: ${error.message}`, 'bad');
+                console.error('Navigation test error:', error);
+            }
+        }
+
+        function testCardSystem() {
+            console.log('🎴 Testing card system...');
+            
+            try {
+                const iframe = document.getElementById('main-frame');
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Find cards
+                const cards = doc.querySelectorAll('.card');
+                addStatusMessage('interaction-tests', `Found ${cards.length} cards to test`);
+                
+                if (cards.length > 0) {
+                    let cardsWithOverlays = 0;
+                    let workingOverlays = 0;
+                    
+                    cards.forEach((card, index) => {
+                        const overlay = card.querySelector('.card-overlay');
+                        if (overlay) {
+                            cardsWithOverlays++;
+                            
+                            // Test overlay functionality
+                            const expandBtn = overlay.querySelector('[data-action="expand"]');
+                            const menuBtn = overlay.querySelector('[data-action="menu"]');
+                            
+                            if (expandBtn && menuBtn) {
+                                workingOverlays++;
+                            }
+                        }
+                    });
+                    
+                    addStatusMessage('interaction-tests', `Cards with overlays: ${cardsWithOverlays}/${cards.length}`, 
+                        cardsWithOverlays > 0 ? 'good' : 'bad');
+                    addStatusMessage('interaction-tests', `Working overlays: ${workingOverlays}/${cardsWithOverlays}`, 
+                        workingOverlays === cardsWithOverlays ? 'good' : 'bad');
+                    
+                    if (cardsWithOverlays > 0) {
+                        updateStatus('cards-status', 'good');
+                        
+                        // Test hover effect on first card
+                        const firstCard = cards[0];
+                        addStatusMessage('interaction-tests', 'Testing card hover effect...', 'pending');
+                        
+                        firstCard.style.border = '2px solid lime';
+                        
+                        setTimeout(() => {
+                            firstCard.style.border = '';
+                            addStatusMessage('interaction-tests', 'Card hover test completed', 'good');
+                        }, 1000);
+                        
+                    } else {
+                        updateStatus('cards-status', 'bad');
+                    }
+                    
+                    testResults.interactionsTested = true;
+                } else {
+                    updateStatus('cards-status', 'bad');
+                    addStatusMessage('interaction-tests', 'No cards found to test', 'bad');
+                }
+                
+            } catch (error) {
+                updateStatus('cards-status', 'bad');
+                addStatusMessage('interaction-tests', `Card test failed: ${error.message}`, 'bad');
+                console.error('Card test error:', error);
+            }
+        }
+
+        function runDetailedTest() {
+            console.log('🔬 Running detailed analysis...');
+            
+            const iframe = document.getElementById('main-frame');
+            
+            if (!iframe.src || iframe.src === 'about:blank') {
+                addStatusMessage('status-list', 'Load main.html first!', 'bad');
+                return;
+            }
+            
+            try {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                const win = iframe.contentWindow;
+                
+                // Test if our debug functions are available
+                if (win.debugUnifiedHeader) {
+                    addStatusMessage('status-list', 'Debug functions found, running tests...', 'good');
+                    win.debugUnifiedHeader.run();
+                } else {
+                    addStatusMessage('status-list', 'Debug functions not found', 'bad');
+                }
+                
+                // Test if unified header system is available
+                if (win.UnifiedHeaderSystemFixed) {
+                    addStatusMessage('status-list', 'UnifiedHeaderSystemFixed available', 'good');
+                    
+                    const isEnabled = win.UnifiedHeaderSystemFixed.isEnabled();
+                    addStatusMessage('status-list', `Unified header enabled: ${isEnabled}`, isEnabled ? 'good' : 'bad');
+                    
+                } else {
+                    addStatusMessage('status-list', 'UnifiedHeaderSystemFixed not available', 'bad');
+                }
+                
+            } catch (error) {
+                addStatusMessage('status-list', `Detailed test failed: ${error.message}`, 'bad');
+                console.error('Detailed test error:', error);
+            }
+        }
+
+        function testInteractions() {
+            console.log('🎮 Testing user interactions...');
+            
+            const iframe = document.getElementById('main-frame');
+            
+            if (!iframe.src || iframe.src === 'about:blank') {
+                addStatusMessage('interaction-tests', 'Load main.html first!', 'bad');
+                return;
+            }
+            
+            try {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Test 1: Click a navigation item
+                const navItems = doc.querySelectorAll('.unified-nav .nav-item');
+                if (navItems.length > 1) {
+                    addStatusMessage('interaction-tests', 'Testing navigation click...', 'pending');
+                    navItems[1].click(); // Click second nav item
+                    
+                    setTimeout(() => {
+                        const isActive = navItems[1].classList.contains('active');
+                        addStatusMessage('interaction-tests', `Nav click result: ${isActive ? 'Success' : 'Failed'}`, 
+                            isActive ? 'good' : 'bad');
+                    }, 500);
+                }
+                
+                // Test 2: Hover over a card
+                const cards = doc.querySelectorAll('.card');
+                if (cards.length > 0) {
+                    addStatusMessage('interaction-tests', 'Testing card hover...', 'pending');
+                    
+                    const firstCard = cards[0];
+                    const mouseEnter = new doc.defaultView.MouseEvent('mouseenter', { bubbles: true });
+                    firstCard.dispatchEvent(mouseEnter);
+                    
+                    setTimeout(() => {
+                        const overlay = firstCard.querySelector('.card-overlay');
+                        if (overlay) {
+                            const style = doc.defaultView.getComputedStyle(overlay);
+                            const isVisible = parseFloat(style.opacity) > 0;
+                            addStatusMessage('interaction-tests', `Card overlay visible on hover: ${isVisible}`, 
+                                isVisible ? 'good' : 'bad');
+                        } else {
+                            addStatusMessage('interaction-tests', 'No card overlay found', 'bad');
+                        }
+                    }, 300);
+                }
+                
+                // Test 3: Check for JavaScript errors
+                setTimeout(() => {
+                    const hasErrors = consoleCapture.includes('[ERROR]');
+                    addStatusMessage('interaction-tests', `JavaScript errors: ${hasErrors ? 'Found' : 'None'}`, 
+                        hasErrors ? 'bad' : 'good');
+                    
+                    // Final assessment
+                    const overallSuccess = testResults.pageLoaded && 
+                                         !hasErrors && 
+                                         navItems.length > 0 && 
+                                         cards.length > 0;
+                    
+                    addStatusMessage('status-list', 
+                        overallSuccess ? '🎉 Overall test: SUCCESS' : '⚠️ Overall test: ISSUES FOUND', 
+                        overallSuccess ? 'good' : 'bad');
+                }, 2000);
+                
+            } catch (error) {
+                addStatusMessage('interaction-tests', `Interaction test failed: ${error.message}`, 'bad');
+                console.error('Interaction test error:', error);
+            }
+        }
+
+        function reloadFrame() {
+            const iframe = document.getElementById('main-frame');
+            iframe.src = 'about:blank';
+            
+            // Reset status
+            ['load-status', 'header-status', 'nav-status', 'cards-status'].forEach(id => {
+                updateStatus(id, 'pending');
+            });
+            
+            // Clear lists
+            ['status-list', 'header-analysis', 'interaction-tests'].forEach(id => {
+                document.getElementById(id).innerHTML = '<li class="pending">Waiting for reload...</li>';
+            });
+            
+            // Clear console
+            consoleCapture = '';
+            updateConsoleDisplay();
+            
+            setTimeout(() => {
+                iframe.src = 'main.html';
+            }, 500);
+        }
+
+        // Initialize
+        console.log('🧪 Debug environment ready');
+        console.log('📝 Instructions:');
+        console.log('  1. Click "Load & Test" to start');
+        console.log('  2. Watch the status indicators');
+        console.log('  3. Check console output for detailed info');
+        console.log('  4. Use "Test Interactions" for manual testing');
+    </script>
+</body>
+</html>

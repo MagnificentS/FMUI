@@ -1,0 +1,188 @@
+{
+  "timestamp": "2025-08-15T16:45:11.770Z",
+  "version": "1.0.0",
+  "metrics": {
+    "initTime": 0.5,
+    "memoryUsage": 9.5367431640625,
+    "fps": 60,
+    "componentsLoaded": 15
+  },
+  "browser": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "language": "en-US",
+    "platform": "Win32"
+  },
+  "logEntries": [
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "INFO",
+      "message": "Starting initial component availability tests..."
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component AppConfig loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "ERROR",
+      "message": "Component Utils failed to load"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component StateManager loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component DataPipeline loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component DataBinding loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component LayoutManager loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component ResponsiveSystem loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component AnimationController loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component CardRegistry loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component CardManager loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "ERROR",
+      "message": "Component CardEnhancer failed to load"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component AttributeCircle loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component BarChart loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component PizzaChart loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component ScreenRouter loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component PlayerProfile loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Component ComparisonTool loaded successfully"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "FM-Base initialized in 0.50ms"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "INFO",
+      "message": "Running post-initialization tests..."
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "ERROR",
+      "message": "Functionality test State Management: FAIL"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Functionality test Card Registry: PASS"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "ERROR",
+      "message": "Functionality test Layout System: FAIL"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "ERROR",
+      "message": "Functionality test Animation System: FAIL"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Functionality test CSS Grid Support: PASS"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Functionality test Local Storage: PASS"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Compatibility test ES6 Support: SUPPORTED"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Compatibility test Fetch API: SUPPORTED"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Compatibility test Promise Support: SUPPORTED"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Compatibility test Intersection Observer: SUPPORTED"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Compatibility test Performance API: SUPPORTED"
+    },
+    {
+      "timestamp": "10:45:05 AM",
+      "type": "SUCCESS",
+      "message": "Compatibility test CSS Custom Properties: SUPPORTED"
+    },
+    {
+      "timestamp": "10:45:06 AM",
+      "type": "ERROR",
+      "message": "Quality Assurance: FAILED - 2 critical component failures"
+    }
+  ],
+  "summary": {
+    "totalTests": 14,
+    "passed": 25,
+    "failed": 6,
+    "warnings": 0
+  }
+}

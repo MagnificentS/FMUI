@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page Cards</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #0a0b0d;
+            color: #e4e6eb;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #12141a;
+            border-radius: 8px;
+        }
+        .page-title {
+            color: #0094cc;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .card-list {
+            margin-left: 20px;
+        }
+        .card-item {
+            margin: 5px 0;
+            color: #00ff88;
+        }
+        .error {
+            color: #ff4747;
+        }
+        .success {
+            color: #00ff88;
+        }
+    </style>
+</head>
+<body>
+    <h1>Page Cards Test</h1>
+    <div id="test-results"></div>
+
+    <!-- Load FM-Base components -->
+    <script src="config/app-config.js"></script>
+    <script src="core/utils/utils.js"></script>
+    <script src="core/data/state-manager.js"></script>
+    <script src="core/data/data-pipeline.js"></script>
+    <script src="core/data/data-binding.js"></script>
+    <script src="components/layout/layout-manager.js"></script>
+    <script src="components/layout/responsive-system.js"></script>
+    <script src="components/animations/animation-controller.js"></script>
+    <script src="components/cards/card-registry.js"></script>
+    <script src="components/cards/card-manager.js"></script>
+    <script src="components/cards/card-enhancer-v2.js"></script>
+    
+    <!-- Load all card modules -->
+    <script src="components/cards/modules/player-detail-card.js"></script>
+    <script src="components/cards/modules/squad-summary-card.js"></script>
+    <script src="components/cards/modules/tactical-overview-card.js"></script>
+    <script src="components/cards/modules/performance-dashboard-card.js"></script>
+    <script src="components/cards/modules/upcoming-fixtures-card.js"></script>
+    <script src="components/cards/modules/training-schedule-card.js"></script>
+    <script src="components/cards/modules/transfer-targets-card.js"></script>
+    <script src="components/cards/modules/financial-overview-card.js"></script>
+    <script src="components/cards/modules/league-table-card.js"></script>
+    <script src="components/cards/modules/player-list-card.js"></script>
+    <script src="components/cards/modules/tactical-shape-card.js"></script>
+    <script src="components/cards/modules/team-analysis-card.js"></script>
+    <script src="components/cards/modules/transfer-budget-card.js"></script>
+    <script src="components/cards/modules/match-preview-card.js"></script>
+    <script src="components/cards/modules/injury-report-card.js"></script>
+
+    <script>
+        function testPageCards() {
+            const results = document.getElementById('test-results');
+            const pages = ['overview', 'squad', 'tactics', 'training', 'transfers', 'finances', 'fixtures'];
+            
+            // Wait for CardRegistry to be ready
+            setTimeout(() => {
+                if (!window.CardRegistry) {
+                    results.innerHTML = '<div class="error">CardRegistry not loaded!</div>';
+                    return;
+                }
+                
+                let html = '';
+                let allCardsCount = 0;
+                let uniquePages = new Set();
+                
+                // Test each page
+                pages.forEach(page => {
+                    const cards = window.CardRegistry.getCardsForPage(page);
+                    allCardsCount += cards.length;
+                    
+                    html += `<div class="test-section">`;
+                    html += `<div class="page-title">Page: ${page}</div>`;
+                    
+                    if (cards.length > 0) {
+                        html += `<div class="card-list">`;
+                        cards.forEach(card => {
+                            html += `<div class="card-item">✓ ${card.id} - ${card.title}</div>`;
+                            uniquePages.add(page);
+                        });
+                        html += `</div>`;
+                    } else {
+                        html += `<div class="error">No cards found for this page!</div>`;
+                    }
+                    
+                    html += `</div>`;
+                });
+                
+                // Summary
+                html += `<div class="test-section">`;
+                html += `<div class="page-title">Summary</div>`;
+                html += `<div class="success">Total registered cards: ${window.CardRegistry.cards.size}</div>`;
+                html += `<div class="success">Pages with cards: ${uniquePages.size}/${pages.length}</div>`;
+                html += `<div class="success">Total card assignments: ${allCardsCount}</div>`;
+                
+                // Check for duplicates
+                const cardsByPage = {};
+                pages.forEach(page => {
+                    const cards = window.CardRegistry.getCardsForPage(page);
+                    cardsByPage[page] = cards.map(c => c.id).sort().join(',');
+                });
+                
+                let hasDuplicates = false;
+                for (let i = 0; i < pages.length - 1; i++) {
+                    for (let j = i + 1; j < pages.length; j++) {
+                        if (cardsByPage[pages[i]] === cardsByPage[pages[j]] && cardsByPage[pages[i]] !== '') {
+                            html += `<div class="error">WARNING: ${pages[i]} and ${pages[j]} have identical cards!</div>`;
+                            hasDuplicates = true;
+                        }
+                    }
+                }
+                
+                if (!hasDuplicates) {
+                    html += `<div class="success">✓ Each page has unique card combinations</div>`;
+                }
+                
+                html += `</div>`;
+                
+                results.innerHTML = html;
+            }, 1000);
+        }
+        
+        // Run test when page loads
+        document.addEventListener('DOMContentLoaded', testPageCards);
+    </script>
+</body>
+</html>

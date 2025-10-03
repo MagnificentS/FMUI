@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FM-Base Initialization Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', monospace;
+            background: #0a0b0d;
+            color: #e4e6eb;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .test-header {
+            background: linear-gradient(135deg, #0094cc 0%, #00ff88 100%);
+            color: black;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .test-card {
+            background: #12141a;
+            border: 1px solid #22262f;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .test-card h3 {
+            color: #0094cc;
+            margin-top: 0;
+        }
+        
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #22262f33;
+        }
+        
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status.pass { background: #00ff8833; color: #00ff88; }
+        .status.fail { background: #ff474733; color: #ff4747; }
+        .status.warning { background: #ffb80033; color: #ffb800; }
+        .status.pending { background: #6c757d33; color: #6c757d; }
+        
+        .timeline {
+            background: #000;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .timeline-entry {
+            margin: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .timeline-entry:before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #0094cc;
+        }
+        
+        .timeline-entry.error { color: #ff4747; }
+        .timeline-entry.success { color: #00ff88; }
+        .timeline-entry.warning { color: #ffb800; }
+        
+        .summary {
+            background: linear-gradient(135deg, #12141a 0%, #1a1d24 100%);
+            border: 2px solid #0094cc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .summary h2 {
+            color: #00ff88;
+            margin-top: 0;
+        }
+        
+        .metrics {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        
+        .metric {
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #0094cc;
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-header">
+        <h1>🎮 FM-Base Initialization Test Suite</h1>
+        <p>Comprehensive validation of initialization order and component integration</p>
+    </div>
+
+    <div class="test-grid">
+        <!-- Initialization Order Test -->
+        <div class="test-card">
+            <h3>📋 Initialization Order</h3>
+            <div id="init-order-tests"></div>
+        </div>
+
+        <!-- Component Loading Test -->
+        <div class="test-card">
+            <h3>🔧 Component Loading</h3>
+            <div id="component-tests"></div>
+        </div>
+
+        <!-- DOM Elements Test -->
+        <div class="test-card">
+            <h3>📄 DOM Elements</h3>
+            <div id="dom-tests"></div>
+        </div>
+
+        <!-- Navigation Test -->
+        <div class="test-card">
+            <h3>🧭 Navigation System</h3>
+            <div id="navigation-tests"></div>
+        </div>
+
+        <!-- Card System Test -->
+        <div class="test-card">
+            <h3>🎴 Card System</h3>
+            <div id="card-tests"></div>
+        </div>
+
+        <!-- Integration Test -->
+        <div class="test-card">
+            <h3>🔗 Integration Points</h3>
+            <div id="integration-tests"></div>
+        </div>
+    </div>
+
+    <div class="test-card" style="margin-top: 20px;">
+        <h3>📊 Initialization Timeline</h3>
+        <div class="timeline" id="timeline"></div>
+    </div>
+
+    <div class="summary" id="summary">
+        <h2>Test Results Loading...</h2>
+        <div class="metrics">
+            <div class="metric">
+                <div class="metric-value" id="total-tests">0</div>
+                <div class="metric-label">Total Tests</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="passed-tests">0</div>
+                <div class="metric-label">Passed</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="failed-tests">0</div>
+                <div class="metric-label">Failed</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="init-time">--</div>
+                <div class="metric-label">Init Time (ms)</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class InitializationTester {
+            constructor() {
+                this.timeline = [];
+                this.tests = {
+                    total: 0,
+                    passed: 0,
+                    failed: 0
+                };
+                this.startTime = performance.now();
+            }
+
+            log(message, type = 'info') {
+                const timestamp = (performance.now() - this.startTime).toFixed(2);
+                this.timeline.push({ timestamp, message, type });
+                this.updateTimeline();
+            }
+
+            updateTimeline() {
+                const container = document.getElementById('timeline');
+                if (!container) return;
+                
+                container.innerHTML = this.timeline.map(entry => 
+                    `<div class="timeline-entry ${entry.type}">[${entry.timestamp}ms] ${entry.message}</div>`
+                ).join('');
+                container.scrollTop = container.scrollHeight;
+            }
+
+            runTest(name, testFn, container) {
+                this.tests.total++;
+                let status = 'pending';
+                let result = false;
+                
+                try {
+                    result = testFn();
+                    status = result ? 'pass' : 'fail';
+                    if (result) {
+                        this.tests.passed++;
+                    } else {
+                        this.tests.failed++;
+                    }
+                } catch (e) {
+                    status = 'fail';
+                    this.tests.failed++;
+                    this.log(`Test "${name}" threw error: ${e.message}`, 'error');
+                }
+                
+                this.addTestResult(container, name, status);
+                return result;
+            }
+
+            addTestResult(containerId, name, status) {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+                
+                const item = document.createElement('div');
+                item.className = 'test-item';
+                item.innerHTML = `
+                    <span>${name}</span>
+                    <span class="status ${status}">${status.toUpperCase()}</span>
+                `;
+                container.appendChild(item);
+            }
+
+            async runAllTests() {
+                this.log('Starting initialization tests...', 'info');
+                
+                // Test 1: Check initialization order
+                this.log('Testing initialization order...', 'info');
+                this.runTest('HTML DOM Ready', () => document.readyState !== 'loading', 'init-order-tests');
+                this.runTest('Main Script Loaded', () => typeof window.initializeMainUI === 'function', 'init-order-tests');
+                this.runTest('Switch Tab Available', () => typeof window.switchTab === 'function', 'init-order-tests');
+                this.runTest('Setup Enhancement Available', () => typeof window.setupSwitchTabEnhancement === 'function', 'init-order-tests');
+                
+                // Test 2: Component Loading
+                this.log('Testing component loading...', 'info');
+                this.runTest('AppConfig', () => window.AppConfig !== undefined, 'component-tests');
+                this.runTest('CardRegistry', () => window.CardRegistry !== undefined, 'component-tests');
+                this.runTest('StateManager', () => window.StateManager !== undefined, 'component-tests');
+                this.runTest('LayoutManager', () => window.LayoutManager !== undefined, 'component-tests');
+                this.runTest('AnimationController', () => window.AnimationController !== undefined, 'component-tests');
+                
+                // Test 3: DOM Elements
+                this.log('Testing DOM elements...', 'info');
+                const pages = ['overview', 'squad', 'tactics', 'training', 'transfers', 'finances', 'fixtures'];
+                pages.forEach(page => {
+                    this.runTest(`${page}-page exists`, () => document.getElementById(`${page}-page`) !== null, 'dom-tests');
+                });
+                
+                // Test 4: Navigation System
+                this.log('Testing navigation system...', 'info');
+                this.runTest('Nav tabs exist', () => document.querySelectorAll('.nav-tab').length > 0, 'navigation-tests');
+                this.runTest('Submenu containers exist', () => document.querySelectorAll('.nav-submenu').length > 0, 'navigation-tests');
+                this.runTest('Active tab set', () => document.querySelector('.nav-tab.active') !== null, 'navigation-tests');
+                
+                // Test 5: Card System
+                this.log('Testing card system...', 'info');
+                this.runTest('Cards registered', () => {
+                    return window.CardRegistry && window.CardRegistry.cards.size > 0;
+                }, 'card-tests');
+                this.runTest('Page-card mapping exists', () => {
+                    return window.CardRegistry && window.CardRegistry.pageCards.size > 0;
+                }, 'card-tests');
+                this.runTest('Overview has cards', () => {
+                    return window.CardRegistry && window.CardRegistry.getCardsForPage('overview').length > 0;
+                }, 'card-tests');
+                
+                // Test 6: Integration Points
+                this.log('Testing integration points...', 'info');
+                this.runTest('Main UI NOT initialized early', () => {
+                    // This should be false until app-initializer calls it
+                    return !window.__mainUIInitializedEarly;
+                }, 'integration-tests');
+                this.runTest('No console errors', () => {
+                    // Check if we logged any critical errors
+                    return this.timeline.filter(e => e.type === 'error').length === 0;
+                }, 'integration-tests');
+                
+                // Update summary
+                this.updateSummary();
+            }
+
+            updateSummary() {
+                document.getElementById('total-tests').textContent = this.tests.total;
+                document.getElementById('passed-tests').textContent = this.tests.passed;
+                document.getElementById('failed-tests').textContent = this.tests.failed;
+                
+                const summary = document.querySelector('#summary h2');
+                if (this.tests.failed === 0) {
+                    summary.textContent = '✅ All Tests Passed!';
+                    summary.style.color = '#00ff88';
+                } else {
+                    summary.textContent = `⚠️ ${this.tests.failed} Tests Failed`;
+                    summary.style.color = '#ff4747';
+                }
+            }
+
+            monitorInitialization() {
+                // Track if main UI initializes too early
+                const originalInit = window.initializeMainUI;
+                if (originalInit) {
+                    window.initializeMainUI = function() {
+                        if (!window.AppInitializer || !window.AppInitializer.initialized) {
+                            window.__mainUIInitializedEarly = true;
+                        }
+                        return originalInit.apply(this, arguments);
+                    };
+                }
+                
+                // Listen for app initialization
+                document.addEventListener('app:initialized', (e) => {
+                    this.log(`✅ App initialized in ${e.detail.initTime.toFixed(2)}ms`, 'success');
+                    document.getElementById('init-time').textContent = e.detail.initTime.toFixed(2);
+                    
+                    // Run final integration tests after init
+                    setTimeout(() => {
+                        this.runTest('Post-init: Pages switchable', () => {
+                            try {
+                                window.switchTab('squad', document.querySelector('.nav-tab'));
+                                return true;
+                            } catch (e) {
+                                return false;
+                            }
+                        }, 'integration-tests');
+                        this.updateSummary();
+                    }, 100);
+                });
+                
+                document.addEventListener('app:init-failed', (e) => {
+                    this.log(`❌ App initialization failed: ${e.detail.error.message}`, 'error');
+                });
+            }
+        }
+
+        // Run tests
+        const tester = new InitializationTester();
+        
+        // Start monitoring before loading main app
+        tester.monitorInitialization();
+        
+        // Wait for basic DOM ready then run tests
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => tester.runAllTests());
+        } else {
+            tester.runAllTests();
+        }
+    </script>
+
+    <!-- Now load the actual FM-Base application -->
+    <script src="config/app-config.js"></script>
+    <script src="core/utils/utils.js"></script>
+    <script src="core/data/state-manager.js"></script>
+    <script src="core/data/data-pipeline.js"></script>
+    <script src="core/data/data-binding.js"></script>
+    <script src="components/layout/layout-manager.js"></script>
+    <script src="components/layout/responsive-system.js"></script>
+    <script src="components/animations/animation-controller.js"></script>
+    <script src="components/cards/card-registry.js"></script>
+    <script src="components/cards/card-manager.js"></script>
+    <script src="components/cards/card-enhancer-v2.js"></script>
+    <script src="components/visualizations/attribute-circle.js"></script>
+    <script src="components/visualizations/bar-chart.js"></script>
+    <script src="components/visualizations/pizza-chart.js"></script>
+    <script src="components/screens/screen-router.js"></script>
+    <script src="components/screens/squad-screen.js"></script>
+    <script src="components/screens/tactics-screen.js"></script>
+    <script src="components/screens/training-screen.js"></script>
+    <script src="components/player/player-profile.js"></script>
+    <script src="components/player/comparison-tool.js"></script>
+    <script src="components/player/archetype-classifier.js"></script>
+    
+    <!-- Card Modules -->
+    <script src="components/cards/modules/player-detail-card.js"></script>
+    <script src="components/cards/modules/squad-summary-card.js"></script>
+    <script src="components/cards/modules/tactical-overview-card.js"></script>
+    <script src="components/cards/modules/performance-dashboard-card.js"></script>
+    <script src="components/cards/modules/upcoming-fixtures-card.js"></script>
+    <script src="components/cards/modules/training-schedule-card.js"></script>
+    <script src="components/cards/modules/transfer-targets-card.js"></script>
+    <script src="components/cards/modules/financial-overview-card.js"></script>
+    <script src="components/cards/modules/league-table-card.js"></script>
+    <script src="components/cards/modules/player-list-card.js"></script>
+    <script src="components/cards/modules/tactical-shape-card.js"></script>
+    <script src="components/cards/modules/team-analysis-card.js"></script>
+    <script src="components/cards/modules/transfer-budget-card.js"></script>
+    <script src="components/cards/modules/match-preview-card.js"></script>
+    <script src="components/cards/modules/injury-report-card.js"></script>
+    
+    <!-- App Initializer (Must be last) -->
+    <script src="scripts/app-initializer.js"></script>
+</body>
+</html>

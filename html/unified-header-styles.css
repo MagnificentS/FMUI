@@ -1,0 +1,129 @@
+/* UNIFIED HEADER SYSTEM - Complete styling */
+
+/* Contextual Menu Styling */
+.contextual-menu {
+    animation: menuSlideIn 0.2s cubic-bezier(0.4, 0.0, 0.1, 1);
+}
+
+@keyframes menuSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.menu-item {
+    padding: 8px 16px;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.menu-item:hover {
+    background: rgba(0, 148, 204, 0.2);
+    color: white;
+    border-left-color: #0094cc;
+}
+
+/* Enhanced card hover effects */
+.card {
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.1, 1);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Adaptive header based on content */
+.unified-header.context-squad {
+    background: linear-gradient(135deg, 
+        rgba(0, 15, 10, 0.95) 0%, 
+        rgba(0, 25, 15, 0.98) 50%, 
+        rgba(0, 15, 10, 0.95) 100%);
+}
+
+.unified-header.context-tactics {
+    background: linear-gradient(135deg, 
+        rgba(15, 0, 10, 0.95) 0%, 
+        rgba(25, 0, 15, 0.98) 50%, 
+        rgba(15, 0, 10, 0.95) 100%);
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .unified-header-content {
+        padding: 0 16px;
+    }
+    
+    .team-name {
+        display: none;
+    }
+    
+    .nav-item {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 900px) {
+    .header-left {
+        min-width: 60px;
+    }
+    
+    .time-display .date {
+        display: none;
+    }
+    
+    .unified-nav {
+        gap: 0;
+    }
+    
+    .nav-item {
+        padding: 8px 10px;
+    }
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+    transition-timing-function: cubic-bezier(0.4, 0.0, 0.1, 1);
+}
+
+/* Enhanced focus states for accessibility */
+.nav-item:focus,
+.card-action:focus,
+.continue-btn:focus {
+    outline: 2px solid rgba(0, 148, 204, 0.5);
+    outline-offset: 2px;
+}
+
+/* Loading state for header */
+.unified-header.loading {
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+.unified-header.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.1) 50%, 
+        transparent 100%);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}

@@ -1,0 +1,242 @@
+/* ==========================================
+   GLOBAL FIXES - Instructions 0.1 Implementation
+   ========================================== */
+
+/* Issue 1: Sub-navigation menus too large */
+.nav-submenu {
+    height: 48px !important; /* Match main nav height */
+    padding: 8px 0 !important;
+}
+
+.submenu-content {
+    padding: 4px 20px !important;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    height: 100%;
+}
+
+.submenu-item {
+    font-size: 12px !important;
+    padding: 4px 8px !important;
+}
+
+/* Issue 2 & 3: Main panel alignment and positioning */
+.main-panel {
+    position: absolute !important;
+    top: 180px !important; /* Below header (90px) + nav (48px) + submenu space (42px) */
+    bottom: 92px !important; /* Align with settings button (56px + 36px margin) */
+    left: 24px !important;
+    right: 24px !important;
+    padding: 20px !important;
+    overflow: hidden !important;
+    max-height: none !important; /* Remove the calc() height */
+}
+
+/* Issue 4: Items must fit within main panel */
+.content-page {
+    height: 100%;
+    overflow: hidden !important;
+}
+
+.tile-container {
+    height: 100%;
+    overflow: auto !important; /* Allow scrolling within container */
+    padding-right: 10px; /* Space for scrollbar */
+}
+
+.view-container {
+    height: 100%;
+    overflow: hidden !important;
+}
+
+/* Issue 5: DateTime, Continue, Settings alignment */
+.date-time-wrapper {
+    position: fixed !important;
+    right: 160px !important; /* Space for settings button */
+    bottom: 50px !important; /* Align with settings button */
+    top: auto !important;
+    transform: none !important;
+    z-index: 100;
+}
+
+.continue-btn {
+    position: fixed !important;
+    right: 280px !important; /* Left of datetime */
+    bottom: 50px !important;
+    top: auto !important;
+    z-index: 100;
+}
+
+.settings-fab {
+    position: fixed !important;
+    bottom: 36px !important;
+    right: 36px !important;
+    z-index: 101;
+}
+
+/* Issue 6 & 7: Single card view state isolation */
+.content-page:not(.active) .view-container {
+    display: none !important;
+}
+
+.content-page.active .view-container.active {
+    display: block !important;
+}
+
+.content-page.active .view-container:not(.active) {
+    display: none !important;
+}
+
+/* Issue 8: Font color readability */
+body {
+    color: #e8e8e8 !important; /* Lighter base text */
+}
+
+.stat-label {
+    color: #b0b0b0 !important; /* More readable gray */
+}
+
+.stat-value {
+    color: #ffffff !important; /* White for values */
+}
+
+.card-header span {
+    color: #ffffff !important; /* White card titles */
+}
+
+.data-table th {
+    color: #b0b0b0 !important; /* Readable table headers */
+}
+
+.data-table td {
+    color: #e0e0e0 !important; /* Readable table data */
+}
+
+/* Issue 9: Standardize font sizes globally */
+:root {
+    --font-size-xs: 10px;
+    --font-size-sm: 12px;
+    --font-size-base: 14px;
+    --font-size-md: 16px;
+    --font-size-lg: 18px;
+    --font-size-xl: 24px;
+    --font-size-2xl: 32px;
+}
+
+/* Card standardization */
+.card-header {
+    font-size: var(--font-size-base) !important;
+    font-weight: 600 !important;
+}
+
+.card-body {
+    font-size: var(--font-size-sm) !important;
+}
+
+.stat-row {
+    font-size: var(--font-size-sm) !important;
+}
+
+.data-table {
+    font-size: var(--font-size-sm) !important;
+}
+
+.data-table th {
+    font-size: var(--font-size-xs) !important;
+    text-transform: uppercase;
+}
+
+/* Navigation standardization */
+.nav-tab {
+    font-size: var(--font-size-sm) !important;
+}
+
+.submenu-item {
+    font-size: var(--font-size-xs) !important;
+}
+
+/* Prevent overlaps */
+.card {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.card.expanded {
+    max-width: 90%;
+    max-height: 90%;
+    margin: auto;
+}
+
+/* Ensure resize handles don't cause overflow */
+.resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 16px;
+    height: 16px;
+}
+
+/* Fix z-index stacking */
+.header-zenith {
+    z-index: 200;
+}
+
+.nav-zenith {
+    z-index: 190;
+}
+
+.nav-submenu {
+    z-index: 189;
+}
+
+.main-panel {
+    z-index: 10;
+}
+
+.card-indicators {
+    z-index: 50;
+}
+
+.settings-dialog {
+    z-index: 1000;
+}
+
+/* Ensure cards don't overflow panel */
+.tile-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    padding: 10px;
+    align-content: start;
+}
+
+.card {
+    min-height: 200px;
+    max-height: 400px;
+}
+
+.card.wide {
+    grid-column: span 2;
+}
+
+.card.tall {
+    grid-row: span 2;
+    max-height: 600px;
+}
+
+/* Fix continue button positioning in nav */
+.nav-content {
+    position: relative;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1280px) {
+    .continue-btn {
+        right: 240px !important;
+    }
+    
+    .date-time-wrapper {
+        right: 120px !important;
+    }
+}

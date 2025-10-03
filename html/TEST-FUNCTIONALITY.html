@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FM-Base Functionality Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #1a1d24;
+            color: white;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 5px;
+        }
+        
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            border-left: 4px solid #00ff00;
+        }
+        
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            border-left: 4px solid #ff0000;
+        }
+        
+        .info {
+            background: rgba(0, 150, 255, 0.2);
+            border-left: 4px solid #0096ff;
+        }
+        
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            background: #0077a3;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #0094cc;
+        }
+        
+        .console-output {
+            background: #000;
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #333;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 FM-Base Functionality Test</h1>
+    
+    <div class="test-section">
+        <h2>📋 Test Controls</h2>
+        <button onclick="runTests()">🔍 Run All Tests</button>
+        <button onclick="loadMainPage()">📄 Load Main Page</button>
+        <button onclick="clearResults()">🗑️ Clear Results</button>
+        <button onclick="toggleConsole()">📺 Toggle Console</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 Test Results</h2>
+        <div id="test-results">
+            <div class="info">Click "Run All Tests" to start testing...</div>
+        </div>
+    </div>
+    
+    <div class="test-section" id="console-section" style="display: none;">
+        <h2>🖥️ Console Output</h2>
+        <div id="console-output" class="console-output">Console output will appear here...</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎯 Live Test Frame</h2>
+        <iframe id="test-frame" src="about:blank"></iframe>
+    </div>
+
+    <script>
+        let consoleOutput = '';
+        let originalConsole = {};
+        
+        function setupConsoleCapture() {
+            // Capture console output
+            ['log', 'warn', 'error', 'info'].forEach(method => {
+                originalConsole[method] = console[method];
+                console[method] = function(...args) {
+                    consoleOutput += `[${method.toUpperCase()}] ${args.join(' ')}\n`;
+                    updateConsoleDisplay();
+                    originalConsole[method].apply(console, args);
+                };
+            });
+        }
+        
+        function updateConsoleDisplay() {
+            const consoleDiv = document.getElementById('console-output');
+            if (consoleDiv) {
+                consoleDiv.textContent = consoleOutput;
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+        }
+        
+        function addTestResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            resultsDiv.appendChild(resultDiv);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        function runTests() {
+            clearResults();
+            addTestResult('🚀 Starting comprehensive FM-Base tests...', 'info');
+            
+            // Test 1: Check if main page loads
+            testPageLoad();
+            
+            // Test 2: Wait and check for JavaScript execution
+            setTimeout(() => {
+                testJavaScriptExecution();
+            }, 2000);
+            
+            // Test 3: Test interaction functionality  
+            setTimeout(() => {
+                testInteractionFunctionality();
+            }, 4000);
+            
+            // Test 4: Test specific fixes
+            setTimeout(() => {
+                testSpecificFixes();
+            }, 6000);
+        }
+        
+        function testPageLoad() {
+            addTestResult('📄 Loading main.html page...', 'info');
+            
+            const iframe = document.getElementById('test-frame');
+            iframe.src = 'main.html';
+            
+            iframe.onload = function() {
+                try {
+                    const doc = iframe.contentDocument || iframe.contentWindow.document;
+                    
+                    if (doc.title.includes('Football Manager')) {
+                        addTestResult('✅ Page loaded successfully', 'success');
+                        
+                        // Check for key elements
+                        const cards = doc.querySelectorAll('.card');
+                        const buttons = doc.querySelectorAll('button');
+                        const selects = doc.querySelectorAll('select');
+                        
+                        addTestResult(`📊 Found ${cards.length} cards, ${buttons.length} buttons, ${selects.length} selects`, 'info');
+                        
+                    } else {
+                        addTestResult('❌ Page loaded but title incorrect', 'error');
+                    }
+                } catch (error) {
+                    addTestResult(`❌ Error accessing iframe content: ${error.message}`, 'error');
+                }
+            };
+            
+            iframe.onerror = function() {
+                addTestResult('❌ Failed to load main.html', 'error');
+            };
+        }
+        
+        function testJavaScriptExecution() {
+            addTestResult('🔧 Testing JavaScript execution...', 'info');
+            
+            try {
+                const iframe = document.getElementById('test-frame');
+                const win = iframe.contentWindow;
+                
+                // Check for our debug functions
+                if (win.DebugFix) {
+                    addTestResult('✅ DEBUG-AND-FIX.js loaded successfully', 'success');
+                    
+                    // Run diagnostics
+                    win.DebugFix.runDiagnostics();
+                    
+                    setTimeout(() => {
+                        const results = win.DebugFix.results;
+                        addTestResult(`📊 Diagnostics: ${results.cardsFound} cards, ${results.buttonsFound} buttons`, 'info');
+                        
+                        if (results.errors.length > 0) {
+                            addTestResult(`⚠️ Found ${results.errors.length} errors`, 'error');
+                        } else {
+                            addTestResult('✅ No errors found in diagnostics', 'success');
+                        }
+                    }, 1000);
+                    
+                } else {
+                    addTestResult('❌ DEBUG-AND-FIX.js not loaded', 'error');
+                }
+                
+                // Check for DIRECT-FIX
+                if (win.directFixSwitchToPage) {
+                    addTestResult('✅ DIRECT-FIX.js loaded successfully', 'success');
+                } else {
+                    addTestResult('❌ DIRECT-FIX.js not loaded', 'error');
+                }
+                
+            } catch (error) {
+                addTestResult(`❌ JavaScript test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function testInteractionFunctionality() {
+            addTestResult('🎮 Testing interaction functionality...', 'info');
+            
+            try {
+                const iframe = document.getElementById('test-frame');
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Test button clicks
+                const buttons = doc.querySelectorAll('.card button');
+                let clickableButtons = 0;
+                
+                buttons.forEach((button, index) => {
+                    const style = doc.defaultView.getComputedStyle(button);
+                    if (style.pointerEvents !== 'none') {
+                        clickableButtons++;
+                    }
+                });
+                
+                addTestResult(`🔘 ${clickableButtons}/${buttons.length} buttons are clickable`, 
+                    clickableButtons === buttons.length ? 'success' : 'error');
+                
+                // Test selects
+                const selects = doc.querySelectorAll('.card select');
+                let accessibleSelects = 0;
+                
+                selects.forEach(select => {
+                    if (select.id || select.name) {
+                        accessibleSelects++;
+                    }
+                });
+                
+                addTestResult(`📝 ${accessibleSelects}/${selects.length} selects have proper IDs`, 
+                    accessibleSelects === selects.length ? 'success' : 'error');
+                
+                // Test resize handles
+                const resizeHandles = doc.querySelectorAll('.resize-handle, .resize-handle-bl');
+                addTestResult(`📏 Found ${resizeHandles.length} resize handles`, 'info');
+                
+            } catch (error) {
+                addTestResult(`❌ Interaction test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function testSpecificFixes() {
+            addTestResult('🔧 Testing specific fixes...', 'info');
+            
+            try {
+                const iframe = document.getElementById('test-frame');
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Test navigation
+                const navItems = doc.querySelectorAll('.nav-tab, .nav-item');
+                addTestResult(`🧭 Found ${navItems.length} navigation items`, 'info');
+                
+                // Test page visibility
+                const activePages = doc.querySelectorAll('.content-page.active');
+                addTestResult(`📄 ${activePages.length} pages are active`, 
+                    activePages.length === 1 ? 'success' : 'error');
+                
+                // Test for double headers
+                const headers = doc.querySelectorAll('.header');
+                const cardHeaders = doc.querySelectorAll('.card-header');
+                addTestResult(`📋 Found ${headers.length} main headers, ${cardHeaders.length} card headers`, 'info');
+                
+                // Final assessment
+                const totalErrors = document.querySelectorAll('.error').length;
+                if (totalErrors === 0) {
+                    addTestResult('🎉 All tests passed! System is functioning correctly.', 'success');
+                } else {
+                    addTestResult(`⚠️ ${totalErrors} issues found. Check details above.`, 'error');
+                }
+                
+            } catch (error) {
+                addTestResult(`❌ Specific fixes test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function loadMainPage() {
+            const iframe = document.getElementById('test-frame');
+            iframe.src = 'main.html';
+            addTestResult('📄 Reloading main page...', 'info');
+        }
+        
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+            consoleOutput = '';
+            updateConsoleDisplay();
+        }
+        
+        function toggleConsole() {
+            const section = document.getElementById('console-section');
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Initialize
+        setupConsoleCapture();
+        addTestResult('🧪 Test environment ready. Click "Run All Tests" to begin.', 'info');
+    </script>
+</body>
+</html>

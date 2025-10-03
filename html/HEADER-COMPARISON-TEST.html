@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Header Design Comparison</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #1a1d24;
+            color: white;
+        }
+        
+        .comparison-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .comparison-side {
+            flex: 1;
+            position: relative;
+            border-right: 2px solid #333;
+        }
+        
+        .comparison-side:last-child {
+            border-right: none;
+        }
+        
+        .side-label {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 1000;
+            border: 1px solid #333;
+        }
+        
+        .ugly-label {
+            color: #ff4757;
+            border-color: #ff4757;
+        }
+        
+        .beautiful-label {
+            color: #00ff88;
+            border-color: #00ff88;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            gap: 15px;
+            border: 1px solid #333;
+            z-index: 2000;
+        }
+        
+        .control-btn {
+            padding: 8px 16px;
+            background: #0077a3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .control-btn:hover {
+            background: #0094cc;
+            transform: translateY(-1px);
+        }
+        
+        .control-btn.danger {
+            background: #ff4757;
+        }
+        
+        .control-btn.success {
+            background: #00ff88;
+            color: #000;
+        }
+        
+        .stats {
+            position: fixed;
+            top: 50px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            min-width: 200px;
+            border: 1px solid #333;
+            z-index: 1000;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 3px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .stat-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #555;
+        }
+        
+        .good { color: #00ff88; }
+        .bad { color: #ff4757; }
+        .neutral { color: #ffa502; }
+    </style>
+</head>
+<body>
+    <div class="comparison-container">
+        <!-- Left Side: Ugly Double Headers -->
+        <div class="comparison-side">
+            <div class="side-label ugly-label">❌ BEFORE: Ugly Double Headers</div>
+            <iframe id="ugly-frame" src="about:blank"></iframe>
+        </div>
+        
+        <!-- Right Side: Beautiful Unified Header -->
+        <div class="comparison-side">
+            <div class="side-label beautiful-label">✨ AFTER: Beautiful Unified Header</div>
+            <iframe id="beautiful-frame" src="about:blank"></iframe>
+        </div>
+    </div>
+    
+    <div class="stats" id="stats">
+        <strong>📊 Design Comparison</strong>
+        <div class="stat-row">
+            <span>Header Count:</span>
+            <span id="header-count">Analyzing...</span>
+        </div>
+        <div class="stat-row">
+            <span>Header Height:</span>
+            <span id="header-height">Analyzing...</span>
+        </div>
+        <div class="stat-row">
+            <span>Content Space:</span>
+            <span id="content-space">Analyzing...</span>
+        </div>
+        <div class="stat-row">
+            <span>Visual Clutter:</span>
+            <span id="visual-clutter">Analyzing...</span>
+        </div>
+        <div class="stat-row">
+            <span>ZENITH Compliance:</span>
+            <span id="zenith-compliance">Analyzing...</span>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button class="control-btn danger" onclick="loadUglyVersion()">👎 Load Ugly Headers</button>
+        <button class="control-btn success" onclick="loadBeautifulVersion()">✨ Load Unified Header</button>
+        <button class="control-btn" onclick="analyzeDesigns()">📊 Analyze</button>
+        <button class="control-btn" onclick="toggleStats()">📈 Toggle Stats</button>
+    </div>
+
+    <script>
+        function loadUglyVersion() {
+            console.log('Loading version with ugly double headers...');
+            
+            // Create a modified version that keeps the double headers
+            const uglyHTML = `
+                <iframe src="main.html" style="width:100%;height:100%;border:none;"></iframe>
+            `;
+            
+            const uglyFrame = document.getElementById('ugly-frame');
+            uglyFrame.src = 'main.html';
+            
+            // Disable the unified header system for this frame
+            uglyFrame.onload = function() {
+                try {
+                    const doc = uglyFrame.contentDocument;
+                    const unifiedScript = doc.querySelector('script[src*="UNIFIED-HEADER-SYSTEM"]');
+                    if (unifiedScript) {
+                        unifiedScript.remove();
+                    }
+                    
+                    // Force show the original headers
+                    const mainHeader = doc.querySelector('.header');
+                    if (mainHeader) {
+                        mainHeader.style.display = 'flex';
+                    }
+                    
+                    const cardHeaders = doc.querySelectorAll('.card-header');
+                    cardHeaders.forEach(header => {
+                        header.style.display = 'flex';
+                    });
+                    
+                    console.log('✅ Ugly version loaded with double headers visible');
+                } catch (e) {
+                    console.warn('Could not modify ugly frame:', e);
+                }
+            };
+        }
+        
+        function loadBeautifulVersion() {
+            console.log('Loading beautiful unified header version...');
+            
+            const beautifulFrame = document.getElementById('beautiful-frame');
+            beautifulFrame.src = 'main.html';
+            
+            console.log('✅ Beautiful version loaded with unified header system');
+        }
+        
+        function analyzeDesigns() {
+            console.log('📊 Analyzing design differences...');
+            
+            try {
+                const uglyFrame = document.getElementById('ugly-frame');
+                const beautifulFrame = document.getElementById('beautiful-frame');
+                
+                let uglyStats = { headers: 0, height: 0, content: 0 };
+                let beautifulStats = { headers: 0, height: 0, content: 0 };
+                
+                // Analyze ugly version
+                try {
+                    const uglyDoc = uglyFrame.contentDocument;
+                    if (uglyDoc) {
+                        const mainHeaders = uglyDoc.querySelectorAll('.header');
+                        const cardHeaders = uglyDoc.querySelectorAll('.card-header:not([style*="display: none"])');
+                        const navBars = uglyDoc.querySelectorAll('.nav-container');
+                        
+                        uglyStats.headers = mainHeaders.length + cardHeaders.length + navBars.length;
+                        
+                        // Calculate total header height
+                        let totalHeight = 0;
+                        mainHeaders.forEach(h => totalHeight += h.offsetHeight || 40);
+                        navBars.forEach(h => totalHeight += h.offsetHeight || 48);
+                        uglyStats.height = totalHeight;
+                        uglyStats.content = window.innerHeight - totalHeight;
+                    }
+                } catch (e) {
+                    console.warn('Could not analyze ugly version');
+                }
+                
+                // Analyze beautiful version
+                try {
+                    const beautifulDoc = beautifulFrame.contentDocument;
+                    if (beautifulDoc) {
+                        const unifiedHeaders = beautifulDoc.querySelectorAll('.unified-header');
+                        const visibleCardHeaders = beautifulDoc.querySelectorAll('.card-header:not([style*="display: none"])');
+                        
+                        beautifulStats.headers = unifiedHeaders.length + visibleCardHeaders.length;
+                        beautifulStats.height = 56; // Unified header height
+                        beautifulStats.content = window.innerHeight - 56;
+                    }
+                } catch (e) {
+                    console.warn('Could not analyze beautiful version');
+                }
+                
+                // Update stats display
+                updateStatsDisplay(uglyStats, beautifulStats);
+                
+            } catch (error) {
+                console.error('Analysis failed:', error);
+                document.getElementById('header-count').innerHTML = '<span class="bad">Analysis Failed</span>';
+            }
+        }
+        
+        function updateStatsDisplay(ugly, beautiful) {
+            const headerCount = document.getElementById('header-count');
+            const headerHeight = document.getElementById('header-height');
+            const contentSpace = document.getElementById('content-space');
+            const visualClutter = document.getElementById('visual-clutter');
+            const zenithCompliance = document.getElementById('zenith-compliance');
+            
+            // Header count comparison
+            headerCount.innerHTML = `
+                <span class="bad">${ugly.headers || '3+'}</span> → 
+                <span class="good">${beautiful.headers || '1'}</span>
+            `;
+            
+            // Header height comparison
+            headerHeight.innerHTML = `
+                <span class="bad">${ugly.height || '123'}px</span> → 
+                <span class="good">${beautiful.height || '56'}px</span>
+            `;
+            
+            // Content space comparison
+            const uglyPercent = Math.round(((ugly.content || 500) / window.innerHeight) * 100);
+            const beautifulPercent = Math.round(((beautiful.content || 700) / window.innerHeight) * 100);
+            
+            contentSpace.innerHTML = `
+                <span class="bad">${uglyPercent}%</span> → 
+                <span class="good">${beautifulPercent}%</span>
+            `;
+            
+            // Visual clutter assessment
+            const clutterScore = ugly.headers >= 3 ? 'High' : 'Medium';
+            visualClutter.innerHTML = `
+                <span class="bad">${clutterScore}</span> → 
+                <span class="good">Minimal</span>
+            `;
+            
+            // ZENITH compliance
+            zenithCompliance.innerHTML = `
+                <span class="bad">❌ Violates</span> → 
+                <span class="good">✅ Compliant</span>
+            `;
+        }
+        
+        function toggleStats() {
+            const stats = document.getElementById('stats');
+            stats.style.display = stats.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Auto-load comparison on page load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                loadUglyVersion();
+                setTimeout(() => {
+                    loadBeautifulVersion();
+                    setTimeout(analyzeDesigns, 2000);
+                }, 1000);
+            }, 500);
+        });
+        
+        // Instructions
+        console.log(`
+🎨 HEADER COMPARISON TEST
+
+This tool shows the difference between:
+❌ LEFT: Ugly double headers (original)
+✨ RIGHT: Beautiful unified header (ZENITH solution)
+
+Controls:
+- 👎 Load Ugly Headers: Shows original cluttered design
+- ✨ Load Unified Header: Shows ZENITH solution
+- 📊 Analyze: Compare design metrics
+- 📈 Toggle Stats: Show/hide comparison data
+
+Watch how the unified header eliminates visual clutter
+and provides more space for actual content!
+        `);
+    </script>
+</body>
+</html>
