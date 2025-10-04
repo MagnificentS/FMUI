@@ -1,0 +1,640 @@
+{
+  "tactics": {
+    "formationName": "4-2-3-1 Wide",
+    "squadLabel": "Starting XI",
+    "description": "Balanced attacking structure with inverted wingers tucking inside to overload the half-spaces.",
+    "mentalityPill": "Positive",
+    "formationLines": [
+      {
+        "role": "Striker",
+        "players": [
+          { "id": "st-ivan-toney", "name": "Ivan Toney (AF)", "x": 0.5, "y": 0.08 }
+        ]
+      },
+      {
+        "role": "Attacking Midfield",
+        "players": [
+          { "id": "am-phil-foden", "name": "Phil Foden (IW)", "x": 0.26, "y": 0.28 },
+          { "id": "am-martin-odegaard", "name": "Martin Ødegaard (AP)", "x": 0.5, "y": 0.3 },
+          { "id": "am-bukayo-saka", "name": "Bukayo Saka (IW)", "x": 0.74, "y": 0.28 }
+        ]
+      },
+      {
+        "role": "Midfield Pivot",
+        "players": [
+          { "id": "mid-declan-rice", "name": "Declan Rice (HB)", "x": 0.36, "y": 0.48 },
+          { "id": "mid-youri-tielemans", "name": "Youri Tielemans (BBM)", "x": 0.64, "y": 0.48 }
+        ]
+      },
+      {
+        "role": "Defence",
+        "players": [
+          { "id": "def-kieran-tierney", "name": "Kieran Tierney (WB)", "x": 0.18, "y": 0.7 },
+          { "id": "def-gabriel", "name": "Gabriel (CD)", "x": 0.38, "y": 0.68 },
+          { "id": "def-ben-white", "name": "Ben White (BPD)", "x": 0.62, "y": 0.68 },
+          { "id": "def-takehiro-tomiyasu", "name": "Takehiro Tomiyasu (WB)", "x": 0.82, "y": 0.7 }
+        ]
+      },
+      {
+        "role": "Goalkeeper",
+        "players": [
+          { "id": "gk-aaron-ramsdale", "name": "Aaron Ramsdale (SK)", "x": 0.5, "y": 0.9 }
+        ]
+      }
+    ],
+    "fluidity": {
+      "value": "Highly Fluid",
+      "summary": "Players interchange positions freely, supporting overloads down both flanks.",
+      "pill": "Excellent"
+    },
+    "mentality": {
+      "value": "Positive",
+      "summary": "Balanced risk taking with emphasis on progressive runs and penetrative passing."
+    },
+    "inPossession": {
+      "description": "Encourage roaming play through the channels to destabilise compact blocks.",
+      "items": [
+        { "label": "Width", "value": "Fairly Wide" },
+        { "label": "Approach Play", "value": "Play Out Of Defence" },
+        { "label": "Final Third", "value": "Work Ball Into Box" },
+        { "label": "Tempo", "value": "Higher" },
+        { "label": "Passing", "value": "Shorter" }
+      ]
+    },
+    "inTransition": {
+      "items": [
+        { "label": "When Possession Has Been Lost", "value": "Counter-Press" },
+        { "label": "When Possession Has Been Won", "value": "Counter" },
+        {
+          "label": "Goalkeeper In Possession",
+          "value": "Distribute Quickly",
+          "detail": "Full-Backs"
+        }
+      ]
+    },
+    "outOfPossession": {
+      "items": [
+        { "label": "Defensive Line", "value": "Higher" },
+        { "label": "Line of Engagement", "value": "Higher" },
+        { "label": "Defensive Shape", "value": "More Often Prevent Short GK Distribution" },
+        { "label": "Pressing Intensity", "value": "Much More Often" }
+      ]
+    },
+    "setPieces": {
+      "attackingCorners": [
+        { "primary": "Near Post", "secondary": "Gabriel", "tertiary": "Saliba block" },
+        { "primary": "Far Post", "secondary": "Toney", "tertiary": "Tierney delivery" }
+      ],
+      "defendingCorners": [
+        { "primary": "Zonal Line", "secondary": "Six-yard box" },
+        { "primary": "Marker", "secondary": "Rice on aerial threat" }
+      ],
+      "freeKicks": [
+        { "primary": "Direct", "secondary": "Ødegaard", "tertiary": "Left foot" },
+        { "primary": "Indirect", "secondary": "Saka", "tertiary": "Inswingers" }
+      ],
+      "throwIns": [
+        { "primary": "Attacking", "secondary": "Tomiyasu", "tertiary": "Quick routine" },
+        { "primary": "Defensive", "secondary": "White", "tertiary": "Retain shape" }
+      ],
+      "penaltyTakers": [
+        { "primary": "1st", "secondary": "Bukayo Saka" },
+        { "primary": "2nd", "secondary": "Ivan Toney" },
+        { "primary": "3rd", "secondary": "Martin Ødegaard" }
+      ]
+    },
+    "analysis": {
+      "recentForm": {
+        "value": "WWWDL",
+        "summary": "10 goals scored, 4 conceded across last five competitive matches.",
+        "pill": "+6 GD"
+      },
+      "strengths": [
+        { "primary": "Pressing Triggers", "secondary": "Recover ball high", "tertiary": "PPDA 8.9" },
+        { "primary": "Chance Creation", "secondary": "Central overloads", "tertiary": "xG +0.6" }
+      ],
+      "weaknesses": [
+        { "primary": "Transition Defence", "secondary": "Vulnerable to long balls" },
+        { "primary": "Right Flank", "secondary": "Space behind Saka" }
+      ],
+      "statistics": [
+        { "primary": "Shots For", "secondary": "16.4 per game" },
+        { "primary": "Shots Against", "secondary": "7.2 per game" },
+        { "primary": "Cross Completion", "secondary": "23%" }
+      ],
+      "recommendations": [
+        { "primary": "Maintain high press", "secondary": "City struggle under pressure" },
+        { "primary": "Rotate wide areas", "secondary": "Protect Saka for Spurs" }
+      ]
+    }
+  },
+  "overview": {
+    "clubVision": {
+      "boardConfidence": {
+        "value": "A",
+        "summary": "Board delighted with league position and financial prudence.",
+        "pill": "Secure"
+      },
+      "supporterConfidence": {
+        "value": "A-",
+        "summary": "Fans are thrilled by attacking football and marquee signings.",
+        "pill": "Vibrant"
+      },
+      "competitionExpectations": [
+        { "primary": "Premier League", "secondary": "Qualify for Champions League", "tertiary": "Current: 1st" },
+        { "primary": "Champions League", "secondary": "Reach Quarter Final", "tertiary": "Current: Group B - 1st" },
+        { "primary": "FA Cup", "secondary": "Reach Semi Final", "tertiary": "Current: Starts Jan" },
+        { "primary": "Carabao Cup", "secondary": "Reach Final", "tertiary": "Current: Eliminated" }
+      ],
+      "fiveYearPlan": [
+        { "primary": "2023/24", "secondary": "Maintain club stature", "tertiary": "Premier League top four" },
+        { "primary": "2024/25", "secondary": "Expand stadium capacity", "tertiary": "Board planning" },
+        { "primary": "2025/26", "secondary": "Win a major trophy", "tertiary": "Minimum expectation" }
+      ],
+      "financeSnapshot": [
+        { "primary": "Overall Balance", "secondary": "£182M" },
+        { "primary": "Transfer Budget", "secondary": "£48M" },
+        { "primary": "Wage Budget", "secondary": "£3.2M p/w", "tertiary": "Committed: £3.0M" },
+        { "primary": "Scouting Budget", "secondary": "£2.4M" }
+      ],
+      "topPerformers": [
+        { "primary": "Bukayo Saka", "secondary": "3 goals", "tertiary": "Average Rating 7.94" },
+        { "primary": "Martin Ødegaard", "secondary": "4 assists", "tertiary": "Average Rating 7.71" },
+        { "primary": "Declan Rice", "secondary": "92% pass completion", "tertiary": "Average Rating 7.48" }
+      ]
+    },
+    "dynamics": {
+      "teamCohesion": {
+        "value": "Excellent",
+        "summary": "Players have built strong partnerships across key units.",
+        "pill": "90%"
+      },
+      "dressingRoomAtmosphere": {
+        "value": "Very Good",
+        "summary": "Leaders set the tone and morale is trending upward.",
+        "pill": "+6"
+      },
+      "managerialSupport": {
+        "value": "Secure",
+        "summary": "Squad trusts the tactical plan and selection choices.",
+        "pill": "Backed"
+      },
+      "socialGroups": [
+        { "primary": "Core Social", "secondary": "12 players", "accent": "Highly Influential" },
+        { "primary": "Secondary Unit", "secondary": "7 players", "accent": "Supportive" },
+        { "primary": "Newcomers", "secondary": "4 players", "accent": "Integrating" }
+      ],
+      "influencers": [
+        { "primary": "Martin Ødegaard", "secondary": "Team Leader" },
+        { "primary": "Declan Rice", "secondary": "Highly Influential" },
+        { "primary": "Aaron Ramsdale", "secondary": "Influential" }
+      ],
+      "playerIssues": [
+        { "primary": "Gabriel Jesus", "secondary": "Wants more playing time", "accent": "High" },
+        { "primary": "Emile Smith Rowe", "secondary": "Promised cup starts", "accent": "Medium" }
+      ],
+      "meetings": [
+        { "primary": "Leadership Meeting", "secondary": "Monday", "tertiary": "Discuss training intensity" },
+        { "primary": "Squad Morale", "secondary": "Thursday", "tertiary": "Address rotation" }
+      ],
+      "praiseMoments": [
+        { "primary": "Ødegaard", "secondary": "Commended for leadership" },
+        { "primary": "Saliba", "secondary": "Praised for defensive form" },
+        { "primary": "Saka", "secondary": "Recognised for training attitude" }
+      ]
+    },
+    "medical": {
+      "injuryList": [
+        { "primary": "Gabriel Jesus", "secondary": "Sprained Knee Ligaments", "tertiary": "2-3 weeks" },
+        { "primary": "Takehiro Tomiyasu", "secondary": "Hamstring tightness", "tertiary": "5 days" },
+        { "primary": "Thomas Partey", "secondary": "Match fitness", "tertiary": "Building", "accent": "Monitoring" }
+      ],
+      "riskAssessment": {
+        "value": "Medium",
+        "summary": "Two players flagged for overuse, overall load manageable.",
+        "pill": "Alert"
+      },
+      "riskBreakdown": [
+        { "primary": "High", "secondary": "Ødegaard", "tertiary": "Tight calf" },
+        { "primary": "Medium", "secondary": "Tierney", "tertiary": "Match Sharpness 68%" },
+        { "primary": "Low", "secondary": "Saliba", "tertiary": "Fully fit" }
+      ],
+      "rehabProgress": [
+        { "primary": "Jesus", "secondary": "Gym work", "tertiary": "65% complete" },
+        { "primary": "Tomiyasu", "secondary": "Light training", "tertiary": "Expected return Sunday" }
+      ],
+      "workloadMonitoring": {
+        "value": "Controlled",
+        "summary": "Load rotated effectively across congested schedule.",
+        "pill": "Green"
+      },
+      "staffNotes": [
+        { "primary": "Head Physio", "secondary": "Recovery plans on track" },
+        { "primary": "Sports Scientist", "secondary": "Recommend additional rest after City" }
+      ]
+    },
+    "analytics": {
+      "expectedGoalsTrend": {
+        "value": "+0.62",
+        "summary": "xG rolling average exceeds opponents over last five matches.",
+        "pill": "Upward"
+      },
+      "shotLocations": [
+        { "primary": "Central Box", "secondary": "43%", "tertiary": "High quality" },
+        { "primary": "Left Channel", "secondary": "29%", "tertiary": "Cut-backs" },
+        { "primary": "Right Channel", "secondary": "18%", "tertiary": "Low crosses" }
+      ],
+      "possessionZones": [
+        { "primary": "Defensive Third", "secondary": "23%", "accent": "Composed" },
+        { "primary": "Middle Third", "secondary": "41%", "accent": "Control" },
+        { "primary": "Attacking Third", "secondary": "36%", "accent": "Threat" }
+      ],
+      "passingNetworks": [
+        { "primary": "Ødegaard → Saka", "secondary": "14 combinations" },
+        { "primary": "Rice → Zinchenko", "secondary": "11 combinations" },
+        { "primary": "Saliba → White", "secondary": "9 combinations" }
+      ],
+      "teamComparison": [
+        { "primary": "Goals Scored", "secondary": "2.3 per game", "tertiary": "League Rank 2" },
+        { "primary": "Goals Against", "secondary": "0.8 per game", "tertiary": "League Rank 1" },
+        { "primary": "xG Difference", "secondary": "+1.1", "tertiary": "League Rank 1" }
+      ],
+      "keyStats": [
+        { "primary": "PPDA", "secondary": "8.9", "tertiary": "Aggressive press" },
+        { "primary": "Pass Completion", "secondary": "89%", "tertiary": "Top 3 in league" },
+        { "primary": "Set-Piece Goals", "secondary": "7", "tertiary": "3rd best" }
+      ]
+    }
+  },
+  "squad": {
+    "selectionInfo": {
+      "matchdayReadiness": [
+        { "primary": "Starting XI", "secondary": "Fully available" },
+        { "primary": "Bench", "secondary": "Two U21 registrations required" }
+      ],
+      "fitnessConcerns": [
+        { "primary": "Bukayo Saka", "secondary": "Fatigued", "tertiary": "Needs 45 min cap", "accent": "Manage" },
+        { "primary": "Ben White", "secondary": "Tight hamstring", "tertiary": "Late test" }
+      ],
+      "suspensions": [
+        { "primary": "Kai Havertz", "secondary": "1 match ban", "tertiary": "Yellow card accumulation" }
+      ],
+      "recentForm": [
+        { "primary": "Last 5", "secondary": "WWWDL", "tertiary": "9 scored / 4 conceded" },
+        { "primary": "Home", "secondary": "W4 D1", "tertiary": "Impenetrable" },
+        { "primary": "Away", "secondary": "W3 L1", "tertiary": "Improving" }
+      ],
+      "trainingFocus": [
+        { "primary": "Press Resistance", "secondary": "Midfield unit" },
+        { "primary": "Crossing", "secondary": "Wide players" },
+        { "primary": "Set Piece Delivery", "secondary": "Rotation" }
+      ]
+    },
+    "players": {
+      "keyPlayers": [
+        { "primary": "Ødegaard", "secondary": "Avg Rating 7.71", "tertiary": "Chances created 35" },
+        { "primary": "Saka", "secondary": "Goals 8", "tertiary": "Assists 6" },
+        { "primary": "Rice", "secondary": "Tackles / 90: 3.2", "tertiary": "Interceptions / 90: 2.1" }
+      ],
+      "emergingPlayers": [
+        { "primary": "Ethan Nwaneri", "secondary": "AMC", "tertiary": "Training: Vision" },
+        { "primary": "Reuell Walters", "secondary": "RB", "tertiary": "Loan: Championship" }
+      ],
+      "contractStatus": [
+        { "primary": "Saliba", "secondary": "2027", "tertiary": "Key Player" },
+        { "primary": "Tierney", "secondary": "2025", "tertiary": "Rotation", "accent": "Decision" },
+        { "primary": "Balogun", "secondary": "2026", "tertiary": "On loan" }
+      ],
+      "statisticsLeaders": [
+        { "primary": "Goals", "secondary": "Saka - 8" },
+        { "primary": "Assists", "secondary": "Ødegaard - 7" },
+        { "primary": "Average Rating", "secondary": "Saliba - 7.62" }
+      ],
+      "transferInterest": [
+        { "primary": "Takehiro Tomiyasu", "secondary": "AC Milan", "tertiary": "Loan enquiry", "accent": "Monitor" },
+        { "primary": "Emile Smith Rowe", "secondary": "Newcastle", "tertiary": "Permanent", "accent": "Consider" }
+      ]
+    },
+    "international": {
+      "callUps": [
+        { "primary": "Saka", "secondary": "England", "tertiary": "UEFA Nations League" },
+        { "primary": "Saliba", "secondary": "France", "tertiary": "Friendlies" },
+        { "primary": "Martinelli", "secondary": "Brazil", "tertiary": "World Cup Qualifiers" }
+      ],
+      "travelPlans": [
+        { "primary": "England Camp", "secondary": "St. George's Park", "tertiary": "Return Fri" },
+        { "primary": "South America", "secondary": "São Paulo", "tertiary": "Return Mon", "accent": "Long haul" }
+      ],
+      "availability": [
+        { "primary": "Saka", "secondary": "Available 48h post return" },
+        { "primary": "Martinelli", "secondary": "Rest required", "accent": "Assess" }
+      ],
+      "scoutingReports": [
+        { "primary": "Brazil U23", "secondary": "Endrick", "tertiary": "Rated highly" },
+        { "primary": "France U21", "secondary": "Cherki", "tertiary": "Creative spark" }
+      ]
+    },
+    "depth": {
+      "depthChart": [
+        { "primary": "GK", "secondary": "Ramsdale / Raya", "tertiary": "Quality depth" },
+        { "primary": "CB", "secondary": "Saliba / Gabriel", "tertiary": "Holding cover" },
+        { "primary": "DM", "secondary": "Rice / Partey", "tertiary": "Solid" }
+      ],
+      "roleBattles": [
+        { "primary": "Left Wing", "secondary": "Martinelli vs Trossard", "tertiary": "Form vs Consistency" },
+        { "primary": "Striker", "secondary": "Toney vs Jesus", "tertiary": "Rotation" }
+      ],
+      "youthDepth": [
+        { "primary": "Full-back", "secondary": "Lino Sousa", "tertiary": "High potential" },
+        { "primary": "Midfield", "secondary": "Charlie Patino", "tertiary": "Loan recall option" }
+      ],
+      "positionalRatings": [
+        { "primary": "Defence", "secondary": "4.5 stars" },
+        { "primary": "Midfield", "secondary": "4 stars" },
+        { "primary": "Attack", "secondary": "4 stars" }
+      ]
+    }
+  },
+  "training": {
+    "overview": {
+      "upcomingSessions": [
+        { "primary": "Mon", "secondary": "Recovery", "tertiary": "Unit split: Senior" },
+        { "primary": "Tue", "secondary": "Tactical - Shape", "tertiary": "Match Prep Focus" },
+        { "primary": "Wed", "secondary": "Attacking - Wings", "tertiary": "High Intensity" },
+        { "primary": "Thu", "secondary": "Match Preview", "tertiary": "Medium Intensity" },
+        { "primary": "Fri", "secondary": "Match Practice", "tertiary": "Set Pieces" }
+      ],
+      "intensity": {
+        "value": "High",
+        "summary": "Condition monitored closely. Two players nearing risk threshold.",
+        "pill": "Alert"
+      },
+      "focusAreas": [
+        { "primary": "Team Focus", "secondary": "Attacking Movement" },
+        { "primary": "Match Focus", "secondary": "Counter-Press" },
+        { "primary": "Individual", "secondary": "Finishing", "tertiary": "6 players" }
+      ],
+      "unitCoaches": [
+        { "primary": "Goalkeeping", "secondary": "Javi García", "tertiary": "Shot Stopping" },
+        { "primary": "Defence", "secondary": "Stefan Schwarz", "tertiary": "Positioning" },
+        { "primary": "Midfield", "secondary": "Carles Cuadrat", "tertiary": "Ball Retention" },
+        { "primary": "Attack", "secondary": "Dennis Bergkamp", "tertiary": "Off The Ball" }
+      ],
+      "medicalWorkload": [
+        { "primary": "High", "secondary": "Ødegaard", "tertiary": "Tight calf" },
+        { "primary": "Medium", "secondary": "Tierney", "tertiary": "Match Sharpness 68%" },
+        { "primary": "Medium", "secondary": "Toney", "tertiary": "Match Sharpness 71%" }
+      ],
+      "matchPreparation": [
+        { "primary": "Opponent", "secondary": "Manchester City" },
+        { "primary": "Scout Summary", "secondary": "Threat: Haaland aerially" },
+        { "primary": "Key Focus", "secondary": "Limit crosses", "tertiary": "Double up on wings" }
+      ],
+      "individualFocus": [
+        { "primary": "Bukayo Saka", "secondary": "Final Third Runs", "tertiary": "Progress: 73%" },
+        { "primary": "William Saliba", "secondary": "Marking", "tertiary": "Progress: 61%" },
+        { "primary": "Emile Smith Rowe", "secondary": "Agility", "tertiary": "Progress: 42%" }
+      ],
+      "youthDevelopment": [
+        { "primary": "U21", "secondary": "Pressing Triggers", "tertiary": "Lead: Per Mertesacker" },
+        { "primary": "U18", "secondary": "Technical Passing", "tertiary": "Lead: Jack Wilshere" },
+        { "primary": "U18", "secondary": "Shape", "tertiary": "5-2-3" }
+      ]
+    },
+    "calendar": {
+      "weekOverview": [
+        { "primary": "Monday", "secondary": "Recovery" },
+        { "primary": "Tuesday", "secondary": "Tactical Periodisation" },
+        { "primary": "Wednesday", "secondary": "Attacking Patterns" },
+        { "primary": "Thursday", "secondary": "Set Pieces" },
+        { "primary": "Friday", "secondary": "Match Prep" }
+      ],
+      "restDays": [
+        { "primary": "Saturday", "secondary": "Optional recovery" },
+        { "primary": "Sunday", "secondary": "Mandatory rest" }
+      ],
+      "matchPrepFocus": [
+        { "primary": "Opposition", "secondary": "Manchester City", "tertiary": "High press" },
+        { "primary": "Key Drill", "secondary": "Compact mid-block" }
+      ],
+      "upcomingMilestones": [
+        { "primary": "Youth Intake Preview", "secondary": "10 Oct" },
+        { "primary": "Set Piece Review", "secondary": "12 Oct" },
+        { "primary": "Team Bonding", "secondary": "13 Oct" }
+      ]
+    },
+    "units": {
+      "seniorUnit": [
+        { "primary": "GK", "secondary": "Ramsdale, Raya" },
+        { "primary": "Defenders", "secondary": "Saliba, Gabriel, White" },
+        { "primary": "Midfielders", "secondary": "Rice, Ødegaard, Havertz" },
+        { "primary": "Attackers", "secondary": "Saka, Toney, Martinelli" }
+      ],
+      "youthUnit": [
+        { "primary": "U21", "secondary": "Walters, Azeez" },
+        { "primary": "U18", "secondary": "Nwaneri, Sousa" }
+      ],
+      "goalkeepingUnit": [
+        { "primary": "Senior", "secondary": "Ramsdale" },
+        { "primary": "Backup", "secondary": "Raya" },
+        { "primary": "Academy", "secondary": "Hein" }
+      ],
+      "coachAssignments": [
+        { "primary": "Mikel Arteta", "secondary": "Overall" },
+        { "primary": "Carlos Cuadrat", "secondary": "Midfield" },
+        { "primary": "Javi García", "secondary": "Goalkeeping" }
+      ]
+    }
+  },
+  "transfers": {
+    "centre": {
+      "budgetUsage": {
+        "value": "65%",
+        "summary": "Transfer budget committed after Toney deal.",
+        "pill": "Caution"
+      },
+      "activeDeals": [
+        { "primary": "Ivan Toney", "secondary": "£55M", "tertiary": "Completed" },
+        { "primary": "Miguel Almirón", "secondary": "£22M", "tertiary": "Negotiating", "accent": "In Progress" }
+      ],
+      "recentActivity": [
+        { "primary": "Out", "secondary": "Balogun to Monaco", "tertiary": "£35M" },
+        { "primary": "Loan", "secondary": "Patino to Swansea", "tertiary": "Season" }
+      ],
+      "loanWatch": [
+        { "primary": "Balogun", "secondary": "Monaco", "tertiary": "Goals: 4" },
+        { "primary": "Lokonga", "secondary": "Burnley", "tertiary": "Apps: 6" }
+      ],
+      "clauses": [
+        { "primary": "Saliba", "secondary": "Lyon solidarity", "tertiary": "£2.1M" },
+        { "primary": "Toney", "secondary": "Add-ons", "tertiary": "£5M goals bonus" }
+      ]
+    },
+    "scouting": {
+      "assignments": [
+        { "primary": "Iberia", "secondary": "Advanced Playmaker", "tertiary": "3 weeks" },
+        { "primary": "South America", "secondary": "Pressing Forward", "tertiary": "4 weeks" }
+      ],
+      "focusRegions": [
+        { "primary": "Spain", "secondary": "High knowledge", "accent": "95%" },
+        { "primary": "Brazil", "secondary": "Growing", "accent": "72%" }
+      ],
+      "knowledgeLevels": [
+        { "primary": "Europe", "secondary": "Extensive" },
+        { "primary": "South America", "secondary": "Comprehensive" },
+        { "primary": "Africa", "secondary": "Average" }
+      ],
+      "recommendedPlayers": [
+        { "primary": "Pedro Neto", "secondary": "Wolves", "tertiary": "Transfer value £45M", "accent": "A" },
+        { "primary": "João Neves", "secondary": "Benfica", "tertiary": "Release clause £95M", "accent": "B" }
+      ],
+      "shortTermFocus": [
+        { "primary": "January Window", "secondary": "Left-sided defender" },
+        { "primary": "Summer", "secondary": "Elite striker" }
+      ]
+    },
+    "shortlist": {
+      "priorityTargets": [
+        { "primary": "Pedro Neto", "secondary": "Inside Forward", "tertiary": "Expected cost £45M", "accent": "Priority" },
+        { "primary": "Joško Gvardiol", "secondary": "Ball Playing CB", "tertiary": "Expected cost £75M" }
+      ],
+      "contractStatus": [
+        { "primary": "Neto", "secondary": "2027", "tertiary": "Wolves" },
+        { "primary": "Gvardiol", "secondary": "2028", "tertiary": "Man City" }
+      ],
+      "competition": [
+        { "primary": "Liverpool", "secondary": "Monitoring Neto" },
+        { "primary": "Real Madrid", "secondary": "Tracking Gvardiol" }
+      ],
+      "notes": [
+        { "primary": "Medical", "secondary": "Monitor Neto hamstring history" },
+        { "primary": "Scouting", "secondary": "Gvardiol excels in back three" }
+      ]
+    }
+  },
+  "finance": {
+    "summary": {
+      "overallBalance": {
+        "value": "£182M",
+        "summary": "Balance boosted by Champions League revenue.",
+        "pill": "Healthy"
+      },
+      "profitThisMonth": {
+        "value": "£6.2M",
+        "summary": "Matchday receipts and merchandise strong.",
+        "pill": "+12%"
+      },
+      "budgets": [
+        { "primary": "Transfer", "secondary": "£48M", "tertiary": "£17M remaining" },
+        { "primary": "Wage", "secondary": "£3.2M p/w", "tertiary": "Committed £3.0M" }
+      ],
+      "projections": [
+        { "primary": "End of Season", "secondary": "£210M", "tertiary": "+£28M" },
+        { "primary": "Two Year", "secondary": "£238M", "tertiary": "Stable" }
+      ],
+      "debts": [
+        { "primary": "Stadium Loan", "secondary": "£145M", "tertiary": "£7M yearly" }
+      ],
+      "sponsorDeals": [
+        { "primary": "Emirates", "secondary": "£60M p/a", "tertiary": "Expires 2028" },
+        { "primary": "Adidas", "secondary": "£55M p/a", "tertiary": "Expires 2030" }
+      ]
+    },
+    "income": {
+      "revenueStreams": [
+        { "primary": "Matchday", "secondary": "£3.8M" },
+        { "primary": "Broadcast", "secondary": "£4.6M" },
+        { "primary": "Commercial", "secondary": "£2.4M" }
+      ],
+      "matchdayIncome": [
+        { "primary": "Ticket Sales", "secondary": "£2.1M" },
+        { "primary": "Hospitality", "secondary": "£1.2M" },
+        { "primary": "Retail", "secondary": "£0.5M" }
+      ],
+      "commercialIncome": [
+        { "primary": "Merchandise", "secondary": "+18% YoY" },
+        { "primary": "Sponsorship", "secondary": "+6% YoY" }
+      ],
+      "competitionPrizes": [
+        { "primary": "Champions League", "secondary": "£7.4M", "tertiary": "Group bonus" },
+        { "primary": "Premier League", "secondary": "£2.6M", "tertiary": "Television" }
+      ]
+    },
+    "expenditure": {
+      "majorCosts": [
+        { "primary": "Wages", "secondary": "£2.9M p/w" },
+        { "primary": "Bonuses", "secondary": "£0.6M" }
+      ],
+      "wageBreakdown": [
+        { "primary": "First Team", "secondary": "£2.1M" },
+        { "primary": "U21", "secondary": "£0.4M" },
+        { "primary": "U18", "secondary": "£0.2M" }
+      ],
+      "transferSpending": [
+        { "primary": "Incoming", "secondary": "£77M" },
+        { "primary": "Outgoing", "secondary": "£44M" }
+      ],
+      "operationalCosts": [
+        { "primary": "Facilities", "secondary": "£1.1M" },
+        { "primary": "Travel", "secondary": "£0.4M" },
+        { "primary": "Academy", "secondary": "£0.7M" }
+      ]
+    }
+  },
+  "fixtures": {
+    "schedule": {
+      "upcomingFixtures": [
+        { "primary": "vs Man City", "secondary": "Sat 17:30", "tertiary": "Premier League" },
+        { "primary": "@ Sevilla", "secondary": "Tue 20:00", "tertiary": "Champions League" },
+        { "primary": "vs Spurs", "secondary": "Sun 16:30", "tertiary": "Premier League" }
+      ],
+      "travelPlans": [
+        { "primary": "Manchester", "secondary": "Train", "tertiary": "Same day" },
+        { "primary": "Seville", "secondary": "Flight", "tertiary": "Depart Mon" }
+      ],
+      "broadcasts": [
+        { "primary": "Sky Sports", "secondary": "vs Man City" },
+        { "primary": "BT Sport", "secondary": "@ Sevilla" }
+      ],
+      "preparationFocus": [
+        { "primary": "Rest Windows", "secondary": "Regenerate after European trip" },
+        { "primary": "Rotation", "secondary": "Use Hale End graduates vs Spurs" }
+      ]
+    },
+    "results": {
+      "recentResults": [
+        { "primary": "vs Chelsea", "secondary": "W 2-0", "tertiary": "Saka (2)" },
+        { "primary": "@ Brentford", "secondary": "D 1-1", "tertiary": "Toney" },
+        { "primary": "vs Brighton", "secondary": "W 3-1", "tertiary": "Martinelli, Rice, Saka" }
+      ],
+      "playerRatings": [
+        { "primary": "Saliba", "secondary": "8.2", "tertiary": "MOTM vs Chelsea" },
+        { "primary": "Ramsdale", "secondary": "7.9", "tertiary": "Clean sheet" }
+      ],
+      "trends": [
+        { "primary": "Clean Sheets", "secondary": "3 in last 5" },
+        { "primary": "Goals Scored", "secondary": "10 in last 5" }
+      ],
+      "keyMoments": [
+        { "primary": "Ødegaard FK", "secondary": "vs Brighton" },
+        { "primary": "Rice winner", "secondary": "vs Chelsea" }
+      ]
+    },
+    "calendar": {
+      "monthOverview": [
+        { "primary": "October Week 1", "secondary": "3 fixtures" },
+        { "primary": "October Week 2", "secondary": "International break" }
+      ],
+      "cupDraws": [
+        { "primary": "FA Cup 4th Round", "secondary": "Draw on 15 Oct" }
+      ],
+      "internationalBreaks": [
+        { "primary": "9 Oct - 17 Oct", "secondary": "Most squad away" }
+      ],
+      "reminders": [
+        { "primary": "Register U21 players", "secondary": "Before 20 Oct" },
+        { "primary": "Submit Champions League squad", "secondary": "1 Feb" }
+      ]
+    }
+  }
+}
