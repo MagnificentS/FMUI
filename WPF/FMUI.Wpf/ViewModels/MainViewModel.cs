@@ -1,4 +1,3 @@
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -12,27 +11,17 @@ namespace FMUI.Wpf.ViewModels;
 public sealed class MainViewModel : ObservableObject
 {
     private NavigationTabViewModel? _selectedTab;
-    private bool _isCompactHeader;
-    private bool _useCompactNavigation;
+    private readonly CardLayoutCatalog _cardCatalog;
 
-    public MainViewModel(
-        INavigationCatalog navigationCatalog,
-        Func<NavigationTab, NavigationTabViewModel> tabFactory,
-        CardSurfaceViewModel cardSurface)
+    public MainViewModel()
     {
-        CardSurface = cardSurface;
-
-        var tabs = navigationCatalog
-            .GetTabs()
-            .Select(tabFactory)
+        _cardCatalog = new CardLayoutCatalog();
+        var tabs = NavigationCatalog.BuildDefaultTabs()
+            .Select(model => new NavigationTabViewModel(model))
             .ToList();
 
         Tabs = new ObservableCollection<NavigationTabViewModel>(tabs);
-
-        foreach (var tab in Tabs)
-        {
-            tab.PropertyChanged += OnTabPropertyChanged;
-        }
+        CardSurface = new CardSurfaceViewModel(_cardCatalog);
 
         SelectTabCommand = new RelayCommand(param =>
         {
@@ -42,7 +31,10 @@ public sealed class MainViewModel : ObservableObject
             }
         });
 
-        EnsureSelectedTabAvailability();
+        if (Tabs.Count > 0)
+        {
+            SelectTab(Tabs[0]);
+        }
     }
 
     public ObservableCollection<NavigationTabViewModel> Tabs { get; }
@@ -57,49 +49,11 @@ public sealed class MainViewModel : ObservableObject
 
     public ICommand SelectTabCommand { get; }
 
-    public bool IsCompactHeader
-    {
-        get => _isCompactHeader;
-        private set => SetProperty(ref _isCompactHeader, value);
-    }
-
-    public bool UseCompactNavigation
-    {
-        get => _useCompactNavigation;
-        private set => SetProperty(ref _useCompactNavigation, value);
-    }
-
-    public void UpdateViewport(double width)
-    {
-        const double compactHeaderThreshold = 1500;
-        const double compactNavigationThreshold = 1320;
-
-        IsCompactHeader = width < compactHeaderThreshold;
-        UseCompactNavigation = width < compactNavigationThreshold;
-    }
-
     private void SelectTab(NavigationTabViewModel tab)
     {
-        if (!tab.IsVisible || !tab.HasVisibleSubItems)
+        if (SelectedTab is not null)
         {
-            EnsureSelectedTabAvailability();
-            return;
-        }
-
-        if (SelectedTab == tab)
-        {
-            tab.EnsureActiveSectionBroadcast();
-            return;
-        }
-
-        var active = tab.ActiveSubItem;
-        if (active is null || !active.IsVisible)
-        {
-            var fallback = tab.SubItems.FirstOrDefault(item => item.IsVisible);
-            if (fallback is not null)
-            {
-                tab.ActivateSubItem(fallback);
-            }
+            SelectedTab.PropertyChanged -= OnSelectedTabPropertyChanged;
         }
 
         foreach (var t in Tabs)
@@ -108,46 +62,28 @@ public sealed class MainViewModel : ObservableObject
         }
 
         SelectedTab = tab;
-        tab.EnsureActiveSectionBroadcast();
+        SelectedTab.PropertyChanged += OnSelectedTabPropertyChanged;
+
+        UpdateSurfaceFromSelection();
     }
 
-    private void EnsureSelectedTabAvailability()
+    private void OnSelectedTabPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (SelectedTab is not null && (!SelectedTab.IsVisible || !SelectedTab.HasVisibleSubItems))
+        if (e.PropertyName == nameof(NavigationTabViewModel.ActiveSubItem))
         {
-            SelectedTab.IsSelected = false;
-            SelectedTab = null;
-        }
-
-        if (SelectedTab is null)
-        {
-            var next = Tabs.FirstOrDefault(tab => tab.IsVisible && tab.HasVisibleSubItems);
-            if (next is null)
-            {
-                foreach (var tab in Tabs)
-                {
-                    tab.IsSelected = false;
-                }
-
-                return;
-            }
-
-            foreach (var tab in Tabs)
-            {
-                tab.IsSelected = ReferenceEquals(tab, next);
-            }
-
-            SelectedTab = next;
-            next.EnsureActiveSectionBroadcast();
+            UpdateSurfaceFromSelection();
         }
     }
 
-    private void OnTabPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void UpdateSurfaceFromSelection()
     {
-        if (e.PropertyName is nameof(NavigationTabViewModel.IsVisible)
-            or nameof(NavigationTabViewModel.HasVisibleSubItems))
+        var subItem = SelectedTab?.ActiveSubItem;
+        if (SelectedTab is null || subItem is null)
         {
-            EnsureSelectedTabAvailability();
+            CardSurface.Clear();
+            return;
         }
+
+        CardSurface.LoadSection(SelectedTab.Identifier, subItem.Identifier);
     }
 }

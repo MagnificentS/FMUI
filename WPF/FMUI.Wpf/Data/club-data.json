@@ -1,73 +1,4 @@
 {
-  "navigationPermissions": {
-    "tabs": [
-      {
-        "tabId": "overview",
-        "isVisible": true,
-        "sections": [
-          { "sectionId": "club-vision", "isVisible": true },
-          { "sectionId": "dynamics", "isVisible": true },
-          { "sectionId": "medical-centre", "isVisible": true },
-          { "sectionId": "analytics", "isVisible": true }
-        ]
-      },
-      {
-        "tabId": "squad",
-        "isVisible": true,
-        "sections": [
-          { "sectionId": "selection-info", "isVisible": true },
-          { "sectionId": "players", "isVisible": true },
-          { "sectionId": "international", "isVisible": true },
-          { "sectionId": "squad-depth", "isVisible": true }
-        ]
-      },
-      {
-        "tabId": "tactics",
-        "isVisible": true,
-        "sections": [
-          { "sectionId": "tactics-overview", "isVisible": true },
-          { "sectionId": "set-pieces", "isVisible": true },
-          { "sectionId": "tactics-analysis", "isVisible": true }
-        ]
-      },
-      {
-        "tabId": "training",
-        "isVisible": true,
-        "sections": [
-          { "sectionId": "training-overview", "isVisible": true },
-          { "sectionId": "training-calendar", "isVisible": true },
-          { "sectionId": "training-units", "isVisible": true }
-        ]
-      },
-      {
-        "tabId": "transfers",
-        "isVisible": true,
-        "sections": [
-          { "sectionId": "transfer-centre", "isVisible": true },
-          { "sectionId": "scouting", "isVisible": true },
-          { "sectionId": "shortlist", "isVisible": false, "requiredRole": "DirectorOfFootball" }
-        ]
-      },
-      {
-        "tabId": "finances",
-        "isVisible": true,
-        "sections": [
-          { "sectionId": "finances-summary", "isVisible": true },
-          { "sectionId": "finances-income", "isVisible": true },
-          { "sectionId": "finances-expenditure", "isVisible": true }
-        ]
-      },
-      {
-        "tabId": "fixtures",
-        "isVisible": true,
-        "sections": [
-          { "sectionId": "fixtures-schedule", "isVisible": true },
-          { "sectionId": "fixtures-results", "isVisible": true },
-          { "sectionId": "fixtures-calendar", "isVisible": true }
-        ]
-      }
-    ]
-  },
   "tactics": {
     "formationName": "4-2-3-1 Wide",
     "squadLabel": "Starting XI",
@@ -110,28 +41,6 @@
           { "id": "gk-aaron-ramsdale", "name": "Aaron Ramsdale (SK)", "x": 0.5, "y": 0.9 }
         ]
       }
-    ],
-    "playerPool": [
-      { "id": "st-ivan-toney", "name": "Ivan Toney", "position": "ST", "detail": "Advanced Forward" },
-      { "id": "st-gabriel-jesus", "name": "Gabriel Jesus", "position": "ST", "detail": "Complete Forward" },
-      { "id": "am-martin-odegaard", "name": "Martin Ødegaard", "position": "AMC", "detail": "Advanced Playmaker" },
-      { "id": "am-phil-foden", "name": "Phil Foden", "position": "AML", "detail": "Inverted Winger" },
-      { "id": "am-bukayo-saka", "name": "Bukayo Saka", "position": "AMR", "detail": "Inverted Winger" },
-      { "id": "am-gabriel-martinelli", "name": "Gabriel Martinelli", "position": "AML", "detail": "Inside Forward" },
-      { "id": "am-leandro-trossard", "name": "Leandro Trossard", "position": "AML", "detail": "Wide Playmaker" },
-      { "id": "mid-declan-rice", "name": "Declan Rice", "position": "DM", "detail": "Half Back" },
-      { "id": "mid-thomas-partey", "name": "Thomas Partey", "position": "DM", "detail": "Anchor Man" },
-      { "id": "mid-youri-tielemans", "name": "Youri Tielemans", "position": "MC", "detail": "Box to Box" },
-      { "id": "mid-jorginho", "name": "Jorginho", "position": "DM", "detail": "Deep Lying Playmaker" },
-      { "id": "def-ben-white", "name": "Ben White", "position": "DR", "detail": "Ball Playing Defender" },
-      { "id": "def-gabriel", "name": "Gabriel", "position": "DC", "detail": "Central Defender" },
-      { "id": "def-william-saliba", "name": "William Saliba", "position": "DC", "detail": "Ball Playing Defender" },
-      { "id": "def-takehiro-tomiyasu", "name": "Takehiro Tomiyasu", "position": "DR", "detail": "Wing Back" },
-      { "id": "def-kieran-tierney", "name": "Kieran Tierney", "position": "DL", "detail": "Wing Back" },
-      { "id": "def-oleksandr-zinchenko", "name": "Oleksandr Zinchenko", "position": "DL", "detail": "Inverted Wing Back" },
-      { "id": "def-jurrien-timber", "name": "Jurrien Timber", "position": "DC", "detail": "Wide Centre-Back" },
-      { "id": "gk-aaron-ramsdale", "name": "Aaron Ramsdale", "position": "GK", "detail": "Sweeper Keeper" },
-      { "id": "gk-david-raya", "name": "David Raya", "position": "GK", "detail": "Sweeper Keeper" }
     ],
     "fluidity": {
       "value": "Highly Fluid",
@@ -326,18 +235,9 @@
     },
     "analytics": {
       "expectedGoalsTrend": {
-        "metric": {
-          "value": "+0.62",
-          "summary": "xG rolling average exceeds opponents over last five matches.",
-          "pill": "Upward"
-        },
-        "points": [
-          { "label": "Aug", "value": 1.68 },
-          { "label": "Sep", "value": 1.74 },
-          { "label": "Oct", "value": 1.81 },
-          { "label": "Nov", "value": 1.92 },
-          { "label": "Dec", "value": 2.04 }
-        ]
+        "value": "+0.62",
+        "summary": "xG rolling average exceeds opponents over last five matches.",
+        "pill": "Upward"
       },
       "shotLocations": [
         { "primary": "Central Box", "secondary": "43%", "tertiary": "High quality" },
@@ -413,186 +313,6 @@
       "transferInterest": [
         { "primary": "Takehiro Tomiyasu", "secondary": "AC Milan", "tertiary": "Loan enquiry", "accent": "Monitor" },
         { "primary": "Emile Smith Rowe", "secondary": "Newcastle", "tertiary": "Permanent", "accent": "Consider" }
-      ],
-      "roster": [
-        {
-          "id": "player-raya",
-          "name": "David Raya",
-          "positionGroup": "Goalkeeper",
-          "position": "GK",
-          "role": "First Choice",
-          "morale": "Composed",
-          "condition": 0.97,
-          "matchSharpness": 0.94,
-          "averageRating": 7.18,
-          "appearances": 22,
-          "minutes": 1980,
-          "nationality": "ESP",
-          "status": "Clean sheet streak"
-        },
-        {
-          "id": "player-saliba",
-          "name": "William Saliba",
-          "positionGroup": "Defence",
-          "position": "RCB",
-          "role": "Key Player",
-          "morale": "Excellent",
-          "condition": 0.93,
-          "matchSharpness": 0.96,
-          "averageRating": 7.62,
-          "appearances": 26,
-          "minutes": 2280,
-          "nationality": "FRA",
-          "status": "Leadership core"
-        },
-        {
-          "id": "player-gabriel",
-          "name": "Gabriel",
-          "positionGroup": "Defence",
-          "position": "LCB",
-          "role": "Key Player",
-          "morale": "Very Good",
-          "condition": 0.91,
-          "matchSharpness": 0.92,
-          "averageRating": 7.24,
-          "appearances": 25,
-          "minutes": 2210,
-          "nationality": "BRA"
-        },
-        {
-          "id": "player-ben-white",
-          "name": "Ben White",
-          "positionGroup": "Defence",
-          "position": "RB",
-          "role": "Important",
-          "morale": "Good",
-          "condition": 0.88,
-          "matchSharpness": 0.9,
-          "averageRating": 7.08,
-          "appearances": 24,
-          "minutes": 2085,
-          "nationality": "ENG",
-          "status": "Rotation advised"
-        },
-        {
-          "id": "player-rice",
-          "name": "Declan Rice",
-          "positionGroup": "Midfield",
-          "position": "DM",
-          "role": "Key Player",
-          "morale": "Excellent",
-          "condition": 0.95,
-          "matchSharpness": 0.95,
-          "averageRating": 7.48,
-          "appearances": 27,
-          "minutes": 2340,
-          "nationality": "ENG",
-          "status": "Undroppable"
-        },
-        {
-          "id": "player-odegaard",
-          "name": "Martin Ødegaard",
-          "positionGroup": "Midfield",
-          "position": "AMC",
-          "role": "Captain",
-          "morale": "Inspired",
-          "condition": 0.9,
-          "matchSharpness": 0.93,
-          "averageRating": 7.71,
-          "appearances": 26,
-          "minutes": 2190,
-          "nationality": "NOR",
-          "status": "Chance creator"
-        },
-        {
-          "id": "player-saka",
-          "name": "Bukayo Saka",
-          "positionGroup": "Attack",
-          "position": "RW",
-          "role": "Key Player",
-          "morale": "Delighted",
-          "condition": 0.94,
-          "matchSharpness": 0.92,
-          "averageRating": 7.41,
-          "appearances": 25,
-          "minutes": 2125,
-          "nationality": "ENG",
-          "status": "Star performer"
-        },
-        {
-          "id": "player-martinelli",
-          "name": "Gabriel Martinelli",
-          "positionGroup": "Attack",
-          "position": "LW",
-          "role": "Important",
-          "morale": "Positive",
-          "condition": 0.89,
-          "matchSharpness": 0.9,
-          "averageRating": 7.02,
-          "appearances": 23,
-          "minutes": 1890,
-          "nationality": "BRA",
-          "status": "Rotation"
-        },
-        {
-          "id": "player-jesus",
-          "name": "Gabriel Jesus",
-          "positionGroup": "Attack",
-          "position": "ST",
-          "role": "Important",
-          "morale": "Determined",
-          "condition": 0.86,
-          "matchSharpness": 0.87,
-          "averageRating": 7.05,
-          "appearances": 21,
-          "minutes": 1610,
-          "nationality": "BRA",
-          "status": "Returning from injury"
-        },
-        {
-          "id": "player-trossard",
-          "name": "Leandro Trossard",
-          "positionGroup": "Attack",
-          "position": "LW/RW",
-          "role": "Rotation",
-          "morale": "Good",
-          "condition": 0.92,
-          "matchSharpness": 0.82,
-          "averageRating": 6.98,
-          "appearances": 19,
-          "minutes": 1280,
-          "nationality": "BEL"
-        },
-        {
-          "id": "player-smith-rowe",
-          "name": "Emile Smith Rowe",
-          "positionGroup": "Midfield",
-          "position": "AML",
-          "role": "Backup",
-          "morale": "Fair",
-          "condition": 0.9,
-          "matchSharpness": 0.78,
-          "averageRating": 6.84,
-          "appearances": 14,
-          "minutes": 780,
-          "nationality": "ENG",
-          "status": "Transfer interest"
-        },
-        {
-          "id": "player-timber",
-          "name": "Jurriën Timber",
-          "positionGroup": "Defence",
-          "position": "RB/CB",
-          "role": "Backup",
-          "morale": "Ready",
-          "condition": 0.82,
-          "matchSharpness": 0.74,
-          "averageRating": 6.9,
-          "appearances": 9,
-          "minutes": 540,
-          "nationality": "NED",
-          "status": "Building fitness"
-        }
       ]
     },
     "international": {
@@ -645,109 +365,9 @@
         { "primary": "Fri", "secondary": "Match Practice", "tertiary": "Set Pieces" }
       ],
       "intensity": {
-        "metric": {
-          "value": "High",
-          "summary": "Condition monitored closely. Two players nearing risk threshold.",
-          "pill": "Alert"
-        },
-        "minimum": 0,
-        "maximum": 120,
-        "value": 86,
-        "target": 92,
-        "unit": "%",
-        "bands": [
-          { "label": "Light", "start": 0.0, "end": 0.35, "color": "#1B3A4B" },
-          { "label": "Balanced", "start": 0.35, "end": 0.7, "color": "#24577A" },
-          { "label": "High", "start": 0.7, "end": 1.0, "color": "#FF9F1C" }
-        ],
-        "supportingItems": [
-          { "primary": "Session Load", "secondary": "86%", "tertiary": "Target 92%" },
-          { "primary": "Condition Risk", "secondary": "2 flagged players", "accent": "Monitor" }
-        ]
-      },
-      "workloadHeatmap": {
-        "columns": [
-          "Mon AM",
-          "Mon PM",
-          "Tue AM",
-          "Tue PM",
-          "Wed AM",
-          "Wed PM",
-          "Thu AM",
-          "Thu PM",
-          "Fri AM",
-          "Fri PM"
-        ],
-        "intensities": [
-          { "key": "rest", "displayName": "Recovery", "color": "#1B3A4B", "loadValue": 15 },
-          { "key": "light", "displayName": "Light", "color": "#24577A", "loadValue": 40 },
-          { "key": "balanced", "displayName": "Balanced", "color": "#2EC4B6", "loadValue": 70 },
-          { "key": "high", "displayName": "High", "color": "#FF9F1C", "loadValue": 95 }
-        ],
-        "legendTitle": "Weekly workload",
-        "legendSubtitle": "Intensity scale applied across all units",
-        "units": [
-          {
-            "label": "Goalkeeping",
-            "cells": [
-              { "column": "Mon AM", "intensityKey": "rest", "load": 20, "detail": "Recovery & analysis" },
-              { "column": "Mon PM", "intensityKey": "light", "load": 45 },
-              { "column": "Tue AM", "intensityKey": "balanced", "load": 68 },
-              { "column": "Tue PM", "intensityKey": "balanced", "load": 70 },
-              { "column": "Wed AM", "intensityKey": "high", "load": 94, "detail": "Aerial command" },
-              { "column": "Wed PM", "intensityKey": "balanced", "load": 72 },
-              { "column": "Thu AM", "intensityKey": "balanced", "load": 74 },
-              { "column": "Thu PM", "intensityKey": "light", "load": 48 },
-              { "column": "Fri AM", "intensityKey": "light", "load": 42 },
-              { "column": "Fri PM", "intensityKey": "rest", "load": 18 }
-            ]
-          },
-          {
-            "label": "Defence",
-            "cells": [
-              { "column": "Mon AM", "intensityKey": "rest", "load": 22 },
-              { "column": "Mon PM", "intensityKey": "light", "load": 44 },
-              { "column": "Tue AM", "intensityKey": "high", "load": 98, "detail": "Build-up structures" },
-              { "column": "Tue PM", "intensityKey": "balanced", "load": 76 },
-              { "column": "Wed AM", "intensityKey": "high", "load": 96 },
-              { "column": "Wed PM", "intensityKey": "balanced", "load": 78 },
-              { "column": "Thu AM", "intensityKey": "balanced", "load": 72 },
-              { "column": "Thu PM", "intensityKey": "balanced", "load": 70 },
-              { "column": "Fri AM", "intensityKey": "light", "load": 46 },
-              { "column": "Fri PM", "intensityKey": "rest", "load": 20 }
-            ]
-          },
-          {
-            "label": "Midfield",
-            "cells": [
-              { "column": "Mon AM", "intensityKey": "rest", "load": 20 },
-              { "column": "Mon PM", "intensityKey": "light", "load": 42 },
-              { "column": "Tue AM", "intensityKey": "balanced", "load": 74 },
-              { "column": "Tue PM", "intensityKey": "balanced", "load": 72 },
-              { "column": "Wed AM", "intensityKey": "high", "load": 92, "detail": "Wide overloads" },
-              { "column": "Wed PM", "intensityKey": "balanced", "load": 74 },
-              { "column": "Thu AM", "intensityKey": "balanced", "load": 70 },
-              { "column": "Thu PM", "intensityKey": "balanced", "load": 68 },
-              { "column": "Fri AM", "intensityKey": "light", "load": 44 },
-              { "column": "Fri PM", "intensityKey": "rest", "load": 18 }
-            ]
-          },
-          {
-            "label": "Attack",
-            "cells": [
-              { "column": "Mon AM", "intensityKey": "rest", "load": 22 },
-              { "column": "Mon PM", "intensityKey": "light", "load": 46 },
-              { "column": "Tue AM", "intensityKey": "balanced", "load": 72 },
-              { "column": "Tue PM", "intensityKey": "balanced", "load": 70 },
-              { "column": "Wed AM", "intensityKey": "high", "load": 95 },
-              { "column": "Wed PM", "intensityKey": "high", "load": 97, "detail": "Final-third finishing" },
-              { "column": "Thu AM", "intensityKey": "balanced", "load": 74 },
-              { "column": "Thu PM", "intensityKey": "balanced", "load": 72 },
-              { "column": "Fri AM", "intensityKey": "light", "load": 48 },
-              { "column": "Fri PM", "intensityKey": "rest", "load": 20 }
-            ]
-          }
-        ]
+        "value": "High",
+        "summary": "Condition monitored closely. Two players nearing risk threshold.",
+        "pill": "Alert"
       },
       "focusAreas": [
         { "primary": "Team Focus", "secondary": "Attacking Movement" },
@@ -783,23 +403,11 @@
     },
     "calendar": {
       "weekOverview": [
-        { "primary": "Monday", "secondary": "Recovery", "tertiary": "Morning – Recovery – Senior split • Afternoon – Gym Work – Conditioning" },
-        { "primary": "Tuesday", "secondary": "Tactical Periodisation", "tertiary": "Morning – Tactical Periodisation – Build-up play • Afternoon – Unit Work – Defensive shape" },
-        { "primary": "Wednesday", "secondary": "Attacking Patterns", "tertiary": "Morning – Attacking Patterns – Wide overloads • Afternoon – Finishing Drills – Final third" },
-        { "primary": "Thursday", "secondary": "Set Pieces", "tertiary": "Morning – Set Pieces – Offensive routines • Afternoon – Transition Play – Counter-press" },
-        { "primary": "Friday", "secondary": "Match Prep", "tertiary": "Morning – Match Prep – Opponent review • Afternoon – Recovery Briefing – Travel" }
-      ],
-      "sessionDetails": [
-        { "id": "session-mon-am", "day": "Monday", "slot": "Morning", "activity": "Recovery", "focus": "Senior split", "intensity": "Light" },
-        { "id": "session-mon-pm", "day": "Monday", "slot": "Afternoon", "activity": "Gym Work", "focus": "Conditioning", "intensity": "Medium" },
-        { "id": "session-tue-am", "day": "Tuesday", "slot": "Morning", "activity": "Tactical Periodisation", "focus": "Build-up play", "intensity": "High" },
-        { "id": "session-tue-pm", "day": "Tuesday", "slot": "Afternoon", "activity": "Unit Work", "focus": "Defensive shape", "intensity": "Medium" },
-        { "id": "session-wed-am", "day": "Wednesday", "slot": "Morning", "activity": "Attacking Patterns", "focus": "Wide overloads", "intensity": "High" },
-        { "id": "session-wed-pm", "day": "Wednesday", "slot": "Afternoon", "activity": "Finishing Drills", "focus": "Final third", "intensity": "Medium" },
-        { "id": "session-thu-am", "day": "Thursday", "slot": "Morning", "activity": "Set Pieces", "focus": "Offensive routines", "intensity": "Medium" },
-        { "id": "session-thu-pm", "day": "Thursday", "slot": "Afternoon", "activity": "Transition Play", "focus": "Counter-press", "intensity": "Medium" },
-        { "id": "session-fri-am", "day": "Friday", "slot": "Morning", "activity": "Match Prep", "focus": "Opponent review", "intensity": "Low" },
-        { "id": "session-fri-pm", "day": "Friday", "slot": "Afternoon", "activity": "Recovery Briefing", "focus": "Travel", "intensity": "Low" }
+        { "primary": "Monday", "secondary": "Recovery" },
+        { "primary": "Tuesday", "secondary": "Tactical Periodisation" },
+        { "primary": "Wednesday", "secondary": "Attacking Patterns" },
+        { "primary": "Thursday", "secondary": "Set Pieces" },
+        { "primary": "Friday", "secondary": "Match Prep" }
       ],
       "restDays": [
         { "primary": "Saturday", "secondary": "Optional recovery" },
@@ -841,131 +449,13 @@
   "transfers": {
     "centre": {
       "budgetUsage": {
-        "metric": {
-          "value": "65%",
-          "summary": "Transfer budget committed after Toney deal.",
-          "pill": "Caution"
-        },
-        "minimum": 0,
-        "maximum": 100,
-        "value": 65,
-        "target": 72,
-        "unit": "%",
-        "bands": [
-          { "label": "Comfort", "start": 0.0, "end": 0.5, "color": "#1B3A4B" },
-          { "label": "Managed", "start": 0.5, "end": 0.8, "color": "#2EC4B6" },
-          { "label": "Critical", "start": 0.8, "end": 1.0, "color": "#FF6F59" }
-        ],
-        "supportingItems": [
-          { "primary": "Remaining Budget", "secondary": "£17.5M" },
-          { "primary": "Wage Flex", "secondary": "£180K p/w", "tertiary": "Available" }
-        ]
+        "value": "65%",
+        "summary": "Transfer budget committed after Toney deal.",
+        "pill": "Caution"
       },
       "activeDeals": [
-        { "primary": "Ivan Toney", "secondary": "£55M", "tertiary": "Negotiating", "accent": "In Progress" },
-        { "primary": "Miguel Almirón", "secondary": "£22M", "tertiary": "Counter Offer", "accent": "Hot" }
-      ],
-      "negotiations": [
-        {
-          "id": "ivan-toney",
-          "player": "Ivan Toney",
-          "position": "ST (C)",
-          "club": "Brentford",
-          "stage": "Finalising Terms",
-          "status": "Negotiating",
-          "deadline": "5 days",
-          "summary": "Brentford want higher guaranteed fee and structured bonuses.",
-          "agent": "CAA Stellar",
-          "response": "Club wants £60M upfront plus goal bonus.",
-          "accent": "In Progress",
-          "stageOptions": ["Initial Talks", "Negotiating", "Finalising Terms", "Waiting on Player"],
-          "statusOptions": ["Monitoring", "Negotiating", "Accepted", "Rejected"],
-          "terms": [
-            {
-              "id": "fee",
-              "label": "Transfer Fee",
-              "format": "£{0:0.0}M",
-              "minimum": 45.0,
-              "maximum": 70.0,
-              "step": 0.5,
-              "value": 55.0,
-              "target": 60.0,
-              "tooltip": "Guaranteed fee offered to Brentford."
-            },
-            {
-              "id": "wage",
-              "label": "Weekly Wages",
-              "format": "£{0:0}K p/w",
-              "minimum": 120.0,
-              "maximum": 250.0,
-              "step": 5.0,
-              "value": 180.0,
-              "target": 200.0,
-              "tooltip": "Weekly salary for the player."
-            },
-            {
-              "id": "bonus",
-              "label": "Signing Bonus",
-              "format": "£{0:0.0}M",
-              "minimum": 2.0,
-              "maximum": 8.0,
-              "step": 0.25,
-              "value": 3.5,
-              "target": 4.5,
-              "tooltip": "Upfront bonus requested by the agent."
-            }
-          ]
-        },
-        {
-          "id": "miguel-almiron",
-          "player": "Miguel Almirón",
-          "position": "AM (R)",
-          "club": "Newcastle",
-          "stage": "Negotiating",
-          "status": "Counter Offer",
-          "deadline": "3 days",
-          "summary": "Newcastle expect structured add-ons linked to appearances.",
-          "agent": "ICM Stellar",
-          "response": "Player wants regular starts and appearance bonuses.",
-          "accent": "Hot",
-          "stageOptions": ["Initial Talks", "Negotiating", "Club Review", "Accepted"],
-          "statusOptions": ["Monitoring", "Counter Offer", "Awaiting Response", "Accepted"],
-          "terms": [
-            {
-              "id": "fee",
-              "label": "Transfer Fee",
-              "format": "£{0:0.0}M",
-              "minimum": 18.0,
-              "maximum": 30.0,
-              "step": 0.25,
-              "value": 22.0,
-              "target": 24.0,
-              "tooltip": "Guaranteed amount for Newcastle."
-            },
-            {
-              "id": "addon",
-              "label": "Add-Ons",
-              "format": "£{0:0.0}M",
-              "minimum": 0.0,
-              "maximum": 8.0,
-              "step": 0.25,
-              "value": 3.0,
-              "target": 5.0,
-              "tooltip": "Performance-based add-ons requested."
-            },
-            {
-              "id": "wage",
-              "label": "Weekly Wages",
-              "format": "£{0:0}K p/w",
-              "minimum": 80.0,
-              "maximum": 180.0,
-              "step": 5.0,
-              "value": 130.0,
-              "target": 140.0,
-              "tooltip": "Weekly salary proposal for the player."
-            }
-          ]
-        }
+        { "primary": "Ivan Toney", "secondary": "£55M", "tertiary": "Completed" },
+        { "primary": "Miguel Almirón", "secondary": "£22M", "tertiary": "Negotiating", "accent": "In Progress" }
       ],
       "recentActivity": [
         { "primary": "Out", "secondary": "Balogun to Monaco", "tertiary": "£35M" },
@@ -1001,58 +491,6 @@
       "shortTermFocus": [
         { "primary": "January Window", "secondary": "Left-sided defender" },
         { "primary": "Summer", "secondary": "Elite striker" }
-      ],
-      "assignmentBoard": [
-        {
-          "id": "assign-001",
-          "focus": "Iberia",
-          "role": "Advanced Playmaker",
-          "region": "Spain & Portugal",
-          "priority": "High",
-          "stage": "In Progress",
-          "deadline": "Due in 3 weeks",
-          "scout": "Helena Ruiz",
-          "notes": "Track Braga's midfield trio"
-        },
-        {
-          "id": "assign-002",
-          "focus": "South America",
-          "role": "Pressing Forward",
-          "region": "Brazil & Argentina",
-          "priority": "Medium",
-          "stage": "Awaiting Report",
-          "deadline": "Due in 4 weeks",
-          "scout": "Miguel Duarte",
-          "notes": "Follow Copa Libertadores knockout matches"
-        },
-        {
-          "id": "assign-003",
-          "focus": "Scandinavia",
-          "role": "Ball Playing Defender",
-          "region": "Norway & Sweden",
-          "priority": "Medium",
-          "stage": "New",
-          "deadline": "Due in 6 weeks",
-          "scout": "Liv Andersson",
-          "notes": "Identify U23 prospects"
-        }
-      ],
-      "scoutPool": [
-        { "id": "scout-helena", "name": "Helena Ruiz", "region": "Iberia", "availability": "1 assignment" },
-        { "id": "scout-miguel", "name": "Miguel Duarte", "region": "South America", "availability": "2 assignments" },
-        { "id": "scout-liv", "name": "Liv Andersson", "region": "Scandinavia", "availability": "Available" },
-        { "id": "scout-owen", "name": "Owen Harris", "region": "UK & Ireland", "availability": "Available" }
-      ],
-      "assignmentStages": [
-        "New",
-        "In Progress",
-        "Awaiting Report",
-        "Complete"
-      ],
-      "assignmentPriorities": [
-        "High",
-        "Medium",
-        "Low"
       ]
     },
     "shortlist": {
@@ -1071,86 +509,20 @@
       "notes": [
         { "primary": "Medical", "secondary": "Monitor Neto hamstring history" },
         { "primary": "Scouting", "secondary": "Gvardiol excels in back three" }
-      ],
-      "board": [
-        {
-          "id": "shortlist-001",
-          "name": "Pedro Neto",
-          "position": "Inside Forward",
-          "status": "Make Offer",
-          "action": "Advance",
-          "priority": "Priority",
-          "notes": "Squad agrees he is primary January target"
-        },
-        {
-          "id": "shortlist-002",
-          "name": "Joško Gvardiol",
-          "position": "Ball Playing Defender",
-          "status": "Monitor",
-          "action": "Scout",
-          "priority": "Watch",
-          "notes": "Wait for budget clarity before bidding"
-        },
-        {
-          "id": "shortlist-003",
-          "name": "Arthur Vermeeren",
-          "position": "Deep Lying Playmaker",
-          "status": "Scout",
-          "action": "Assign Scout",
-          "priority": "Development",
-          "notes": "Ideal for long-term midfield succession"
-        }
-      ],
-      "statusOptions": [
-        "Make Offer",
-        "Monitor",
-        "Scout",
-        "No Action"
-      ],
-      "actionOptions": [
-        "Advance",
-        "Assign Scout",
-        "Hold",
-        "Remove"
       ]
     }
   },
   "finance": {
     "summary": {
       "overallBalance": {
-        "metric": {
-          "value": "£182M",
-          "summary": "Balance boosted by Champions League revenue.",
-          "pill": "Healthy"
-        },
-        "minimum": 0,
-        "maximum": 250,
-        "value": 182,
-        "target": 200,
-        "unit": "£M",
-        "bands": [
-          { "label": "Critical", "start": 0.0, "end": 0.3, "color": "#FF6F59" },
-          { "label": "Stable", "start": 0.3, "end": 0.65, "color": "#24577A" },
-          { "label": "Healthy", "start": 0.65, "end": 1.0, "color": "#2EC4B6" }
-        ],
-        "supportingItems": [
-          { "primary": "Operating Cash", "secondary": "£94M" },
-          { "primary": "Transfer Reserve", "secondary": "£28M" }
-        ]
+        "value": "£182M",
+        "summary": "Balance boosted by Champions League revenue.",
+        "pill": "Healthy"
       },
       "profitThisMonth": {
-        "metric": {
-          "value": "£6.2M",
-          "summary": "Matchday receipts and merchandise strong.",
-          "pill": "+12%"
-        },
-        "points": [
-          { "label": "Aug", "value": 4.1 },
-          { "label": "Sep", "value": 4.8 },
-          { "label": "Oct", "value": 5.6 },
-          { "label": "Nov", "value": 6.0 },
-          { "label": "Dec", "value": 6.2 }
-        ]
+        "value": "£6.2M",
+        "summary": "Matchday receipts and merchandise strong.",
+        "pill": "+12%"
       },
       "budgets": [
         { "primary": "Transfer", "secondary": "£48M", "tertiary": "£17M remaining" },
@@ -1166,22 +538,7 @@
       "sponsorDeals": [
         { "primary": "Emirates", "secondary": "£60M p/a", "tertiary": "Expires 2028" },
         { "primary": "Adidas", "secondary": "£55M p/a", "tertiary": "Expires 2030" }
-      ],
-      "forecast": {
-        "sliderLabel": "Budget allocation",
-        "valueDisplayFormat": "{0:0}% allocation",
-        "commitLabel": "Save scenario",
-        "summaryLabel": "Projected balance",
-        "minimum": 70,
-        "maximum": 130,
-        "step": 1,
-        "currentPercentage": 100,
-        "impacts": [
-          { "label": "Projected Balance", "format": "£{0:0.0}M", "baseValue": 182.0, "sensitivity": 0.42 },
-          { "label": "Transfer Budget", "format": "£{0:0.0}M", "baseValue": 48.0, "sensitivity": 0.28 },
-          { "label": "Wage Budget", "format": "£{0:0.00}M p/w", "baseValue": 3.2, "sensitivity": 0.015 }
-        ]
-      }
+      ]
     },
     "income": {
       "revenueStreams": [
@@ -1231,15 +588,6 @@
         { "primary": "@ Sevilla", "secondary": "Tue 20:00", "tertiary": "Champions League" },
         { "primary": "vs Spurs", "secondary": "Sun 16:30", "tertiary": "Premier League" }
       ],
-      "fixtureTimeline": {
-        "events": [
-          { "label": "Man City", "detail": "Premier League", "position": 0.05, "pill": "Home", "accent": "#2EC4B6" },
-          { "label": "Sevilla", "detail": "Champions League", "position": 0.25, "pill": "Away", "accent": "#FF9F1C" },
-          { "label": "Spurs", "detail": "Premier League", "position": 0.45, "pill": "Home", "accent": "#2EC4B6" },
-          { "label": "Wolves", "detail": "Premier League", "position": 0.68, "pill": "Away", "accent": "#FF9F1C" },
-          { "label": "PSG", "detail": "Champions League", "position": 0.9, "pill": "Home", "accent": "#7A5CFF" }
-        ]
-      },
       "travelPlans": [
         { "primary": "Manchester", "secondary": "Train", "tertiary": "Same day" },
         { "primary": "Seville", "secondary": "Flight", "tertiary": "Depart Mon" }
@@ -1275,8 +623,7 @@
     "calendar": {
       "monthOverview": [
         { "primary": "October Week 1", "secondary": "3 fixtures" },
-        { "primary": "October Week 2", "secondary": "International break" },
-        { "primary": "October Week 3", "secondary": "Two home matches" }
+        { "primary": "October Week 2", "secondary": "International break" }
       ],
       "cupDraws": [
         { "primary": "FA Cup 4th Round", "secondary": "Draw on 15 Oct" }
@@ -1287,269 +634,6 @@
       "reminders": [
         { "primary": "Register U21 players", "secondary": "Before 20 Oct" },
         { "primary": "Submit Champions League squad", "secondary": "1 Feb" }
-      ],
-      "filters": [
-        {
-          "id": "all",
-          "displayName": "All Competitions",
-          "isDefault": true,
-          "competitions": []
-        },
-        {
-          "id": "premier-league",
-          "displayName": "Premier League",
-          "isDefault": false,
-          "competitions": ["Premier League"]
-        },
-        {
-          "id": "champions-league",
-          "displayName": "Champions League",
-          "isDefault": false,
-          "competitions": ["Champions League"]
-        },
-        {
-          "id": "fa-cup",
-          "displayName": "FA Cup",
-          "isDefault": false,
-          "competitions": ["FA Cup"]
-        }
-      ],
-      "weeks": [
-        {
-          "label": "Week Commencing 7 Oct",
-          "days": [
-            {
-              "label": "Mon",
-              "date": "7 Oct",
-              "matches": []
-            },
-            {
-              "label": "Tue",
-              "date": "8 Oct",
-              "matches": [
-                {
-                  "id": "fixture-sevilla-away",
-                  "day": "Tue",
-                  "kickOff": "20:00",
-                  "competition": "Champions League",
-                  "opponent": "Sevilla",
-                  "venue": "Ramon Sánchez-Pizjuán",
-                  "isHome": false,
-                  "importance": "High",
-                  "broadcast": "BT Sport",
-                  "travelNote": "Flight departs Mon 10:00",
-                  "preparationNote": "Focus on pressing triggers",
-                  "status": "Scouting underway",
-                  "competitionAccent": "#7A5CFF",
-                  "keyPeople": [
-                    { "primary": "Lead Analyst", "secondary": "Luis García" },
-                    { "primary": "Travel", "secondary": "Maria Spencer" }
-                  ],
-                  "preparation": [
-                    { "primary": "Opposition Report", "secondary": "Due Fri" },
-                    { "primary": "Recovery", "secondary": "Schedule lighter session Thu" }
-                  ]
-                }
-              ]
-            },
-            {
-              "label": "Wed",
-              "date": "9 Oct",
-              "matches": []
-            },
-            {
-              "label": "Thu",
-              "date": "10 Oct",
-              "matches": []
-            },
-            {
-              "label": "Fri",
-              "date": "11 Oct",
-              "matches": []
-            },
-            {
-              "label": "Sat",
-              "date": "12 Oct",
-              "matches": [
-                {
-                  "id": "fixture-spurs-home",
-                  "day": "Sat",
-                  "kickOff": "16:30",
-                  "competition": "Premier League",
-                  "opponent": "Tottenham Hotspur",
-                  "venue": "Emirates Stadium",
-                  "isHome": true,
-                  "importance": "Derby",
-                  "broadcast": "Sky Sports",
-                  "travelNote": "Team hotel Friday night",
-                  "preparationNote": "Set-piece focus vs man marking",
-                  "status": "Ticket allocation confirmed",
-                  "competitionAccent": "#2EC4B6",
-                  "keyPeople": [
-                    { "primary": "Match Delegate", "secondary": "Sarah Powell" },
-                    { "primary": "Security", "secondary": "Derby day operations" }
-                  ],
-                  "preparation": [
-                    { "primary": "Derby Briefing", "secondary": "Leadership group Thu" },
-                    { "primary": "Officials", "secondary": "Tierney assigned" }
-                  ]
-                }
-              ]
-            },
-            {
-              "label": "Sun",
-              "date": "13 Oct",
-              "matches": []
-            }
-          ]
-        },
-        {
-          "label": "Week Commencing 14 Oct",
-          "days": [
-            {
-              "label": "Mon",
-              "date": "14 Oct",
-              "matches": []
-            },
-            {
-              "label": "Tue",
-              "date": "15 Oct",
-              "matches": []
-            },
-            {
-              "label": "Wed",
-              "date": "16 Oct",
-              "matches": []
-            },
-            {
-              "label": "Thu",
-              "date": "17 Oct",
-              "matches": []
-            },
-            {
-              "label": "Fri",
-              "date": "18 Oct",
-              "matches": []
-            },
-            {
-              "label": "Sat",
-              "date": "19 Oct",
-              "matches": [
-                {
-                  "id": "fixture-leeds-fa",
-                  "day": "Sat",
-                  "kickOff": "12:30",
-                  "competition": "FA Cup",
-                  "opponent": "Leeds United",
-                  "venue": "Elland Road",
-                  "isHome": false,
-                  "importance": "Cup",
-                  "broadcast": "BBC One",
-                  "travelNote": "Coach departs Fri 14:00",
-                  "preparationNote": "Rotate squad, monitor minutes",
-                  "status": "Rotation planned",
-                  "competitionAccent": "#FF9F1C",
-                  "keyPeople": [
-                    { "primary": "Squad Rotation", "secondary": "Give minutes to Hale End" }
-                  ],
-                  "preparation": [
-                    { "primary": "Pitch Inspection", "secondary": "Fri evening" }
-                  ]
-                }
-              ]
-            },
-            {
-              "label": "Sun",
-              "date": "20 Oct",
-              "matches": []
-            }
-          ]
-        },
-        {
-          "label": "Week Commencing 21 Oct",
-          "days": [
-            {
-              "label": "Mon",
-              "date": "21 Oct",
-              "matches": []
-            },
-            {
-              "label": "Tue",
-              "date": "22 Oct",
-              "matches": [
-                {
-                  "id": "fixture-psg-home",
-                  "day": "Tue",
-                  "kickOff": "20:00",
-                  "competition": "Champions League",
-                  "opponent": "Paris Saint-Germain",
-                  "venue": "Emirates Stadium",
-                  "isHome": true,
-                  "importance": "High",
-                  "broadcast": "BT Sport",
-                  "travelNote": "VIP hospitality extended",
-                  "preparationNote": "Manage Mbappé threat",
-                  "status": "Sold out",
-                  "competitionAccent": "#7A5CFF",
-                  "keyPeople": [
-                    { "primary": "Hospitality", "secondary": "Legends lounge upgrade" }
-                  ],
-                  "preparation": [
-                    { "primary": "Opponent Analysis", "secondary": "Mbappé & Dembélé patterns" }
-                  ]
-                }
-              ]
-            },
-            {
-              "label": "Wed",
-              "date": "23 Oct",
-              "matches": []
-            },
-            {
-              "label": "Thu",
-              "date": "24 Oct",
-              "matches": []
-            },
-            {
-              "label": "Fri",
-              "date": "25 Oct",
-              "matches": []
-            },
-            {
-              "label": "Sat",
-              "date": "26 Oct",
-              "matches": [
-                {
-                  "id": "fixture-wolves-home",
-                  "day": "Sat",
-                  "kickOff": "17:30",
-                  "competition": "Premier League",
-                  "opponent": "Wolverhampton",
-                  "venue": "Emirates Stadium",
-                  "isHome": true,
-                  "importance": "Medium",
-                  "result": "-",
-                  "broadcast": "Sky Sports",
-                  "travelNote": "Home fixture",
-                  "preparationNote": "Emphasise transitions",
-                  "status": "Media duties assigned",
-                  "competitionAccent": "#2EC4B6",
-                  "keyPeople": [
-                    { "primary": "Media", "secondary": "Arteta + new signing" }
-                  ],
-                  "preparation": [
-                    { "primary": "Scouting Update", "secondary": "Pedro Neto fitness check" }
-                  ]
-                }
-              ]
-            },
-            {
-              "label": "Sun",
-              "date": "27 Oct",
-              "matches": []
-            }
-          ]
-        }
       ]
     }
   }
