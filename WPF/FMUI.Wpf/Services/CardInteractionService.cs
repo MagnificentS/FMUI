@@ -30,6 +30,12 @@ public interface ICardInteractionService
 
     void CompleteResize(CardViewModel card, CardResizeCompleted completed);
 
+    void BeginPlayerDrag(CardViewModel card, FormationPlayerViewModel player);
+
+    void UpdatePlayerDrag(CardViewModel card, FormationPlayerViewModel player, FormationPlayerDragDelta delta);
+
+    void CompletePlayerDrag(CardViewModel card, FormationPlayerViewModel player, FormationPlayerDragCompleted completed);
+
     void UpdateViewport(Rect viewport);
 
     void NudgeSelection(int columnDelta, int rowDelta);
@@ -68,6 +74,7 @@ public sealed class CardInteractionService : ICardInteractionService
     private IReadOnlyList<CardGeometrySnapshot>? _pendingSnapshot;
     private readonly List<CardPreviewSnapshot> _currentPreviews = new();
     private bool _previewHasCollision;
+    private PlayerInteractionState? _activePlayerState;
 
     public CardInteractionService(ICardLayoutStateService stateService)
     {
@@ -106,6 +113,7 @@ public sealed class CardInteractionService : ICardInteractionService
 
         _pendingSnapshot = null;
         _activeDragController = null;
+        _activePlayerState = null;
 
         if (_selectedCards.Count > 0)
         {
@@ -314,7 +322,11 @@ public sealed class CardInteractionService : ICardInteractionService
         if (_pendingSnapshot is not null)
         {
             var after = CaptureSnapshot(updated);
-            CommitHistory(_pendingSnapshot, after);
+            CommitHistory(
+                _pendingSnapshot,
+                after,
+                Array.Empty<FormationPlayerPositionSnapshot>(),
+                Array.Empty<FormationPlayerPositionSnapshot>());
             _pendingSnapshot = null;
         }
 
@@ -413,9 +425,82 @@ public sealed class CardInteractionService : ICardInteractionService
         if (_pendingSnapshot is not null)
         {
             var after = CaptureSnapshot(new[] { card });
-            CommitHistory(_pendingSnapshot, after);
+            CommitHistory(
+                _pendingSnapshot,
+                after,
+                Array.Empty<FormationPlayerPositionSnapshot>(),
+                Array.Empty<FormationPlayerPositionSnapshot>());
             _pendingSnapshot = null;
         }
+    }
+
+    public void BeginPlayerDrag(CardViewModel card, FormationPlayerViewModel player)
+    {
+        if (!_trackedCards.Contains(card) || !card.HasFormationPlayers)
+        {
+            return;
+        }
+
+        var snapshot = CaptureFormationSnapshot(card);
+        _activePlayerState = PlayerInteractionState.Create(card, player, snapshot);
+    }
+
+    public void UpdatePlayerDrag(CardViewModel card, FormationPlayerViewModel player, FormationPlayerDragDelta delta)
+    {
+        if (_activePlayerState is not { } state || state.Card != card || state.Player != player)
+        {
+            return;
+        }
+
+        var pitchWidth = Math.Max(delta.PitchWidth, 1d);
+        var pitchHeight = Math.Max(delta.PitchHeight, 1d);
+        var tokenWidth = Math.Max(delta.TokenSize, 0d);
+        var normalizedX = state.CurrentX + (delta.HorizontalChange / pitchWidth);
+        var normalizedY = state.CurrentY + (delta.VerticalChange / pitchHeight);
+
+        var halfTokenX = tokenWidth <= 0d ? 0d : (tokenWidth / 2d) / pitchWidth;
+        var halfTokenY = tokenWidth <= 0d ? 0d : (tokenWidth / 2d) / pitchHeight;
+
+        var minX = halfTokenX > 0d && halfTokenX < 0.5d ? halfTokenX : 0d;
+        var maxX = halfTokenX > 0d && halfTokenX < 0.5d ? 1d - halfTokenX : 1d;
+        var minY = halfTokenY > 0d && halfTokenY < 0.5d ? halfTokenY : 0d;
+        var maxY = halfTokenY > 0d && halfTokenY < 0.5d ? 1d - halfTokenY : 1d;
+
+        var clampedX = Math.Clamp(normalizedX, minX, maxX);
+        var clampedY = Math.Clamp(normalizedY, minY, maxY);
+
+        player.UpdateNormalizedPosition(clampedX, clampedY);
+        state.CurrentX = clampedX;
+        state.CurrentY = clampedY;
+    }
+
+    public void CompletePlayerDrag(CardViewModel card, FormationPlayerViewModel player, FormationPlayerDragCompleted completed)
+    {
+        if (_activePlayerState is not { } state || state.Card != card || state.Player != player)
+        {
+            return;
+        }
+
+        _activePlayerState = null;
+
+        if (completed.Canceled)
+        {
+            ApplyPlayerSnapshot(state.Before);
+            return;
+        }
+
+        var after = CaptureFormationSnapshot(card);
+        if (ArePlayerSnapshotsEqual(state.Before, after))
+        {
+            return;
+        }
+
+        PersistFormationPlayers(card);
+        CommitHistory(
+            Array.Empty<CardGeometrySnapshot>(),
+            Array.Empty<CardGeometrySnapshot>(),
+            state.Before,
+            after);
     }
 
     public void UpdateViewport(Rect viewport)
@@ -466,7 +551,11 @@ public sealed class CardInteractionService : ICardInteractionService
 
         PersistGeometries(_selectedCards);
         var after = CaptureSnapshot(_selectedCards);
-        CommitHistory(before, after);
+        CommitHistory(
+            before,
+            after,
+            Array.Empty<FormationPlayerPositionSnapshot>(),
+            Array.Empty<FormationPlayerPositionSnapshot>());
     }
 
     public bool HasSelection => _selectedCards.Count > 0;
@@ -489,7 +578,8 @@ public sealed class CardInteractionService : ICardInteractionService
         }
 
         var entry = _undoStack.Pop();
-        ApplySnapshot(entry.Before);
+        ApplySnapshot(entry.GeometryBefore);
+        ApplyPlayerSnapshot(entry.PlayersBefore);
         _redoStack.Push(entry);
         OnHistoryChanged();
     }
@@ -502,7 +592,8 @@ public sealed class CardInteractionService : ICardInteractionService
         }
 
         var entry = _redoStack.Pop();
-        ApplySnapshot(entry.After);
+        ApplySnapshot(entry.GeometryAfter);
+        ApplyPlayerSnapshot(entry.PlayersAfter);
         _undoStack.Push(entry);
         OnHistoryChanged();
     }
@@ -624,6 +715,22 @@ public sealed class CardInteractionService : ICardInteractionService
         }
     }
 
+    private void PersistFormationPlayers(CardViewModel card)
+    {
+        if (string.IsNullOrWhiteSpace(_activeTab) || string.IsNullOrWhiteSpace(_activeSection))
+        {
+            return;
+        }
+
+        var states = card.GetFormationPlayerStates();
+        if (states.Count == 0)
+        {
+            return;
+        }
+
+        _stateService.UpdateFormationPlayers(_activeTab, _activeSection, card.Id, states);
+    }
+
     private int CalculateSpanChange(double delta)
     {
         var cellSize = _metrics.TileSize + _metrics.Gap;
@@ -639,6 +746,30 @@ public sealed class CardInteractionService : ICardInteractionService
         }
 
         list.Sort((left, right) => string.CompareOrdinal(left.CardId, right.CardId));
+        return list;
+    }
+
+    private IReadOnlyList<FormationPlayerPositionSnapshot> CaptureFormationSnapshot(CardViewModel card)
+    {
+        if (!card.HasFormationPlayers)
+        {
+            return Array.Empty<FormationPlayerPositionSnapshot>();
+        }
+
+        var list = new List<FormationPlayerPositionSnapshot>(card.FormationPlayers.Count);
+        foreach (var player in card.FormationPlayers)
+        {
+            list.Add(new FormationPlayerPositionSnapshot(card.Id, player.Id, player.NormalizedX, player.NormalizedY));
+        }
+
+        list.Sort(static (left, right) =>
+        {
+            var cardComparison = string.CompareOrdinal(left.CardId, right.CardId);
+            return cardComparison != 0
+                ? cardComparison
+                : string.CompareOrdinal(left.PlayerId, right.PlayerId);
+        });
+
         return list;
     }
 
@@ -665,14 +796,44 @@ public sealed class CardInteractionService : ICardInteractionService
         }
     }
 
-    private void CommitHistory(IReadOnlyList<CardGeometrySnapshot> before, IReadOnlyList<CardGeometrySnapshot> after)
+    private void ApplyPlayerSnapshot(IReadOnlyList<FormationPlayerPositionSnapshot> snapshot)
     {
-        if (AreSnapshotsEqual(before, after))
+        if (snapshot is null || snapshot.Count == 0)
         {
             return;
         }
 
-        _undoStack.Push(new CardHistoryEntry(before, after));
+        var updatedCards = new HashSet<CardViewModel>();
+
+        foreach (var playerSnapshot in snapshot)
+        {
+            if (!_cardLookup.TryGetValue(playerSnapshot.CardId, out var card))
+            {
+                continue;
+            }
+
+            card.UpdateFormationPlayer(playerSnapshot.PlayerId, playerSnapshot.X, playerSnapshot.Y);
+            updatedCards.Add(card);
+        }
+
+        foreach (var card in updatedCards)
+        {
+            PersistFormationPlayers(card);
+        }
+    }
+
+    private void CommitHistory(
+        IReadOnlyList<CardGeometrySnapshot> geometryBefore,
+        IReadOnlyList<CardGeometrySnapshot> geometryAfter,
+        IReadOnlyList<FormationPlayerPositionSnapshot> playersBefore,
+        IReadOnlyList<FormationPlayerPositionSnapshot> playersAfter)
+    {
+        if (AreSnapshotsEqual(geometryBefore, geometryAfter) && ArePlayerSnapshotsEqual(playersBefore, playersAfter))
+        {
+            return;
+        }
+
+        _undoStack.Push(new CardHistoryEntry(geometryBefore, geometryAfter, playersBefore, playersAfter));
         _redoStack.Clear();
         OnHistoryChanged();
     }
@@ -697,6 +858,26 @@ public sealed class CardInteractionService : ICardInteractionService
     }
 
     private static bool AreSnapshotsEqual(IReadOnlyList<CardGeometrySnapshot> left, IReadOnlyList<CardGeometrySnapshot> right)
+    {
+        if (left.Count != right.Count)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < left.Count; i++)
+        {
+            if (!left[i].Equals(right[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool ArePlayerSnapshotsEqual(
+        IReadOnlyList<FormationPlayerPositionSnapshot> left,
+        IReadOnlyList<FormationPlayerPositionSnapshot> right)
     {
         if (left.Count != right.Count)
         {
@@ -754,5 +935,42 @@ public sealed class CardInteractionService : ICardInteractionService
     {
         Drag,
         Resize
+    }
+
+    private sealed class PlayerInteractionState
+    {
+        private PlayerInteractionState(
+            CardViewModel card,
+            FormationPlayerViewModel player,
+            IReadOnlyList<FormationPlayerPositionSnapshot> before)
+        {
+            Card = card;
+            Player = player;
+            Before = before;
+            StartX = player.NormalizedX;
+            StartY = player.NormalizedY;
+            CurrentX = StartX;
+            CurrentY = StartY;
+        }
+
+        public CardViewModel Card { get; }
+
+        public FormationPlayerViewModel Player { get; }
+
+        public IReadOnlyList<FormationPlayerPositionSnapshot> Before { get; }
+
+        public double StartX { get; }
+
+        public double StartY { get; }
+
+        public double CurrentX { get; set; }
+
+        public double CurrentY { get; set; }
+
+        public static PlayerInteractionState Create(
+            CardViewModel card,
+            FormationPlayerViewModel player,
+            IReadOnlyList<FormationPlayerPositionSnapshot> before) =>
+            new(card, player, before);
     }
 }

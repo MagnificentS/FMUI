@@ -13,6 +13,7 @@ public sealed class CardViewModel : ObservableObject
     private readonly CardDefinition _definition;
     private readonly CardSurfaceMetrics _metrics;
     private readonly ICardInteractionService _interactionService;
+    private readonly Dictionary<string, FormationPlayerViewModel> _formationPlayerLookup = new(StringComparer.OrdinalIgnoreCase);
     private int _column;
     private int _row;
     private int _columnSpan;
@@ -32,9 +33,18 @@ public sealed class CardViewModel : ObservableObject
         ListItems = definition.ListItems is { Count: > 0 }
             ? new ReadOnlyCollection<CardListItemViewModel>(CreateListItems(definition.ListItems))
             : System.Array.Empty<CardListItemViewModel>();
-        FormationLines = definition.FormationLines is { Count: > 0 }
-            ? new ReadOnlyCollection<FormationLineViewModel>(CreateFormationLines(definition.FormationLines))
-            : System.Array.Empty<FormationLineViewModel>();
+
+        if (definition.FormationLines is { Count: > 0 })
+        {
+            var formation = CreateFormationViewModels(definition.FormationLines, interactionService, this);
+            FormationLines = formation.Lines;
+            FormationPlayers = formation.Players;
+        }
+        else
+        {
+            FormationLines = System.Array.Empty<FormationLineViewModel>();
+            FormationPlayers = System.Array.Empty<FormationPlayerViewModel>();
+        }
         BeginDragCommand = new RelayCommand(_ => _interactionService.BeginDrag(this));
         DragDeltaCommand = new RelayCommand(param =>
         {
@@ -94,6 +104,8 @@ public sealed class CardViewModel : ObservableObject
 
     public IReadOnlyList<FormationLineViewModel> FormationLines { get; }
 
+    public IReadOnlyList<FormationPlayerViewModel> FormationPlayers { get; }
+
     public bool HasSubtitle => !string.IsNullOrWhiteSpace(Subtitle);
 
     public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
@@ -105,6 +117,8 @@ public sealed class CardViewModel : ObservableObject
     public bool HasListItems => ListItems.Count > 0;
 
     public bool HasFormation => FormationLines.Count > 0;
+
+    public bool HasFormationPlayers => FormationPlayers.Count > 0;
 
     public double Left => _metrics.CalculateLeft(_column);
 
@@ -186,6 +200,49 @@ public sealed class CardViewModel : ObservableObject
         IsSelected = selected;
     }
 
+    internal bool TryGetFormationPlayer(string playerId, out FormationPlayerViewModel player)
+        => _formationPlayerLookup.TryGetValue(playerId, out player!);
+
+    internal IReadOnlyList<FormationPlayerState> GetFormationPlayerStates()
+    {
+        if (!HasFormationPlayers)
+        {
+            return System.Array.Empty<FormationPlayerState>();
+        }
+
+        var states = new List<FormationPlayerState>(FormationPlayers.Count);
+        foreach (var player in FormationPlayers)
+        {
+            states.Add(new FormationPlayerState(player.Id, player.NormalizedX, player.NormalizedY));
+        }
+
+        return states;
+    }
+
+    internal void ApplyFormationState(IReadOnlyList<FormationPlayerState> states)
+    {
+        if (!HasFormationPlayers || states is null || states.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var state in states)
+        {
+            if (_formationPlayerLookup.TryGetValue(state.PlayerId, out var player))
+            {
+                player.UpdateNormalizedPosition(state.X, state.Y);
+            }
+        }
+    }
+
+    internal void UpdateFormationPlayer(string playerId, double normalizedX, double normalizedY)
+    {
+        if (_formationPlayerLookup.TryGetValue(playerId, out var player))
+        {
+            player.UpdateNormalizedPosition(normalizedX, normalizedY);
+        }
+    }
+
     private static IList<CardListItemViewModel> CreateListItems(IReadOnlyList<CardListItem> items)
     {
         var list = new List<CardListItemViewModel>(items.Count);
@@ -197,15 +254,37 @@ public sealed class CardViewModel : ObservableObject
         return list;
     }
 
-    private static IList<FormationLineViewModel> CreateFormationLines(IReadOnlyList<FormationLineDefinition> definitions)
+    private static (ReadOnlyCollection<FormationLineViewModel> Lines, ReadOnlyCollection<FormationPlayerViewModel> Players) CreateFormationViewModels(
+        IReadOnlyList<FormationLineDefinition> definitions,
+        ICardInteractionService interactionService,
+        CardViewModel owner)
     {
+        var allPlayers = new List<FormationPlayerViewModel>();
         var lines = new List<FormationLineViewModel>(definitions.Count);
+
         foreach (var definition in definitions)
         {
-            lines.Add(new FormationLineViewModel(definition.Role, definition.Players));
+            var linePlayers = new List<FormationPlayerViewModel>();
+            foreach (var player in definition.Players)
+            {
+                var playerViewModel = new FormationPlayerViewModel(
+                    player.Id,
+                    player.Name,
+                    player.X,
+                    player.Y,
+                    interactionService,
+                    owner);
+                linePlayers.Add(playerViewModel);
+                allPlayers.Add(playerViewModel);
+                owner._formationPlayerLookup[player.Id] = playerViewModel;
+            }
+
+            lines.Add(new FormationLineViewModel(definition.Role, linePlayers));
         }
 
-        return lines;
+        return (
+            new ReadOnlyCollection<FormationLineViewModel>(lines),
+            new ReadOnlyCollection<FormationPlayerViewModel>(allPlayers));
     }
 }
 
@@ -235,13 +314,79 @@ public sealed class CardListItemViewModel
 
 public sealed class FormationLineViewModel
 {
-    public FormationLineViewModel(string role, IReadOnlyList<string> players)
+    public FormationLineViewModel(string role, IReadOnlyList<FormationPlayerViewModel> players)
     {
         Role = role;
-        Players = new ReadOnlyCollection<string>(new List<string>(players));
+        Players = new ReadOnlyCollection<FormationPlayerViewModel>(new List<FormationPlayerViewModel>(players));
     }
 
     public string Role { get; }
 
-    public IReadOnlyList<string> Players { get; }
+    public IReadOnlyList<FormationPlayerViewModel> Players { get; }
+}
+
+public sealed class FormationPlayerViewModel : ObservableObject
+{
+    private readonly ICardInteractionService _interactionService;
+    private readonly CardViewModel _owner;
+    private double _normalizedX;
+    private double _normalizedY;
+
+    public FormationPlayerViewModel(
+        string id,
+        string name,
+        double normalizedX,
+        double normalizedY,
+        ICardInteractionService interactionService,
+        CardViewModel owner)
+    {
+        Id = id;
+        Name = name;
+        _normalizedX = normalizedX;
+        _normalizedY = normalizedY;
+        _interactionService = interactionService;
+        _owner = owner;
+
+        BeginDragCommand = new RelayCommand(_ => _interactionService.BeginPlayerDrag(_owner, this));
+        DragDeltaCommand = new RelayCommand(parameter =>
+        {
+            if (parameter is FormationPlayerDragDelta delta)
+            {
+                _interactionService.UpdatePlayerDrag(_owner, this, delta);
+            }
+        });
+        CompleteDragCommand = new RelayCommand(parameter =>
+        {
+            var completed = parameter as FormationPlayerDragCompleted ?? new FormationPlayerDragCompleted(false);
+            _interactionService.CompletePlayerDrag(_owner, this, completed);
+        });
+    }
+
+    public string Id { get; }
+
+    public string Name { get; }
+
+    public double NormalizedX
+    {
+        get => _normalizedX;
+        private set => SetProperty(ref _normalizedX, value);
+    }
+
+    public double NormalizedY
+    {
+        get => _normalizedY;
+        private set => SetProperty(ref _normalizedY, value);
+    }
+
+    public ICommand BeginDragCommand { get; }
+
+    public ICommand DragDeltaCommand { get; }
+
+    public ICommand CompleteDragCommand { get; }
+
+    internal void UpdateNormalizedPosition(double normalizedX, double normalizedY)
+    {
+        NormalizedX = normalizedX;
+        NormalizedY = normalizedY;
+    }
 }

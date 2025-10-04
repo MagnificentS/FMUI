@@ -56,7 +56,29 @@ public sealed class ClubDataService : IClubDataService
         var results = new List<FormationLineSnapshot>(source.Count);
         foreach (var line in source)
         {
-            results.Add(new FormationLineSnapshot(line.Role, line.Players ?? Array.Empty<string>()));
+            var players = line.Players;
+            if (players is null || players.Count == 0)
+            {
+                results.Add(new FormationLineSnapshot(line.Role, Array.Empty<FormationPlayerSnapshot>()));
+                continue;
+            }
+
+            var mappedPlayers = new List<FormationPlayerSnapshot>(players.Count);
+            foreach (var player in players)
+            {
+                var id = string.IsNullOrWhiteSpace(player.Id)
+                    ? player.Name
+                    : player.Id;
+
+                if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(player.Name))
+                {
+                    continue;
+                }
+
+                mappedPlayers.Add(new FormationPlayerSnapshot(id, player.Name, player.X, player.Y));
+            }
+
+            results.Add(new FormationLineSnapshot(line.Role, mappedPlayers));
         }
 
         return results;
@@ -551,7 +573,9 @@ public sealed class ClubDataService : IClubDataService
             MapEntries(Reminders));
     }
 
-    private sealed record FormationLineDocument(string Role, IReadOnlyList<string>? Players);
+    private sealed record FormationLineDocument(string Role, IReadOnlyList<FormationPlayerDocument>? Players);
+
+    private sealed record FormationPlayerDocument(string? Id, string Name, double X, double Y);
 
     private sealed record MetricDocument(string Value, string Summary, string? Pill);
 

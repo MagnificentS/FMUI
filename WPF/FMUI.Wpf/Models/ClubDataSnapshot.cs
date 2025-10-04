@@ -25,7 +25,9 @@ public sealed record TacticalSnapshot(
     SetPieceSnapshot SetPieces,
     TacticalAnalysisSnapshot Analysis);
 
-public sealed record FormationLineSnapshot(string Role, IReadOnlyList<string> Players);
+public sealed record FormationPlayerSnapshot(string Id, string Name, double X, double Y);
+
+public sealed record FormationLineSnapshot(string Role, IReadOnlyList<FormationPlayerSnapshot> Players);
 
 public sealed record MetricSnapshot(string Value, string Summary, string? Pill = null);
 

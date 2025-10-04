@@ -23,6 +23,12 @@ public readonly record struct CardGeometrySnapshot(string CardId, CardGeometry G
 
 public readonly record struct CardPreviewSnapshot(string CardId, CardGeometry Geometry, bool IsValid);
 
+public readonly record struct FormationPlayerDragDelta(double HorizontalChange, double VerticalChange, double PitchWidth, double PitchHeight, double TokenSize);
+
+public readonly record struct FormationPlayerDragCompleted(bool Canceled);
+
+public readonly record struct FormationPlayerPositionSnapshot(string CardId, string PlayerId, double X, double Y);
+
 public enum SelectionModifier
 {
     Replace,
@@ -31,5 +37,7 @@ public enum SelectionModifier
 }
 
 public readonly record struct CardHistoryEntry(
-    IReadOnlyList<CardGeometrySnapshot> Before,
-    IReadOnlyList<CardGeometrySnapshot> After);
+    IReadOnlyList<CardGeometrySnapshot> GeometryBefore,
+    IReadOnlyList<CardGeometrySnapshot> GeometryAfter,
+    IReadOnlyList<FormationPlayerPositionSnapshot> PlayersBefore,
+    IReadOnlyList<FormationPlayerPositionSnapshot> PlayersAfter);

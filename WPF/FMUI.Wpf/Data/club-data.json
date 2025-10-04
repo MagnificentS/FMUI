@@ -7,35 +7,39 @@
     "formationLines": [
       {
         "role": "Striker",
-        "players": ["Ivan Toney (AF)"]
+        "players": [
+          { "id": "st-ivan-toney", "name": "Ivan Toney (AF)", "x": 0.5, "y": 0.08 }
+        ]
       },
       {
         "role": "Attacking Midfield",
         "players": [
-          "Phil Foden (IW)",
-          "Martin Ødegaard (AP)",
-          "Bukayo Saka (IW)"
+          { "id": "am-phil-foden", "name": "Phil Foden (IW)", "x": 0.26, "y": 0.28 },
+          { "id": "am-martin-odegaard", "name": "Martin Ødegaard (AP)", "x": 0.5, "y": 0.3 },
+          { "id": "am-bukayo-saka", "name": "Bukayo Saka (IW)", "x": 0.74, "y": 0.28 }
         ]
       },
       {
         "role": "Midfield Pivot",
         "players": [
-          "Declan Rice (HB)",
-          "Youri Tielemans (BBM)"
+          { "id": "mid-declan-rice", "name": "Declan Rice (HB)", "x": 0.36, "y": 0.48 },
+          { "id": "mid-youri-tielemans", "name": "Youri Tielemans (BBM)", "x": 0.64, "y": 0.48 }
         ]
       },
       {
         "role": "Defence",
         "players": [
-          "Kieran Tierney (WB)",
-          "Gabriel (CD)",
-          "Ben White (BPD)",
-          "Takehiro Tomiyasu (WB)"
+          { "id": "def-kieran-tierney", "name": "Kieran Tierney (WB)", "x": 0.18, "y": 0.7 },
+          { "id": "def-gabriel", "name": "Gabriel (CD)", "x": 0.38, "y": 0.68 },
+          { "id": "def-ben-white", "name": "Ben White (BPD)", "x": 0.62, "y": 0.68 },
+          { "id": "def-takehiro-tomiyasu", "name": "Takehiro Tomiyasu (WB)", "x": 0.82, "y": 0.7 }
         ]
       },
       {
         "role": "Goalkeeper",
-        "players": ["Aaron Ramsdale (SK)"]
+        "players": [
+          { "id": "gk-aaron-ramsdale", "name": "Aaron Ramsdale (SK)", "x": 0.5, "y": 0.9 }
+        ]
       }
     ],
     "fluidity": {

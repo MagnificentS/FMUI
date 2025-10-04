@@ -32,6 +32,7 @@
     </UserControl.InputBindings>
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <views:RelativePositionConverter x:Key="RelativePositionConverter" />
 
         <Style x:Key="CardBorderStyle" TargetType="Border">
             <Setter Property="Padding" Value="20" />
@@ -274,6 +275,41 @@
             </Grid>
         </DataTemplate>
 
+        <DataTemplate x:Key="FormationPlayerTemplate" DataType="{x:Type vm:FormationPlayerViewModel}">
+            <controls:FormationPlayerThumb Width="56"
+                                            Height="56"
+                                            PitchWidth="{Binding RelativeSource={RelativeSource AncestorType=Canvas}, Path=ActualWidth}"
+                                            PitchHeight="{Binding RelativeSource={RelativeSource AncestorType=Canvas}, Path=ActualHeight}"
+                                            TokenSize="56"
+                                            BeginDragCommand="{Binding BeginDragCommand}"
+                                            DragDeltaCommand="{Binding DragDeltaCommand}"
+                                            DragCompletedCommand="{Binding CompleteDragCommand}"
+                                            Cursor="Hand">
+                <controls:FormationPlayerThumb.Template>
+                    <ControlTemplate TargetType="controls:FormationPlayerThumb">
+                        <Border Background="#2EC4B6"
+                                CornerRadius="28"
+                                BorderBrush="#FFFFFFFF"
+                                BorderThickness="2"
+                                Padding="8">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="18"
+                                                  ShadowDepth="0"
+                                                  Opacity="0.45"
+                                                  Color="#AA000000" />
+                            </Border.Effect>
+                            <TextBlock Text="{Binding Name}"
+                                       Foreground="White"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap"
+                                       TextAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </controls:FormationPlayerThumb.Template>
+            </controls:FormationPlayerThumb>
+        </DataTemplate>
+
         <DataTemplate x:Key="FormationLineTemplate" DataType="{x:Type vm:FormationLineViewModel}">
             <StackPanel Margin="0,0,0,18">
                 <TextBlock Text="{Binding Role}"
@@ -295,7 +331,7 @@
                                     BorderBrush="#33FFFFFF"
                                     BorderThickness="1.2"
                                     CornerRadius="18">
-                                <TextBlock Text="{Binding .}"
+                                <TextBlock Text="{Binding Name}"
                                            Foreground="White"
                                            VerticalAlignment="Center"
                                            HorizontalAlignment="Center"
@@ -350,7 +386,13 @@
 
         <DataTemplate x:Key="FormationCardBodyTemplate">
             <Grid>
-                <Border Background="#0E4022"
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        Background="#0E4022"
                         CornerRadius="16"
                         Padding="18"
                         BorderBrush="#1ABF8F"
@@ -361,16 +403,42 @@
                                    Opacity="0.35"
                                    HorizontalAlignment="Stretch"
                                    VerticalAlignment="Center" />
-                        <ItemsControl ItemsSource="{Binding FormationLines}"
-                                      ItemTemplate="{StaticResource FormationLineTemplate}">
+
+                        <ItemsControl ItemsSource="{Binding FormationPlayers}"
+                                      ItemTemplate="{StaticResource FormationPlayerTemplate}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <StackPanel />
+                                    <Canvas />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemContainerStyle>
+                                <Style TargetType="ContentPresenter">
+                                    <Setter Property="Canvas.Left">
+                                        <Setter.Value>
+                                            <MultiBinding Converter="{StaticResource RelativePositionConverter}" ConverterParameter="56">
+                                                <Binding Path="NormalizedX" />
+                                                <Binding RelativeSource="{RelativeSource AncestorType=Canvas}" Path="ActualWidth" />
+                                            </MultiBinding>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="Canvas.Top">
+                                        <Setter.Value>
+                                            <MultiBinding Converter="{StaticResource RelativePositionConverter}" ConverterParameter="56">
+                                                <Binding Path="NormalizedY" />
+                                                <Binding RelativeSource="{RelativeSource AncestorType=Canvas}" Path="ActualHeight" />
+                                            </MultiBinding>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>
                         </ItemsControl>
                     </Grid>
                 </Border>
+
+                <ItemsControl Grid.Row="1"
+                              Margin="0,16,0,0"
+                              ItemsSource="{Binding FormationLines}"
+                              ItemTemplate="{StaticResource FormationLineTemplate}" />
             </Grid>
         </DataTemplate>
 

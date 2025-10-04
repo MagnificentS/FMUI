@@ -126,6 +126,12 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
                     card.UpdateGeometry(geometry.Column, geometry.Row, geometry.ColumnSpan, geometry.RowSpan);
                 }
 
+                if (card.HasFormationPlayers &&
+                    _stateService.TryGetFormationPlayers(tabIdentifier, sectionIdentifier, card.Id, out var players))
+                {
+                    card.ApplyFormationState(players);
+                }
+
                 Cards.Add(card);
             }
 

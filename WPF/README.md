@@ -60,6 +60,7 @@ WPF/
 - **Interactive card canvas** with drag, resize, and a custom virtualizing panel that keeps only on-screen cards realised while sharing viewport state through the interaction service.
 - **Snapping previews and collision guards** that render drag ghosts for active selections, flag invalid drops in real time, and block commits when card geometry would overlap existing content.
 - **Selection-aware workspace tooling** covering multi-card selection, keyboard nudging, and undo/redo history so layout edits can be grouped, reversed, and persisted like the HTML reference.
+- **Tactical pitch player drag/drop** with draggable formation tokens, collision-aware snapping, and persisted player geometry that flows through undo/redo history and file-backed storage.
 - **Sample layout catalog** that mirrors real Football Manager content, including formation breakdowns, instructional lists, and metric summaries to guide downstream feature parity work across every navigation section.
 - **JSON-backed data services** that hydrate tactics, squad, training, transfer, finance, and fixture cards from structured seed files instead of hard-coded strings.
 - **Durable layout state persistence** that stores per-section card geometry on disk so drag and resize edits survive application restarts.
@@ -71,7 +72,7 @@ WPF/
    ```bash
    dotnet build WPF/FMUI.Wpf.sln
    ```
-3. Expand the interaction layer with player drag/drop, card creation/removal workflows, and performance instrumentation to match the HTML orchestrators.
-4. Introduce automated tests and telemetry to validate interaction flows and capture performance regressions early.
+3. Extend the interaction layer with card creation/removal workflows, player token presets, and performance instrumentation to match the HTML orchestrators.
+4. Introduce specialised card visuals (charts, gauges, fixture timelines) and automated tests to validate interaction flows while capturing performance regressions early.
 
 The scaffold now reflects the navigation, theming, messaging, and interaction patterns required for the full Football Manager UI conversion.

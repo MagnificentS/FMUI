@@ -64,7 +64,11 @@ public sealed class CardLayoutCatalog : ICardLayoutCatalog
                 Description: snapshot.Description,
                 PillText: snapshot.MentalityPill,
                 FormationLines: snapshot.FormationLines
-                    .Select(line => new FormationLineDefinition(line.Role, line.Players))
+                    .Select(line => new FormationLineDefinition(
+                        line.Role,
+                        line.Players
+                            .Select(player => new FormationPlayerDefinition(player.Id, player.Name, player.X, player.Y))
+                            .ToList()))
                     .ToList()),
             CreateMetricCard("team-fluidity", "Team Fluidity", "Shape cohesion", snapshot.Fluidity, 22, 0, 7, 5),
             CreateMetricCard("mentality", "Mentality", "In possession mindset", snapshot.Mentality, 29, 0, 8, 5),
