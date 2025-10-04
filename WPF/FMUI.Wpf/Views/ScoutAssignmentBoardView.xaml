@@ -1,0 +1,166 @@
+<UserControl x:Class="FMUI.Wpf.Views.ScoutAssignmentBoardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="300"
+             d:DesignWidth="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <UniformGrid Grid.Row="0"
+                     Columns="3"
+                     Margin="0,0,0,12"
+                     HorizontalAlignment="Stretch">
+            <StackPanel Margin="0,0,16,0">
+                <TextBlock Text="Total Assignments"
+                           Style="{DynamicResource CardMetricLabelTextStyle}" />
+                <TextBlock Text="{Binding TotalAssignments}"
+                           Style="{DynamicResource CardMetricValueTextStyle}" />
+            </StackPanel>
+            <StackPanel Margin="0,0,16,0">
+                <TextBlock Text="High Priority"
+                           Style="{DynamicResource CardMetricLabelTextStyle}" />
+                <TextBlock Text="{Binding HighPriorityAssignments}"
+                           Style="{DynamicResource CardMetricValueTextStyle}" />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Text="Awaiting Reports"
+                           Style="{DynamicResource CardMetricLabelTextStyle}" />
+                <TextBlock Text="{Binding AwaitingReportAssignments}"
+                           Style="{DynamicResource CardMetricValueTextStyle}" />
+            </StackPanel>
+        </UniformGrid>
+
+        <Border Grid.Row="1"
+                Background="{DynamicResource OverlayListBackgroundBrush}"
+                BorderBrush="{DynamicResource OverlayListItemBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="10">
+            <ListView ItemsSource="{Binding Assignments}"
+                      BorderThickness="0"
+                      Background="Transparent"
+                      Foreground="{DynamicResource PrimaryTextBrush}"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel />
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Padding" Value="12,10" />
+                        <Setter Property="Margin" Value="0" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="VerticalContentAlignment" Value="Center" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListViewItem">
+                                    <Border Background="{TemplateBinding Background}">
+                                        <ContentPresenter />
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource OverlayListItemHoverBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.View>
+                    <GridView AllowsColumnReorder="False">
+                        <GridViewColumn Width="220" Header="Assignment">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Focus}"
+                                                   FontSize="16"
+                                                   FontWeight="SemiBold"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Role}"
+                                                   Style="{DynamicResource CardSubtitleTextStyle}"
+                                                   FontSize="13"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="140" Header="Region">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Region}"
+                                               Style="{DynamicResource CardSubtitleTextStyle}"
+                                               TextTrimming="CharacterEllipsis" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="140" Header="Scout">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Scout}"
+                                               Style="{DynamicResource CardSubtitleTextStyle}"
+                                               TextTrimming="CharacterEllipsis" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="120" Header="Priority">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="{Binding PriorityBrush}"
+                                            CornerRadius="6"
+                                            Padding="10,4"
+                                            HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding Priority}"
+                                                   Foreground="White"
+                                                   FontSize="13"
+                                                   FontWeight="SemiBold" />
+                                    </Border>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="140" Header="Stage">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="{Binding StageBrush}"
+                                            CornerRadius="6"
+                                            Padding="10,4"
+                                            HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding Stage}"
+                                                   Foreground="White"
+                                                   FontSize="13"
+                                                   FontWeight="SemiBold" />
+                                    </Border>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="120" Header="Deadline">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Deadline}"
+                                               Style="{DynamicResource CardSubtitleTextStyle}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="220" Header="Notes">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Notes}"
+                                               Style="{DynamicResource CardSubtitleTextStyle}"
+                                               TextTrimming="CharacterEllipsis"
+                                               Visibility="{Binding HasNotes, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Border>
+    </Grid>
+</UserControl>
