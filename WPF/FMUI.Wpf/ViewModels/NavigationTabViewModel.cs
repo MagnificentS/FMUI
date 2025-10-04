@@ -8,15 +8,12 @@ namespace FMUI.Wpf.ViewModels;
 
 public sealed class NavigationTabViewModel : ObservableObject
 {
-    private readonly IEventAggregator _eventAggregator;
     private bool _isSelected;
     private NavigationSubItemViewModel? _activeSubItem;
 
-    public NavigationTabViewModel(NavigationTab model, IEventAggregator eventAggregator)
+    public NavigationTabViewModel(NavigationTab model)
     {
         Model = model;
-        _eventAggregator = eventAggregator;
-
         SubItems = new ObservableCollection<NavigationSubItemViewModel>(
             model.SubItems.Select(sub => new NavigationSubItemViewModel(sub)));
 
@@ -47,13 +44,7 @@ public sealed class NavigationTabViewModel : ObservableObject
     public bool IsSelected
     {
         get => _isSelected;
-        set
-        {
-            if (SetProperty(ref _isSelected, value) && value && ActiveSubItem is not null)
-            {
-                PublishSectionChanged(ActiveSubItem);
-            }
-        }
+        set => SetProperty(ref _isSelected, value);
     }
 
     public NavigationSubItemViewModel? ActiveSubItem
@@ -70,23 +61,5 @@ public sealed class NavigationTabViewModel : ObservableObject
         }
 
         ActiveSubItem = target;
-
-        if (IsSelected)
-        {
-            PublishSectionChanged(target);
-        }
-    }
-
-    public void EnsureActiveSectionBroadcast()
-    {
-        if (IsSelected && ActiveSubItem is not null)
-        {
-            PublishSectionChanged(ActiveSubItem);
-        }
-    }
-
-    private void PublishSectionChanged(NavigationSubItemViewModel subItem)
-    {
-        _eventAggregator.Publish(new NavigationSectionChangedEvent(Identifier, subItem.Identifier));
     }
 }

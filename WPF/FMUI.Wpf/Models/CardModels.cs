@@ -13,9 +13,7 @@ public enum CardKind
 
 public sealed record CardListItem(string Primary, string? Secondary = null, string? Tertiary = null, string? Accent = null);
 
-public sealed record FormationPlayerDefinition(string Id, string Name, double X, double Y);
-
-public sealed record FormationLineDefinition(string Role, IReadOnlyList<FormationPlayerDefinition> Players);
+public sealed record FormationLineDefinition(string Role, IReadOnlyList<string> Players);
 
 public sealed record CardDefinition(
     string Id,

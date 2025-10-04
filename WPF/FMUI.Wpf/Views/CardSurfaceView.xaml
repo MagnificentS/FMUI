@@ -4,35 +4,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:FMUI.Wpf.ViewModels"
-             xmlns:controls="clr-namespace:FMUI.Wpf.Controls"
-             xmlns:views="clr-namespace:FMUI.Wpf.Views"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance Type=vm:CardSurfaceViewModel}"
-             Focusable="True">
-    <UserControl.InputBindings>
-        <KeyBinding Key="Z"
-                    Modifiers="Control"
-                    Command="{Binding UndoCommand}" />
-        <KeyBinding Key="Y"
-                    Modifiers="Control"
-                    Command="{Binding RedoCommand}" />
-        <KeyBinding Key="Z"
-                    Modifiers="Control,Shift"
-                    Command="{Binding RedoCommand}" />
-        <KeyBinding Key="Left"
-                    Command="{Binding NudgeLeftCommand}" />
-        <KeyBinding Key="Right"
-                    Command="{Binding NudgeRightCommand}" />
-        <KeyBinding Key="Up"
-                    Command="{Binding NudgeUpCommand}" />
-        <KeyBinding Key="Down"
-                    Command="{Binding NudgeDownCommand}" />
-        <KeyBinding Key="Escape"
-                    Command="{Binding ClearSelectionCommand}" />
-    </UserControl.InputBindings>
+             d:DataContext="{d:DesignInstance Type=vm:CardSurfaceViewModel}">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <views:RelativePositionConverter x:Key="RelativePositionConverter" />
 
         <Style x:Key="CardBorderStyle" TargetType="Border">
             <Setter Property="Padding" Value="20" />
@@ -53,25 +28,6 @@
                     <DropShadowEffect BlurRadius="18" ShadowDepth="0" Opacity="0.22" Color="#000000" />
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                    <Setter Property="BorderBrush" Value="{StaticResource AccentPrimaryBrush}" />
-                    <Setter Property="BorderThickness" Value="2" />
-                    <Setter Property="Effect">
-                        <Setter.Value>
-                            <DropShadowEffect BlurRadius="24" ShadowDepth="0" Opacity="0.35" Color="#2EC4B6" />
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="Background">
-                        <Setter.Value>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                <GradientStop Color="#1F2E3F" Offset="0" />
-                                <GradientStop Color="#17202D" Offset="1" />
-                            </LinearGradientBrush>
-                        </Setter.Value>
-                    </Setter>
-                </DataTrigger>
-            </Style.Triggers>
         </Style>
 
         <Style x:Key="CardTitleTextStyle" TargetType="TextBlock">
@@ -107,57 +63,7 @@
             <Setter Property="Foreground" Value="{StaticResource NeutralTextBrush}" />
         </Style>
 
-        <Style TargetType="controls:CardDragThumb">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="controls:CardDragThumb">
-                        <Border Background="{TemplateBinding Background}"
-                                CornerRadius="18" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style TargetType="controls:CardResizeThumb">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="controls:CardResizeThumb">
-                        <Border Background="{TemplateBinding Background}"
-                                CornerRadius="3"
-                                BorderBrush="Transparent"
-                                BorderThickness="1" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <DataTemplate x:Key="CardPreviewTemplate" DataType="{x:Type vm:CardPreviewViewModel}">
-            <Border Width="{Binding Width}"
-                    Height="{Binding Height}"
-                    Canvas.Left="{Binding Left}"
-                    Canvas.Top="{Binding Top}"
-                    CornerRadius="18"
-                    BorderThickness="2"
-                    IsHitTestVisible="False">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Background" Value="#402EC4B6" />
-                        <Setter Property="BorderBrush" Value="{StaticResource AccentPrimaryBrush}" />
-                        <Setter Property="Opacity" Value="0.9" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsValid}" Value="False">
-                                <Setter Property="Background" Value="#40ED5E68" />
-                                <Setter Property="BorderBrush" Value="#FFED5E68" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-            </Border>
-        </DataTemplate>
-
-        <DataTemplate x:Key="StandardListItemTemplate" DataType="{x:Type vm:CardListItemViewModel}">
+        <DataTemplate DataType="{x:Type vm:CardListItemViewModel}">
             <Border Margin="0,0,0,10"
                     Padding="0,0,0,8"
                     BorderBrush="#1F2A39"
@@ -227,323 +133,97 @@
             </Border>
         </DataTemplate>
 
-        <DataTemplate x:Key="StatusListItemTemplate" DataType="{x:Type vm:CardListItemViewModel}">
-            <DockPanel Margin="0,0,0,10">
-                <Ellipse Width="10"
-                         Height="10"
-                         Fill="#2EC4B6"
-                         Opacity="0.65"
-                         Margin="0,4,12,0"
-                         DockPanel.Dock="Left" />
-                <StackPanel>
-                    <TextBlock Text="{Binding Primary}"
-                               Style="{StaticResource CardListPrimaryTextStyle}" />
-                    <TextBlock Text="{Binding Secondary}"
-                               Style="{StaticResource CardListSecondaryTextStyle}"
-                               Visibility="{Binding HasSecondary, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                </StackPanel>
-            </DockPanel>
-        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:CardViewModel}">
+            <Border Style="{StaticResource CardBorderStyle}"
+                    Width="{Binding Width}"
+                    Height="{Binding Height}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
 
-        <DataTemplate x:Key="FixtureListItemTemplate" DataType="{x:Type vm:CardListItemViewModel}">
-            <Grid Margin="0,0,0,12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding Primary}"
-                           Style="{StaticResource CardListSecondaryTextStyle}" />
-                <StackPanel Grid.Column="1" Margin="16,0,0,0">
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                        <TextBlock Text="{Binding Secondary}"
-                                   Style="{StaticResource CardListPrimaryTextStyle}" />
-                        <Border Background="#2EC4B622"
-                                Padding="8,2"
-                                CornerRadius="10"
-                                Margin="12,0,0,0"
-                                Visibility="{Binding HasAccent, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <TextBlock Text="{Binding Accent}"
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Title}" Style="{StaticResource CardTitleTextStyle}" />
+                        <Border Margin="12,0,0,0"
+                                Padding="10,4"
+                                Background="#2EC4B622"
+                                CornerRadius="12"
+                                Visibility="{Binding HasPill, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="{Binding PillText}"
                                        Foreground="{StaticResource AccentPrimaryBrush}"
-                                       FontSize="11"
+                                       FontSize="12"
                                        FontWeight="SemiBold" />
                         </Border>
                     </StackPanel>
-                    <TextBlock Text="{Binding Tertiary}"
-                               Style="{StaticResource CardListSecondaryTextStyle}"
-                               Visibility="{Binding HasTertiary, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                </StackPanel>
-            </Grid>
-        </DataTemplate>
 
-        <DataTemplate x:Key="FormationPlayerTemplate" DataType="{x:Type vm:FormationPlayerViewModel}">
-            <controls:FormationPlayerThumb Width="56"
-                                            Height="56"
-                                            PitchWidth="{Binding RelativeSource={RelativeSource AncestorType=Canvas}, Path=ActualWidth}"
-                                            PitchHeight="{Binding RelativeSource={RelativeSource AncestorType=Canvas}, Path=ActualHeight}"
-                                            TokenSize="56"
-                                            BeginDragCommand="{Binding BeginDragCommand}"
-                                            DragDeltaCommand="{Binding DragDeltaCommand}"
-                                            DragCompletedCommand="{Binding CompleteDragCommand}"
-                                            Cursor="Hand">
-                <controls:FormationPlayerThumb.Template>
-                    <ControlTemplate TargetType="controls:FormationPlayerThumb">
-                        <Border Background="#2EC4B6"
-                                CornerRadius="28"
-                                BorderBrush="#FFFFFFFF"
-                                BorderThickness="2"
-                                Padding="8">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="18"
-                                                  ShadowDepth="0"
-                                                  Opacity="0.45"
-                                                  Color="#AA000000" />
-                            </Border.Effect>
-                            <TextBlock Text="{Binding Name}"
-                                       Foreground="White"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       TextWrapping="Wrap"
-                                       TextAlignment="Center" />
-                        </Border>
-                    </ControlTemplate>
-                </controls:FormationPlayerThumb.Template>
-            </controls:FormationPlayerThumb>
-        </DataTemplate>
+                    <TextBlock Grid.Row="1"
+                               Margin="0,8,0,0"
+                               Text="{Binding Subtitle}"
+                               Style="{StaticResource CardSubtitleTextStyle}"
+                               Visibility="{Binding HasSubtitle, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-        <DataTemplate x:Key="FormationLineTemplate" DataType="{x:Type vm:FormationLineViewModel}">
-            <StackPanel Margin="0,0,0,18">
-                <TextBlock Text="{Binding Role}"
-                           Foreground="#B3C6DC"
-                           FontSize="12"
-                           FontWeight="SemiBold"
-                           Margin="0,0,0,6" />
-                <ItemsControl ItemsSource="{Binding Players}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Rows="1" HorizontalAlignment="Stretch" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Margin="6,0"
-                                    Padding="14,10"
-                                    Background="#1AFFFFFF"
-                                    BorderBrush="#33FFFFFF"
-                                    BorderThickness="1.2"
-                                    CornerRadius="18">
-                                <TextBlock Text="{Binding Name}"
-                                           Foreground="White"
-                                           VerticalAlignment="Center"
-                                           HorizontalAlignment="Center"
-                                           FontWeight="SemiBold"
-                                           FontSize="12"
-                                           TextAlignment="Center"
-                                           TextWrapping="Wrap" />
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
-        </DataTemplate>
-
-        <DataTemplate x:Key="MetricCardBodyTemplate">
-            <StackPanel>
-                <TextBlock Text="{Binding MetricValue}"
-                           Style="{StaticResource CardMetricValueTextStyle}" />
-                <TextBlock Text="{Binding MetricLabel}"
-                           Margin="0,8,0,0"
-                           Style="{StaticResource CardMetricLabelTextStyle}" />
-            </StackPanel>
-        </DataTemplate>
-
-        <DataTemplate x:Key="ListCardBodyTemplate">
-            <ItemsControl ItemsSource="{Binding ListItems}"
-                          ItemTemplate="{StaticResource StandardListItemTemplate}" />
-        </DataTemplate>
-
-        <DataTemplate x:Key="StatusCardBodyTemplate">
-            <ItemsControl ItemsSource="{Binding ListItems}"
-                          ItemTemplate="{StaticResource StatusListItemTemplate}" />
-        </DataTemplate>
-
-        <DataTemplate x:Key="FixtureCardBodyTemplate">
-            <StackPanel>
-                <Border Background="#19202E"
-                        CornerRadius="14"
-                        Padding="16"
-                        Margin="0,0,0,16">
-                    <StackPanel>
-                        <TextBlock Text="{Binding Description}"
-                                   Foreground="White"
-                                   FontSize="20"
-                                   FontWeight="SemiBold" />
-                    </StackPanel>
-                </Border>
-                <ItemsControl ItemsSource="{Binding ListItems}"
-                              ItemTemplate="{StaticResource FixtureListItemTemplate}" />
-            </StackPanel>
-        </DataTemplate>
-
-        <DataTemplate x:Key="FormationCardBodyTemplate">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <Border Grid.Row="0"
-                        Background="#0E4022"
-                        CornerRadius="16"
-                        Padding="18"
-                        BorderBrush="#1ABF8F"
-                        BorderThickness="1">
-                    <Grid>
-                        <Rectangle Height="2"
-                                   Fill="#1ABF8F"
-                                   Opacity="0.35"
-                                   HorizontalAlignment="Stretch"
-                                   VerticalAlignment="Center" />
-
-                        <ItemsControl ItemsSource="{Binding FormationPlayers}"
-                                      ItemTemplate="{StaticResource FormationPlayerTemplate}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <Canvas />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemContainerStyle>
-                                <Style TargetType="ContentPresenter">
-                                    <Setter Property="Canvas.Left">
-                                        <Setter.Value>
-                                            <MultiBinding Converter="{StaticResource RelativePositionConverter}" ConverterParameter="56">
-                                                <Binding Path="NormalizedX" />
-                                                <Binding RelativeSource="{RelativeSource AncestorType=Canvas}" Path="ActualWidth" />
-                                            </MultiBinding>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter Property="Canvas.Top">
-                                        <Setter.Value>
-                                            <MultiBinding Converter="{StaticResource RelativePositionConverter}" ConverterParameter="56">
-                                                <Binding Path="NormalizedY" />
-                                                <Binding RelativeSource="{RelativeSource AncestorType=Canvas}" Path="ActualHeight" />
-                                            </MultiBinding>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </ItemsControl.ItemContainerStyle>
-                        </ItemsControl>
-                    </Grid>
-                </Border>
-
-                <ItemsControl Grid.Row="1"
-                              Margin="0,16,0,0"
-                              ItemsSource="{Binding FormationLines}"
-                              ItemTemplate="{StaticResource FormationLineTemplate}" />
-            </Grid>
-        </DataTemplate>
-
-        <views:CardBodyTemplateSelector x:Key="CardBodyTemplateSelector"
-                                        MetricTemplate="{StaticResource MetricCardBodyTemplate}"
-                                        ListTemplate="{StaticResource ListCardBodyTemplate}"
-                                        FormationTemplate="{StaticResource FormationCardBodyTemplate}"
-                                        FixtureTemplate="{StaticResource FixtureCardBodyTemplate}"
-                                        StatusTemplate="{StaticResource StatusCardBodyTemplate}" />
-
-        <DataTemplate DataType="{x:Type vm:CardViewModel}">
-            <Grid Width="{Binding Width}" Height="{Binding Height}">
-                <Border Style="{StaticResource CardBorderStyle}"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch">
-                    <Grid>
+                    <Grid Grid.Row="2" Margin="0,16,0,0">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Title}" Style="{StaticResource CardTitleTextStyle}" />
-                            <Border Margin="12,0,0,0"
-                                    Padding="10,4"
-                                    Background="#2EC4B622"
-                                    CornerRadius="12"
-                                    Visibility="{Binding HasPill, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <TextBlock Text="{Binding PillText}"
-                                           Foreground="{StaticResource AccentPrimaryBrush}"
-                                           FontSize="12"
-                                           FontWeight="SemiBold" />
-                            </Border>
-                        </StackPanel>
+                        <TextBlock Text="{Binding Description}"
+                                   Foreground="{StaticResource NeutralTextBrush}"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"
+                                   Visibility="{Binding HasDescription, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-                        <TextBlock Grid.Row="1"
-                                   Margin="0,8,0,0"
-                                   Text="{Binding Subtitle}"
-                                   Style="{StaticResource CardSubtitleTextStyle}"
-                                   Visibility="{Binding HasSubtitle, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <Grid Grid.Row="1">
+                            <StackPanel Visibility="{Binding HasMetric, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="{Binding MetricValue}"
+                                           Style="{StaticResource CardMetricValueTextStyle}" />
+                                <TextBlock Text="{Binding MetricLabel}"
+                                           Margin="0,8,0,0"
+                                           Style="{StaticResource CardMetricLabelTextStyle}" />
+                            </StackPanel>
 
-                        <StackPanel Grid.Row="2" Margin="0,16,0,0">
-                            <TextBlock Text="{Binding Description}"
-                                       Foreground="{StaticResource NeutralTextBrush}"
-                                       FontSize="13"
-                                       TextWrapping="Wrap"
-                                       Visibility="{Binding HasDescription, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            <ContentControl Content="{Binding}"
-                                            ContentTemplateSelector="{StaticResource CardBodyTemplateSelector}">
-                                <ContentControl.Style>
-                                    <Style TargetType="ContentControl">
-                                        <Setter Property="Margin" Value="0,12,0,0" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasDescription}" Value="False">
-                                                <Setter Property="Margin" Value="0" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ContentControl.Style>
-                            </ContentControl>
-                        </StackPanel>
+                            <ItemsControl ItemsSource="{Binding ListItems}"
+                                          Margin="0,0,0,4"
+                                          Visibility="{Binding HasListItems, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                            <ItemsControl ItemsSource="{Binding FormationLines}"
+                                          Visibility="{Binding HasFormation, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:FormationLineViewModel}">
+                                        <StackPanel Margin="0,0,0,12">
+                                            <TextBlock Text="{Binding Role}"
+                                                       Style="{StaticResource CardListSecondaryTextStyle}" />
+                                            <ItemsControl ItemsSource="{Binding Players}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Padding="10,6"
+                                                                Margin="0,6,6,0"
+                                                                Background="#1F2A39"
+                                                                CornerRadius="12">
+                                                            <TextBlock Text="{Binding .}"
+                                                                       Foreground="{StaticResource PrimaryTextBrush}"
+                                                                       FontSize="13" />
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
                     </Grid>
-                </Border>
-
-                <controls:CardDragThumb DragStartedCommand="{Binding BeginDragCommand}"
-                                        DragDeltaCommand="{Binding DragDeltaCommand}"
-                                        DragCompletedCommand="{Binding CompleteDragCommand}"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch"
-                                        Cursor="SizeAll"
-                                        Focusable="True" />
-
-                <controls:CardResizeThumb Handle="East"
-                                          DragStartedCommand="{Binding BeginResizeCommand}"
-                                          DragDeltaCommand="{Binding ResizeDeltaCommand}"
-                                          DragCompletedCommand="{Binding CompleteResizeCommand}"
-                                          HorizontalAlignment="Right"
-                                          VerticalAlignment="Stretch"
-                                          Width="8"
-                                          Cursor="SizeWE"
-                                          Focusable="False" />
-
-                <controls:CardResizeThumb Handle="South"
-                                          DragStartedCommand="{Binding BeginResizeCommand}"
-                                          DragDeltaCommand="{Binding ResizeDeltaCommand}"
-                                          DragCompletedCommand="{Binding CompleteResizeCommand}"
-                                          HorizontalAlignment="Stretch"
-                                          VerticalAlignment="Bottom"
-                                          Height="8"
-                                          Cursor="SizeNS"
-                                          Focusable="False" />
-
-                <controls:CardResizeThumb Handle="SouthEast"
-                                          DragStartedCommand="{Binding BeginResizeCommand}"
-                                          DragDeltaCommand="{Binding ResizeDeltaCommand}"
-                                          DragCompletedCommand="{Binding CompleteResizeCommand}"
-                                          HorizontalAlignment="Right"
-                                          VerticalAlignment="Bottom"
-                                          Width="14"
-                                          Height="14"
-                                          Cursor="SizeNWSE"
-                                          Background="#33FFFFFF"
-                                          Focusable="False" />
-            </Grid>
+                </Grid>
+            </Border>
         </DataTemplate>
     </UserControl.Resources>
 
@@ -569,51 +249,20 @@
                 </DrawingBrush>
             </Grid.Background>
 
-            <ScrollViewer x:Name="SurfaceScrollViewer"
-                          HorizontalScrollBarVisibility="Auto"
-                          VerticalScrollBarVisibility="Auto"
-                          CanContentScroll="True"
-                          Loaded="OnSurfaceLoaded"
-                          ScrollChanged="OnSurfaceScrollChanged"
-                          SizeChanged="OnSurfaceSizeChanged">
-                <Grid Width="{Binding SurfaceWidth}"
-                      Height="{Binding SurfaceHeight}">
-                    <ItemsControl ItemsSource="{Binding Cards}"
-                                  VirtualizingPanel.IsVirtualizing="True"
-                                  VirtualizingPanel.VirtualizationMode="Recycling"
-                                  HorizontalAlignment="Left"
-                                  VerticalAlignment="Top">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <controls:VirtualizingCardPanel SurfaceWidth="{Binding SurfaceWidth}"
-                                                               SurfaceHeight="{Binding SurfaceHeight}" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemContainerStyle>
-                            <Style TargetType="ContentPresenter">
-                                <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                            </Style>
-                        </ItemsControl.ItemContainerStyle>
-                    </ItemsControl>
-
-                    <ItemsControl ItemsSource="{Binding Previews}"
-                                  ItemTemplate="{StaticResource CardPreviewTemplate}"
-                                  HorizontalAlignment="Left"
-                                  VerticalAlignment="Top"
-                                  IsHitTestVisible="False">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Canvas />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemContainerStyle>
-                            <Style TargetType="ContentPresenter">
-                                <Setter Property="Panel.ZIndex" Value="10" />
-                            </Style>
-                        </ItemsControl.ItemContainerStyle>
-                    </ItemsControl>
-                </Grid>
-            </ScrollViewer>
+            <ItemsControl ItemsSource="{Binding Cards}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas Width="{Binding SurfaceWidth}"
+                                Height="{Binding SurfaceHeight}" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding Left}" />
+                        <Setter Property="Canvas.Top" Value="{Binding Top}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+            </ItemsControl>
 
             <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center">

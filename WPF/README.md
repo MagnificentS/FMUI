@@ -11,41 +11,21 @@ WPF/
 │   ├── App.xaml
 │   ├── App.xaml.cs
 │   ├── FMUI.Wpf.csproj
-│   ├── Controls/
-│   │   ├── CardDragThumb.cs
-│   │   ├── CardResizeThumb.cs
-│   │   └── VirtualizingCardPanel.cs
 │   ├── Infrastructure/
 │   │   ├── AsyncRelayCommand.cs
-│   │   ├── EventAggregator.cs
-│   │   ├── NavigationSectionChangedEvent.cs
 │   │   ├── ObservableObject.cs
 │   │   └── RelayCommand.cs
 │   ├── Models/
-│   │   ├── CardLayoutStateSnapshot.cs
-│   │   ├── CardModels.cs
-│   │   ├── ClubDataSnapshot.cs
 │   │   └── NavigationModels.cs
-│   ├── Resources/
-│   │   └── Theme.xaml
 │   ├── Services/
-│   │   ├── CardInteractionService.cs
-│   │   ├── CardLayoutCatalog.cs
-│   │   ├── CardLayoutStatePersistence.cs
-│   │   ├── CardLayoutStateService.cs
-│   │   ├── ClubDataService.cs
 │   │   └── NavigationCatalog.cs
-│   ├── Data/
-│   │   └── club-data.json
 │   ├── ViewModels/
-│   │   ├── CardSurfaceViewModel.cs
-│   │   ├── CardViewModel.cs
 │   │   ├── MainViewModel.cs
 │   │   ├── NavigationSubItemViewModel.cs
 │   │   └── NavigationTabViewModel.cs
+│   ├── Resources/
+│   │   └── Theme.xaml
 │   └── Views/
-│       ├── CardSurfaceView.xaml
-│       ├── CardSurfaceView.xaml.cs
 │       ├── MainWindow.xaml
 │       └── MainWindow.xaml.cs
 └── README.md
@@ -53,17 +33,11 @@ WPF/
 
 ## Implemented Features
 
-- **Dependency-injected MVVM shell** powered by the .NET Generic Host so view models, services, and windows resolve through a single composition root.
 - **Navigation shell** with the seven Football Manager tabs, contextual sub-navigation, and state-aware styling.
-- **Message-driven card surface** that listens for navigation events via an event aggregator and materialises layouts from the catalog without direct coupling.
 - **Theming system** that ports the dark palette, gradients, and control styles from the HTML prototype into reusable WPF Resource Dictionaries.
-- **Interactive card canvas** with drag, resize, and a custom virtualizing panel that keeps only on-screen cards realised while sharing viewport state through the interaction service.
-- **Snapping previews and collision guards** that render drag ghosts for active selections, flag invalid drops in real time, and block commits when card geometry would overlap existing content.
-- **Selection-aware workspace tooling** covering multi-card selection, keyboard nudging, and undo/redo history so layout edits can be grouped, reversed, and persisted like the HTML reference.
-- **Tactical pitch player drag/drop** with draggable formation tokens, collision-aware snapping, and persisted player geometry that flows through undo/redo history and file-backed storage.
-- **Sample layout catalog** that mirrors real Football Manager content, including formation breakdowns, instructional lists, and metric summaries to guide downstream feature parity work across every navigation section.
-- **JSON-backed data services** that hydrate tactics, squad, training, transfer, finance, and fixture cards from structured seed files instead of hard-coded strings.
-- **Durable layout state persistence** that stores per-section card geometry on disk so drag and resize edits survive application restarts.
+- **MVVM scaffolding** (models, view-models, relay commands) to keep presentation logic testable and ready for integration with the forthcoming data services.
+- **Data-driven tactical canvas** powered by a 37×19 grid layout service that renders metric, list, and formation cards for the Club Vision, Tactics Overview, and Training Overview sections.
+- **Sample layout catalog** that mirrors real Football Manager content, including formation breakdowns, instructional lists, and metric summaries to guide downstream feature parity work.
 
 ## Next Steps
 
@@ -72,7 +46,7 @@ WPF/
    ```bash
    dotnet build WPF/FMUI.Wpf.sln
    ```
-3. Extend the interaction layer with card creation/removal workflows, player token presets, and performance instrumentation to match the HTML orchestrators.
-4. Introduce specialised card visuals (charts, gauges, fixture timelines) and automated tests to validate interaction flows while capturing performance regressions early.
+3. Replace the placeholder tactical grid with live card layouts, formation drag/drop, and data-driven widgets using the MVVM scaffolding provided here.
+4. Introduce persistence and data services aligned with the HTML orchestrators to ensure functional parity across modules.
 
-The scaffold now reflects the navigation, theming, messaging, and interaction patterns required for the full Football Manager UI conversion.
+The scaffold now reflects the navigation, theming, and interaction patterns required for the full Football Manager UI conversion.

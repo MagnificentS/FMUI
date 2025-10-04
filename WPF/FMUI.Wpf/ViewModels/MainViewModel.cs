@@ -1,5 +1,5 @@
-using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using FMUI.Wpf.Infrastructure;
@@ -11,20 +11,17 @@ namespace FMUI.Wpf.ViewModels;
 public sealed class MainViewModel : ObservableObject
 {
     private NavigationTabViewModel? _selectedTab;
+    private readonly CardLayoutCatalog _cardCatalog;
 
-    public MainViewModel(
-        INavigationCatalog navigationCatalog,
-        Func<NavigationTab, NavigationTabViewModel> tabFactory,
-        CardSurfaceViewModel cardSurface)
+    public MainViewModel()
     {
-        CardSurface = cardSurface;
-
-        var tabs = navigationCatalog
-            .GetTabs()
-            .Select(tabFactory)
+        _cardCatalog = new CardLayoutCatalog();
+        var tabs = NavigationCatalog.BuildDefaultTabs()
+            .Select(model => new NavigationTabViewModel(model))
             .ToList();
 
         Tabs = new ObservableCollection<NavigationTabViewModel>(tabs);
+        CardSurface = new CardSurfaceViewModel(_cardCatalog);
 
         SelectTabCommand = new RelayCommand(param =>
         {
@@ -54,10 +51,9 @@ public sealed class MainViewModel : ObservableObject
 
     private void SelectTab(NavigationTabViewModel tab)
     {
-        if (SelectedTab == tab)
+        if (SelectedTab is not null)
         {
-            tab.EnsureActiveSectionBroadcast();
-            return;
+            SelectedTab.PropertyChanged -= OnSelectedTabPropertyChanged;
         }
 
         foreach (var t in Tabs)
@@ -66,5 +62,28 @@ public sealed class MainViewModel : ObservableObject
         }
 
         SelectedTab = tab;
+        SelectedTab.PropertyChanged += OnSelectedTabPropertyChanged;
+
+        UpdateSurfaceFromSelection();
+    }
+
+    private void OnSelectedTabPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(NavigationTabViewModel.ActiveSubItem))
+        {
+            UpdateSurfaceFromSelection();
+        }
+    }
+
+    private void UpdateSurfaceFromSelection()
+    {
+        var subItem = SelectedTab?.ActiveSubItem;
+        if (SelectedTab is null || subItem is null)
+        {
+            CardSurface.Clear();
+            return;
+        }
+
+        CardSurface.LoadSection(SelectedTab.Identifier, subItem.Identifier);
     }
 }

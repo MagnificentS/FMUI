@@ -5,9 +5,9 @@ namespace FMUI.Wpf.Views;
 
 public partial class MainWindow : Window
 {
-    public MainWindow(MainViewModel viewModel)
+    public MainWindow()
     {
         InitializeComponent();
-        DataContext = viewModel;
+        DataContext = new MainViewModel();
     }
 }
