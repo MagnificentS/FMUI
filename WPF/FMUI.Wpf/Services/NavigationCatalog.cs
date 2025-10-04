@@ -3,9 +3,14 @@ using FMUI.Wpf.Models;
 
 namespace FMUI.Wpf.Services;
 
-public static class NavigationCatalog
+public interface INavigationCatalog
 {
-    public static IReadOnlyList<NavigationTab> BuildDefaultTabs() => new List<NavigationTab>
+    IReadOnlyList<NavigationTab> GetTabs();
+}
+
+public sealed class NavigationCatalog : INavigationCatalog
+{
+    public IReadOnlyList<NavigationTab> GetTabs() => new List<NavigationTab>
     {
         new("Overview", "overview", new List<NavigationSubItem>
         {

@@ -44,22 +44,24 @@ public sealed class CardEditorCatalog : ICardEditorCatalog
         return (tabIdentifier, sectionIdentifier, definition.Id) switch
         {
             ("tactics", "tactics-overview", "formation-overview") => CreateFormationEditorFactory(),
-            ("overview", "club-vision", "competition-expectations") => CreateClubVisionCompetitionExpectationsFactory(),
-            ("overview", "club-vision", "five-year-plan") => CreateClubVisionFiveYearPlanFactory(),
+            ("overview", "club-vision", "competition-objectives") => CreateClubVisionExpectationsBoardFactory(),
+            ("overview", "club-vision", "strategic-roadmap") => CreateClubVisionRoadmapFactory(),
             ("overview", "dynamics", "player-issues") => CreateDynamicsPlayerIssuesFactory(),
+            ("overview", "dynamics", "morale-heatmap") => CreateDynamicsMoraleHeatmapFactory(),
             ("squad", "players", "key-players") => CreateSquadKeyPlayersFactory(),
             ("training", "training-overview", "training-intensity") => CreateTrainingIntensityFactory(),
             ("training", "training-overview", "focus-areas") => CreateTrainingFocusAreasFactory(),
             ("training", "training-overview", "training-workload-heatmap") => CreateTrainingWorkloadHeatmapFactory(),
+            ("training", "training-overview", "training-progression") => CreateTrainingProgressionFactory(),
             ("training", "training-calendar", "weekly-calendar") => CreateTrainingSessionsFactory(),
             ("training", "training-calendar", "week-overview") => CreateTrainingSessionsFactory(),
+            ("training", "training-units", "training-unit-board") => CreateTrainingUnitBoardFactory(),
             ("transfers", "transfer-centre", "budget-usage") => CreateTransferBudgetUsageFactory(),
             ("transfers", "transfer-centre", "active-deals") => CreateTransferActiveDealsFactory(),
             ("transfers", "transfer-centre", "recent-activity") => CreateTransferRecentActivityFactory(),
             ("transfers", "scouting", "scout-assignments-board") => CreateScoutAssignmentsFactory(),
             ("transfers", "shortlist", "shortlist-board") => CreateShortlistBoardFactory(),
             ("finances", "finances-summary", "overall-balance") => CreateOverallBalanceFactory(),
-            ("finances", "finances-summary", "budgets") => CreateFinanceBudgetsFactory(),
             _ => null
         };
     }
@@ -83,45 +85,43 @@ public sealed class CardEditorCatalog : ICardEditorCatalog
             _clubDataService);
     }
 
-    private Func<CardEditorViewModel>? CreateClubVisionCompetitionExpectationsFactory()
+    private Func<CardEditorViewModel>? CreateClubVisionExpectationsBoardFactory()
     {
-        var snapshot = _clubDataService.Current;
-        var items = snapshot.Overview.ClubVision.CompetitionExpectations;
+        var board = _clubDataService.Current.Overview.ClubVision.ExpectationBoard;
 
-        return () => new ListCardEditorViewModel(
-            "Edit Competition Expectations",
-            "Update season targets tracked by the board.",
-            items,
-            PersistClubVisionCompetitionExpectationsAsync);
+        return () => new ClubVisionExpectationBoardEditorViewModel(
+            "Adjust Competition Objectives",
+            "Update board-monitored targets and priorities.",
+            board,
+            PersistClubVisionExpectationsBoardAsync);
     }
 
-    private async Task PersistClubVisionCompetitionExpectationsAsync(IReadOnlyList<ListEntrySnapshot> items)
+    private async Task PersistClubVisionExpectationsBoardAsync(ClubVisionExpectationBoardSnapshot board)
     {
         await _clubDataService.UpdateAsync(snapshot =>
         {
-            var clubVision = snapshot.Overview.ClubVision with { CompetitionExpectations = items };
+            var clubVision = snapshot.Overview.ClubVision with { ExpectationBoard = board };
             var overview = snapshot.Overview with { ClubVision = clubVision };
             return snapshot with { Overview = overview };
         }).ConfigureAwait(false);
     }
 
-    private Func<CardEditorViewModel>? CreateClubVisionFiveYearPlanFactory()
+    private Func<CardEditorViewModel>? CreateClubVisionRoadmapFactory()
     {
-        var snapshot = _clubDataService.Current;
-        var items = snapshot.Overview.ClubVision.FiveYearPlan;
+        var roadmap = _clubDataService.Current.Overview.ClubVision.Roadmap;
 
-        return () => new ListCardEditorViewModel(
-            "Edit Five Year Plan",
-            "Adjust the long-term milestones set by the board.",
-            items,
-            PersistClubVisionFiveYearPlanAsync);
+        return () => new ClubVisionRoadmapEditorViewModel(
+            "Edit Strategic Roadmap",
+            "Manage long-term milestones and board checkpoints.",
+            roadmap,
+            PersistClubVisionRoadmapAsync);
     }
 
-    private async Task PersistClubVisionFiveYearPlanAsync(IReadOnlyList<ListEntrySnapshot> items)
+    private async Task PersistClubVisionRoadmapAsync(ClubVisionRoadmapSnapshot roadmap)
     {
         await _clubDataService.UpdateAsync(snapshot =>
         {
-            var clubVision = snapshot.Overview.ClubVision with { FiveYearPlan = items };
+            var clubVision = snapshot.Overview.ClubVision with { Roadmap = roadmap };
             var overview = snapshot.Overview with { ClubVision = clubVision };
             return snapshot with { Overview = overview };
         }).ConfigureAwait(false);
@@ -144,6 +144,28 @@ public sealed class CardEditorCatalog : ICardEditorCatalog
         await _clubDataService.UpdateAsync(snapshot =>
         {
             var dynamics = snapshot.Overview.Dynamics with { PlayerIssues = items };
+            var overview = snapshot.Overview with { Dynamics = dynamics };
+            return snapshot with { Overview = overview };
+        }).ConfigureAwait(false);
+    }
+
+    private Func<CardEditorViewModel>? CreateDynamicsMoraleHeatmapFactory()
+    {
+        var snapshot = _clubDataService.Current;
+        var heatmap = snapshot.Overview.Dynamics.MoraleHeatmap;
+
+        return () => new MoraleHeatmapEditorViewModel(
+            "Adjust Dressing Room Morale",
+            "Update unit morale levels and supporting notes.",
+            heatmap,
+            PersistDynamicsMoraleHeatmapAsync);
+    }
+
+    private async Task PersistDynamicsMoraleHeatmapAsync(MoraleHeatmapSnapshot heatmap)
+    {
+        await _clubDataService.UpdateAsync(snapshot =>
+        {
+            var dynamics = snapshot.Overview.Dynamics with { MoraleHeatmap = heatmap };
             var overview = snapshot.Overview with { Dynamics = dynamics };
             return snapshot with { Overview = overview };
         }).ConfigureAwait(false);
@@ -215,6 +237,20 @@ public sealed class CardEditorCatalog : ICardEditorCatalog
         }).ConfigureAwait(false);
     }
 
+    private Func<CardEditorViewModel>? CreateTrainingProgressionFactory()
+    {
+        var progression = _clubDataService.Current.Training.Overview.Progression;
+
+        if (progression is null)
+        {
+            return null;
+        }
+
+        return () => new TrainingProgressionEditorViewModel(
+            progression,
+            _clubDataService);
+    }
+
     private Func<CardEditorViewModel>? CreateTrainingWorkloadHeatmapFactory()
     {
         var snapshot = _clubDataService.Current;
@@ -267,6 +303,44 @@ public sealed class CardEditorCatalog : ICardEditorCatalog
                 WeekOverview = overview
             };
             var training = snapshot.Training with { Calendar = calendar };
+            return snapshot with { Training = training };
+        }).ConfigureAwait(false);
+    }
+
+    private Func<CardEditorViewModel>? CreateTrainingUnitBoardFactory()
+    {
+        var snapshot = _clubDataService.Current;
+        var units = snapshot.Training.Units;
+        var board = units.Board;
+
+        if (board is null)
+        {
+            return null;
+        }
+
+        return () => new TrainingUnitBoardEditorViewModel(
+            "Manage Training Units",
+            "Assign players and coaches across the senior, youth, and goalkeeping groups.",
+            board,
+            PersistTrainingUnitBoardAsync);
+    }
+
+    private async Task PersistTrainingUnitBoardAsync(TrainingUnitsBoardSnapshot board)
+    {
+        await _clubDataService.UpdateAsync(snapshot =>
+        {
+            var units = snapshot.Training.Units;
+
+            var updatedUnits = units with
+            {
+                Board = board,
+                SeniorUnit = CreateTrainingUnitListEntries(board, "senior"),
+                YouthUnit = CreateTrainingUnitListEntries(board, "youth"),
+                GoalkeepingUnit = CreateTrainingUnitListEntries(board, "goalkeeping"),
+                CoachAssignments = CreateTrainingCoachAssignments(board)
+            };
+
+            var training = snapshot.Training with { Units = updatedUnits };
             return snapshot with { Training = training };
         }).ConfigureAwait(false);
     }
@@ -424,25 +498,44 @@ public sealed class CardEditorCatalog : ICardEditorCatalog
         }).ConfigureAwait(false);
     }
 
-    private Func<CardEditorViewModel>? CreateFinanceBudgetsFactory()
+    private static IReadOnlyList<ListEntrySnapshot> CreateTrainingUnitListEntries(
+        TrainingUnitsBoardSnapshot board,
+        string unitId)
     {
-        var snapshot = _clubDataService.Current;
-        var items = snapshot.Finance.Summary.Budgets;
+        if (board is null)
+        {
+            return Array.Empty<ListEntrySnapshot>();
+        }
 
-        return () => new ListCardEditorViewModel(
-            "Edit Budgets",
-            "Adjust allocation across salary, transfer, and scouting lines.",
-            items,
-            PersistFinanceBudgetsAsync);
+        var unit = board.Units.FirstOrDefault(u => string.Equals(u.Id, unitId, StringComparison.OrdinalIgnoreCase));
+        if (unit is null)
+        {
+            return Array.Empty<ListEntrySnapshot>();
+        }
+
+        return unit.Members
+            .Select(member => new ListEntrySnapshot(
+                member.Name,
+                member.Position,
+                member.Status,
+                member.Accent))
+            .ToList();
     }
 
-    private async Task PersistFinanceBudgetsAsync(IReadOnlyList<ListEntrySnapshot> items)
+    private static IReadOnlyList<ListEntrySnapshot> CreateTrainingCoachAssignments(TrainingUnitsBoardSnapshot board)
     {
-        await _clubDataService.UpdateAsync(snapshot =>
+        if (board is null)
         {
-            var summary = snapshot.Finance.Summary with { Budgets = items };
-            var finance = snapshot.Finance with { Summary = summary };
-            return snapshot with { Finance = finance };
-        }).ConfigureAwait(false);
+            return Array.Empty<ListEntrySnapshot>();
+        }
+
+        return board.Units
+            .Select(unit =>
+            {
+                var coach = unit.CoachOptions.FirstOrDefault(option => string.Equals(option.Id, unit.CoachId, StringComparison.OrdinalIgnoreCase));
+                var coachName = coach?.Name ?? "Unassigned";
+                return new ListEntrySnapshot(unit.Name, coachName, null, coach?.Accent);
+            })
+            .ToList();
     }
 }

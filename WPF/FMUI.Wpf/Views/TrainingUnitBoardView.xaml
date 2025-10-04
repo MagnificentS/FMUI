@@ -1,0 +1,179 @@
+<UserControl x:Class="FMUI.Wpf.Views.TrainingUnitBoardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:FMUI.Wpf.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:TrainingUnitBoardViewModel}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding Units}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="0,0,16,0" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:TrainingUnitUnitViewModel}">
+                        <Border Width="320"
+                                Margin="0,0,16,0"
+                                Padding="16"
+                                Background="{StaticResource CardPanelBrush}"
+                                BorderBrush="{StaticResource CardBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="16">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal"
+                                            Margin="0,0,0,12"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}"
+                                               Style="{StaticResource CardTitleTextStyle}" />
+                                    <TextBlock Text="Coach"
+                                               Foreground="{StaticResource AccentSecondaryBrush}"
+                                               FontWeight="SemiBold"
+                                               FontSize="12"
+                                               Margin="8,2,0,0" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal"
+                                            Margin="0,0,0,16">
+                                    <TextBlock Text="Lead Coach"
+                                               Foreground="{StaticResource NeutralTextBrush}"
+                                               FontSize="12"
+                                               Margin="0,0,8,0" />
+                                    <TextBlock Text="{Binding CoachName}"
+                                               Foreground="{StaticResource PrimaryTextBrush}"
+                                               FontSize="12"
+                                               FontWeight="SemiBold" />
+                                </StackPanel>
+                                <ItemsControl ItemsSource="{Binding Members}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type vm:TrainingUnitMemberViewModel}">
+                                            <Border Margin="0,0,0,10"
+                                                    Padding="12"
+                                                    Background="{StaticResource CardListItemBrush}"
+                                                    BorderBrush="{StaticResource CardListItemBorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="12">
+                                                <StackPanel>
+                                                    <StackPanel Orientation="Horizontal"
+                                                                VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Name}"
+                                                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                                                   FontWeight="SemiBold"
+                                                                   FontSize="14" />
+                                                        <TextBlock Text="{Binding Status}"
+                                                                   Foreground="{StaticResource AccentSecondaryBrush}"
+                                                                   FontSize="12"
+                                                                   FontWeight="SemiBold"
+                                                                   Margin="8,0,0,0" />
+                                                    </StackPanel>
+                                                    <TextBlock Text="{Binding Position}"
+                                                               Foreground="{StaticResource NeutralTextBrush}"
+                                                               FontSize="12"
+                                                               Margin="0,6,0,0" />
+                                                    <TextBlock Text="{Binding Role}"
+                                                               Foreground="{StaticResource PrimaryTextBrush}"
+                                                               FontSize="12"
+                                                               Margin="0,2,0,0" />
+                                                    <TextBlock Text="{Binding Detail}"
+                                                               Foreground="{StaticResource NeutralTextBrush}"
+                                                               FontSize="11"
+                                                               Margin="0,6,0,0"
+                                                               TextWrapping="Wrap"
+                                                               Visibility="{Binding HasDetail, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                    <ItemsControl.Style>
+                                        <Style TargetType="ItemsControl">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ItemsControl">
+                                                        <ItemsPresenter />
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ItemsControl.Style>
+                                </ItemsControl>
+                                <TextBlock Text="No players assigned"
+                                           Foreground="{StaticResource NeutralTextBrush}"
+                                           FontStyle="Italic"
+                                           FontSize="12"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,12,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasMembers}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <Border Grid.Row="1"
+                Margin="0,16,0,0"
+                Padding="16"
+                Background="{StaticResource CardPanelBrush}"
+                BorderBrush="{StaticResource CardBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="16"
+                Visibility="{Binding HasAvailablePlayers, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel>
+                <TextBlock Text="Available Pool"
+                           Style="{StaticResource CardTitleTextStyle}"
+                           Margin="0,0,0,12" />
+                <ItemsControl ItemsSource="{Binding AvailablePlayers}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:TrainingUnitMemberViewModel}">
+                            <Border Margin="0,0,0,8"
+                                    Padding="12"
+                                    Background="{StaticResource CardListItemBrush}"
+                                    BorderBrush="{StaticResource CardListItemBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}"
+                                               Foreground="{StaticResource PrimaryTextBrush}"
+                                               FontWeight="SemiBold"
+                                               FontSize="13" />
+                                    <TextBlock Text="{Binding Position}"
+                                               Foreground="{StaticResource NeutralTextBrush}"
+                                               FontSize="12"
+                                               Margin="0,4,0,0" />
+                                    <TextBlock Text="{Binding Role}"
+                                               Foreground="{StaticResource PrimaryTextBrush}"
+                                               FontSize="12"
+                                               Margin="0,2,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
