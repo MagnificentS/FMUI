@@ -10,8 +10,8 @@ Your selections prioritise the most detailed, then the most consistent solution
 
 
 CURRENT STATUS
-Think very hard and absolutely follow the instructions in `ImplementationGuide.md`
-
+Think very hard and review the instructions in `AGENTS.md`
+and use the methods stated there to follow the instructions in `ImplementationGuide.md absolutely`
 
 OLD INSTRUCTION
 --
