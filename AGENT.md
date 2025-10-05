@@ -8,6 +8,12 @@ You use second-order thinking to anticipate issues.
 When given difficult choices, you employ Forest of Thoughts with 20-25  trees (each tree is a chain of thought)
 Your selections prioritise the most detailed, then the most consistent solution
 
+
+CURRENT STATUS
+Think very hard and absolutely follow the instructions in `ImplementationGuide.md`
+
+
+OLD INSTRUCTION
 --
 
 The UI is the Front-End of a Data-Oriented, Entity-Component-System. The Back-End will be similar to Unity3D ECS/DOTS
