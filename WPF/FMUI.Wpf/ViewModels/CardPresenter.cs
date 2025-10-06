@@ -11,17 +11,18 @@ using System.Windows.Data;
 using FMUI.Wpf.Infrastructure;
 using FMUI.Wpf.Models;
 using FMUI.Wpf.Services;
+using FMUI.Wpf.UI.Cards;
 
 namespace FMUI.Wpf.ViewModels;
 
-public sealed class CardViewModel : ObservableObject
+public sealed partial class CardPresenter : ObservableObject
 {
     private readonly CardDefinition _definition;
     private readonly CardSurfaceMetrics _metrics;
     private readonly ICardInteractionService _interactionService;
     private readonly Dictionary<string, FormationPlayerViewModel> _formationPlayerLookup = new(StringComparer.OrdinalIgnoreCase);
     private readonly RelayCommand _openEditorCommand;
-    private Action<CardViewModel>? _requestEditor;
+    private Action<CardPresenter>? _requestEditor;
     private int _column;
     private int _row;
     private int _columnSpan;
@@ -31,7 +32,7 @@ public sealed class CardViewModel : ObservableObject
 
     private bool _isEditorAvailable;
 
-    public CardViewModel(
+    public CardPresenter(
         CardDefinition definition,
         CardSurfaceMetrics metrics,
         ICardInteractionService interactionService,
@@ -134,14 +135,6 @@ public sealed class CardViewModel : ObservableObject
             ? new MedicalTimelineViewModel(definition.MedicalTimeline)
             : null;
 
-        ClubVisionRoadmap = definition.ClubVisionRoadmap is not null
-            ? new ClubVisionRoadmapViewModel(definition.ClubVisionRoadmap, clubDataService)
-            : null;
-
-        ClubVisionExpectations = definition.ClubVisionExpectations is not null
-            ? new ClubVisionExpectationBoardViewModel(definition.ClubVisionExpectations, clubDataService)
-            : null;
-
         TimelineEntries = definition.Timeline is { Count: > 0 }
             ? new ReadOnlyCollection<TimelineEntryViewModel>(CreateTimeline(definition.Timeline))
             : System.Array.Empty<TimelineEntryViewModel>();
@@ -206,6 +199,12 @@ public sealed class CardViewModel : ObservableObject
 
     public CardKind Kind => _definition.Kind;
 
+    public bool HasContentHost => _definition.ContentType.HasValue;
+
+    public CardType ContentType => _definition.ContentType ?? CardType.TacticalOverview;
+
+    public uint PrimaryEntityId => _definition.PrimaryEntityId;
+
     public IReadOnlyList<CardListItemViewModel> ListItems { get; }
 
     public IReadOnlyList<FormationLineViewModel> FormationLines { get; }
@@ -247,10 +246,6 @@ public sealed class CardViewModel : ObservableObject
     public ShotMapViewModel? ShotMap { get; }
 
     public MedicalTimelineViewModel? MedicalTimeline { get; }
-
-    public ClubVisionRoadmapViewModel? ClubVisionRoadmap { get; }
-
-    public ClubVisionExpectationBoardViewModel? ClubVisionExpectations { get; }
 
     public IReadOnlyList<TimelineEntryViewModel> TimelineEntries { get; }
 
@@ -359,7 +354,7 @@ public sealed class CardViewModel : ObservableObject
         _interactionService.SelectCard(this, modifier);
     }
 
-    internal void ConfigureEditor(Action<CardViewModel>? requestEditor, bool isAvailable)
+    internal void ConfigureEditor(Action<CardPresenter>? requestEditor, bool isAvailable)
     {
         _requestEditor = requestEditor;
         IsEditorAvailable = isAvailable && requestEditor is not null;
@@ -459,7 +454,7 @@ public sealed class CardViewModel : ObservableObject
     private static (ReadOnlyCollection<FormationLineViewModel> Lines, ReadOnlyCollection<FormationPlayerViewModel> Players) CreateFormationViewModels(
         IReadOnlyList<FormationLineDefinition> definitions,
         ICardInteractionService interactionService,
-        CardViewModel owner)
+        CardPresenter owner)
     {
         var allPlayers = new List<FormationPlayerViewModel>();
         var lines = new List<FormationLineViewModel>(definitions.Count);
@@ -1729,7 +1724,7 @@ public sealed class FormationLineViewModel
 public sealed class FormationPlayerViewModel : ObservableObject
 {
     private readonly ICardInteractionService _interactionService;
-    private readonly CardViewModel _owner;
+    private readonly CardPresenter _owner;
     private double _normalizedX;
     private double _normalizedY;
 
@@ -1739,7 +1734,7 @@ public sealed class FormationPlayerViewModel : ObservableObject
         double normalizedX,
         double normalizedY,
         ICardInteractionService interactionService,
-        CardViewModel owner)
+        CardPresenter owner)
     {
         Id = id;
         Name = name;

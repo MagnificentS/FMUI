@@ -47,7 +47,7 @@ public class CardDragThumb : Thumb
     {
         base.OnPreviewMouseLeftButtonDown(e);
 
-        if (DataContext is CardViewModel card)
+        if (DataContext is CardPresenter card)
         {
             var modifiers = Keyboard.Modifiers;
             var selectionModifier = SelectionModifier.Replace;
