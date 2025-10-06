@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -90,7 +89,8 @@ public sealed class LineChartControl : FrameworkElement
     {
         base.OnRender(drawingContext);
 
-        if (Series is not { Count: > 0 })
+        var seriesCollection = Series;
+        if (seriesCollection is null || seriesCollection.Count == 0)
         {
             _hitTestPoints.Clear();
             return;
@@ -105,15 +105,44 @@ public sealed class LineChartControl : FrameworkElement
             return;
         }
 
-        var allPoints = Series.SelectMany(s => s.Points).ToList();
-        if (allPoints.Count == 0)
+        double minValue = double.MaxValue;
+        double maxValue = double.MinValue;
+        var totalPoints = 0;
+
+        for (int seriesIndex = 0; seriesIndex < seriesCollection.Count; seriesIndex++)
+        {
+            var series = seriesCollection[seriesIndex];
+            var points = series.Points;
+            var pointCount = points.Count;
+
+            totalPoints += pointCount;
+            for (int pointIndex = 0; pointIndex < pointCount; pointIndex++)
+            {
+                var value = points[pointIndex].Value;
+                if (value < minValue)
+                {
+                    minValue = value;
+                }
+
+                if (value > maxValue)
+                {
+                    maxValue = value;
+                }
+            }
+        }
+
+        if (totalPoints == 0)
         {
             _hitTestPoints.Clear();
             return;
         }
 
-        var minValue = Series.Min(s => s.Minimum);
-        var maxValue = Series.Max(s => s.Maximum);
+        if (minValue == double.MaxValue || maxValue == double.MinValue)
+        {
+            _hitTestPoints.Clear();
+            return;
+        }
+
         if (Math.Abs(maxValue - minValue) < 0.0001)
         {
             maxValue = minValue + 1;
@@ -150,9 +179,9 @@ public sealed class LineChartControl : FrameworkElement
 
         _hitTestPoints.Clear();
 
-        foreach (var series in Series)
+        for (int i = 0; i < seriesCollection.Count; i++)
         {
-            DrawSeries(drawingContext, series, minValue, maxValue, horizontalPadding, verticalPadding, chartWidth, chartHeight);
+            DrawSeries(drawingContext, seriesCollection[i], minValue, maxValue, horizontalPadding, verticalPadding, chartWidth, chartHeight);
         }
     }
 
@@ -253,8 +282,9 @@ public sealed class LineChartControl : FrameworkElement
         pathGeometry.Freeze();
         drawingContext.DrawGeometry(null, pen, pathGeometry);
 
-        foreach (var (point, index) in series.Points.Select((p, i) => (p, i)))
+        for (int index = 0; index < series.Points.Count; index++)
         {
+            var point = series.Points[index];
             var x = horizontalPadding + (step * index);
             var normalized = (point.Value - minimum) / (maximum - minimum);
             var animatedNormalized = normalized * progress;
