@@ -36,8 +36,16 @@ public enum SelectionModifier
     Toggle
 }
 
+public readonly record struct CardMutationSnapshot(
+    CardDefinition Definition,
+    string? PresetId,
+    bool IsCustom,
+    IReadOnlyList<FormationPlayerPositionSnapshot> FormationPlayers);
+
 public readonly record struct CardHistoryEntry(
     IReadOnlyList<CardGeometrySnapshot> GeometryBefore,
     IReadOnlyList<CardGeometrySnapshot> GeometryAfter,
     IReadOnlyList<FormationPlayerPositionSnapshot> PlayersBefore,
-    IReadOnlyList<FormationPlayerPositionSnapshot> PlayersAfter);
+    IReadOnlyList<FormationPlayerPositionSnapshot> PlayersAfter,
+    IReadOnlyList<CardMutationSnapshot> AddedCards,
+    IReadOnlyList<CardMutationSnapshot> RemovedCards);

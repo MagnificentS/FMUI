@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using FMUI.Wpf.Collections;
 using FMUI.Wpf.Infrastructure;
 using FMUI.Wpf.Models;
 using FMUI.Wpf.Services;
 using FMUI.Wpf.ViewModels.Editors;
+using Microsoft.Extensions.Logging;
 
 namespace FMUI.Wpf.ViewModels;
 
@@ -20,6 +21,7 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
     private readonly ICardEditorCatalog _editorCatalog;
     private readonly IClubDataService _clubDataService;
     private readonly IDisposable _subscription;
+    private readonly ILogger<CardSurfaceViewModel> _logger;
     private string? _emptyMessage;
     private Rect _viewport;
     private readonly RelayCommand _undoCommand;
@@ -41,19 +43,25 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
     private CardEditorViewModel? _activeEditor;
     private bool _isEditorOpen;
 
+    private CardPresenter[] _presenters = Array.Empty<CardPresenter>();
+    private int _presenterCount;
+    private int _nextPresenterId = 1;
+
     public CardSurfaceViewModel(
         ICardLayoutCatalog catalog,
         ICardInteractionService interactionService,
         ICardLayoutStateService stateService,
         ICardEditorCatalog editorCatalog,
         IEventAggregator eventAggregator,
-        IClubDataService clubDataService)
+        IClubDataService clubDataService,
+        ILogger<CardSurfaceViewModel> logger)
     {
         _catalog = catalog;
         _interactionService = interactionService;
         _stateService = stateService;
         _editorCatalog = editorCatalog;
         _clubDataService = clubDataService;
+        _logger = logger;
         Metrics = CardSurfaceMetrics.Default;
         _viewport = new Rect(0, 0, Metrics.SurfaceWidth, Metrics.SurfaceHeight);
         _interactionService.Initialize(Metrics);
@@ -81,7 +89,7 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
         _catalog.LayoutsChanged += OnLayoutsChanged;
     }
 
-    public ObservableCollection<CardViewModel> Cards { get; } = new();
+    public CardPresenterCollection Cards { get; } = new(32);
 
     public CardSurfaceMetrics Metrics { get; }
 
@@ -97,7 +105,21 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
 
     public bool HasPreview => _previews.Count > 0;
 
-    public bool PreviewHasCollision => _previews.Any(preview => !preview.IsValid);
+    public bool PreviewHasCollision
+    {
+        get
+        {
+            for (var i = 0; i < _previews.Count; i++)
+            {
+                if (!_previews[i].IsValid)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
 
     public ReadOnlyObservableCollection<CardPresetViewModel> Palette { get; }
 
@@ -181,7 +203,7 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
         _interactionService.CardsMutated -= OnCardsMutated;
         _subscription.Dispose();
         _catalog.LayoutsChanged -= OnLayoutsChanged;
-        _interactionService.SetCards(Array.Empty<CardViewModel>());
+        _interactionService.SetPresenters(ReadOnlySpan<CardPresenter>.Empty);
     }
 
     private void Clear()
@@ -189,7 +211,7 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
         Cards.Clear();
         EmptyMessage = "Select a section to view its tactical dashboard.";
         _interactionService.SetActiveSection(string.Empty, string.Empty);
-        _interactionService.SetCards(Array.Empty<CardViewModel>());
+        _interactionService.SetPresenters(ReadOnlySpan<CardPresenter>.Empty);
         _palette.Clear();
         SelectedPreset = null;
         IsPaletteOpen = false;
@@ -198,6 +220,9 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
         _removeSelectedCardsCommand.RaiseCanExecuteChanged();
         _currentTabIdentifier = string.Empty;
         _currentSectionIdentifier = string.Empty;
+        _presenterCount = 0;
+        _nextPresenterId = 1;
+        LogPresenterMix(0, 0);
     }
 
     private void LoadSection(string tabIdentifier, string sectionIdentifier)
@@ -208,6 +233,7 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
         CloseEditor();
         _currentTabIdentifier = tabIdentifier;
         _currentSectionIdentifier = sectionIdentifier;
+        _nextPresenterId = 1;
 
         if (_catalog.TryGetLayout(tabIdentifier, sectionIdentifier, out var layout))
         {
@@ -226,7 +252,15 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
                     continue;
                 }
 
-                var card = new CardViewModel(definition, Metrics, _interactionService, _clubDataService, isCustom: false, presetId: null);
+                var card = new CardViewModel(
+                    definition,
+                    Metrics,
+                    _interactionService,
+                    _clubDataService,
+                    tabIdentifier,
+                    sectionIdentifier,
+                    isCustom: false,
+                    presetId: null);
                 ApplyPersistedState(tabIdentifier, sectionIdentifier, card);
                 ConfigureEditor(card);
                 Cards.Add(card);
@@ -235,7 +269,15 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
             var customCards = _stateService.GetCustomCards(tabIdentifier, sectionIdentifier);
             foreach (var custom in customCards)
             {
-                var card = new CardViewModel(custom.Definition, Metrics, _interactionService, _clubDataService, isCustom: true, presetId: custom.PresetId);
+                var card = new CardViewModel(
+                    custom.Definition,
+                    Metrics,
+                    _interactionService,
+                    _clubDataService,
+                    tabIdentifier,
+                    sectionIdentifier,
+                    isCustom: true,
+                    presetId: custom.PresetId);
                 ApplyPersistedState(tabIdentifier, sectionIdentifier, card);
                 ConfigureEditor(card);
                 Cards.Add(card);
@@ -245,10 +287,10 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
                 ? "No cards pinned yet. Open the catalog to add tactical widgets."
                 : null;
 
-            _interactionService.SetCards(Cards);
+            SyncPresenters();
             _interactionService.UpdateViewport(_viewport);
             _openPaletteCommand.RaiseCanExecuteChanged();
-            SelectedPreset = _palette.FirstOrDefault();
+            SelectDefaultPreset();
             _removeSelectedCardsCommand.RaiseCanExecuteChanged();
         }
         else
@@ -256,10 +298,12 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
             Cards.Clear();
             EmptyMessage = "Layout coming soon for this section.";
             _interactionService.SetActiveSection(string.Empty, string.Empty);
-            _interactionService.SetCards(Array.Empty<CardViewModel>());
+            _interactionService.SetPresenters(ReadOnlySpan<CardPresenter>.Empty);
             _openPaletteCommand.RaiseCanExecuteChanged();
             _removeSelectedCardsCommand.RaiseCanExecuteChanged();
             CloseEditor();
+            _presenterCount = 0;
+            LogPresenterMix(0, 0);
         }
     }
 
@@ -270,9 +314,22 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var shouldReload = e.IsGlobal || e.Sections.Any(section =>
-            string.Equals(section.Tab, _currentTabIdentifier, StringComparison.OrdinalIgnoreCase) &&
-            string.Equals(section.Section, _currentSectionIdentifier, StringComparison.OrdinalIgnoreCase));
+        var shouldReload = e.IsGlobal;
+
+        if (!shouldReload)
+        {
+            var sections = e.Sections;
+            for (var i = 0; i < sections.Count; i++)
+            {
+                var section = sections[i];
+                if (string.Equals(section.Tab, _currentTabIdentifier, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(section.Section, _currentSectionIdentifier, StringComparison.OrdinalIgnoreCase))
+                {
+                    shouldReload = true;
+                    break;
+                }
+            }
+        }
 
         if (!shouldReload)
         {
@@ -393,6 +450,8 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
             IsPaletteOpen = false;
         }
 
+        SyncPresenters();
+
         if (Cards.Count == 0)
         {
             EmptyMessage = "No cards pinned yet. Open the catalog to add tactical widgets.";
@@ -417,6 +476,79 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
         _interactionService.CreateCard(definition, isCustom: true, presetId: preset.Id);
     }
 
+    private void EnsurePresenter(CardViewModel card)
+    {
+        if (card is null)
+        {
+            return;
+        }
+
+        if (card.PresenterId == CardPresenter.InvalidId)
+        {
+            card.AttachPresenter(_nextPresenterId++);
+        }
+    }
+
+    private void SyncPresenters()
+    {
+        var count = Cards.Count;
+
+        if (_presenters.Length < count)
+        {
+            var newSize = _presenters.Length == 0 ? Math.Max(16, count) : _presenters.Length;
+            while (newSize < count)
+            {
+                newSize *= 2;
+            }
+
+            Array.Resize(ref _presenters, newSize);
+        }
+
+        var adapterCount = 0;
+
+        for (var i = 0; i < count; i++)
+        {
+            var card = Cards[i];
+            EnsurePresenter(card);
+            var adapter = new CardViewModelDescriptorAdapter(card);
+            _presenters[i] = CardPresenter.CreateAdapter(card.PresenterId, adapter);
+            adapterCount++;
+        }
+
+        _presenterCount = count;
+
+        var span = _presenterCount == 0
+            ? ReadOnlySpan<CardPresenter>.Empty
+            : _presenters.AsSpan(0, _presenterCount);
+
+        _interactionService.SetPresenters(span);
+        LogPresenterMix(adapterCount, _presenterCount);
+    }
+
+    private void LogPresenterMix(int adapterCount, int totalCount)
+    {
+        if (totalCount == 0)
+        {
+            _logger.LogInformation(
+                "Card surface presenter mix: no cards for {Tab}/{Section}",
+                string.IsNullOrWhiteSpace(_currentTabIdentifier) ? "<none>" : _currentTabIdentifier,
+                string.IsNullOrWhiteSpace(_currentSectionIdentifier) ? "<none>" : _currentSectionIdentifier);
+            return;
+        }
+
+        var adapterPercent = (double)adapterCount / totalCount * 100d;
+        var nativePercent = 100d - adapterPercent;
+
+        _logger.LogInformation(
+            "Card surface presenter mix for {Tab}/{Section}: {AdapterPercent:F1}% adapters ({AdapterCount}) / {NativePercent:F1}% native ({NativeCount})",
+            string.IsNullOrWhiteSpace(_currentTabIdentifier) ? "<none>" : _currentTabIdentifier,
+            string.IsNullOrWhiteSpace(_currentSectionIdentifier) ? "<none>" : _currentSectionIdentifier,
+            adapterPercent,
+            adapterCount,
+            nativePercent,
+            totalCount - adapterCount);
+    }
+
     private void RemoveSelectedCards()
     {
         var selection = _interactionService.GetSelectedCards();
@@ -426,6 +558,21 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
         }
 
         _interactionService.RemoveCards(selection);
+    }
+
+    private void SelectDefaultPreset()
+    {
+        if (_palette.Count == 0)
+        {
+            SelectedPreset = null;
+            return;
+        }
+
+        var firstPreset = _palette[0];
+        if (!ReferenceEquals(SelectedPreset, firstPreset))
+        {
+            SelectedPreset = firstPreset;
+        }
     }
 
     private void ConfigureEditor(CardViewModel card)
