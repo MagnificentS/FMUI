@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using FMUI.Wpf.Collections;
 using FMUI.Wpf.ViewModels;
 
 namespace FMUI.Wpf.Controls;
@@ -29,7 +28,8 @@ public sealed class VirtualizingCardPanel : VirtualizingPanel, IScrollInfo
             typeof(VirtualizingCardPanel),
             new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsMeasure, OnSurfaceSizeChanged));
 
-    private readonly Dictionary<int, UIElement> _realized = new();
+    private RealizedChild[] _realizedChildren = Array.Empty<RealizedChild>();
+    private int _realizedCount;
     private Size _extent;
     private Size _viewport;
     private Point _offset;
@@ -160,7 +160,7 @@ public sealed class VirtualizingCardPanel : VirtualizingPanel, IScrollInfo
         viewportRect.Inflate(VisibilityPadding, VisibilityPadding);
 
         var generator = ItemContainerGenerator;
-        var required = new HashSet<int>();
+        var required = new ArrayCollection<int>(8);
 
         for (var index = 0; index < owner.Items.Count; index++)
         {
@@ -174,17 +174,24 @@ public sealed class VirtualizingCardPanel : VirtualizingPanel, IScrollInfo
                 continue;
             }
 
-            required.Add(index);
+            if (!Contains(ref required, index))
+            {
+                required.Add(index);
+            }
             EnsureChild(generator, index);
         }
 
-        CleanupChildren(generator, required);
+        CleanupChildren(generator, ref required);
 
-        foreach (var index in required)
+        var requiredArray = required.GetRawArray();
+        var requiredCount = required.Count;
+        for (var i = 0; i < requiredCount; i++)
         {
-            if (_realized.TryGetValue(index, out var child) && owner.Items[index] is CardViewModel card)
+            var itemIndex = requiredArray[i];
+            var realizedIndex = FindRealizedChild(itemIndex);
+            if (realizedIndex >= 0 && owner.Items[itemIndex] is CardViewModel card)
             {
-                child.Measure(new Size(card.Width, card.Height));
+                _realizedChildren[realizedIndex].Element.Measure(new Size(card.Width, card.Height));
             }
         }
 
@@ -193,8 +200,10 @@ public sealed class VirtualizingCardPanel : VirtualizingPanel, IScrollInfo
 
     protected override Size ArrangeOverride(Size finalSize)
     {
-        foreach (var (index, child) in _realized.ToList())
+        for (var i = 0; i < _realizedCount; i++)
         {
+            var entry = _realizedChildren[i];
+            var child = entry.Element;
             if (ItemContainerGenerator.ItemFromContainer(child) is not CardViewModel card)
             {
                 continue;
@@ -209,7 +218,7 @@ public sealed class VirtualizingCardPanel : VirtualizingPanel, IScrollInfo
 
     private void EnsureChild(IItemContainerGenerator generator, int itemIndex)
     {
-        if (_realized.ContainsKey(itemIndex))
+        if (FindRealizedChild(itemIndex) >= 0)
         {
             return;
         }
@@ -236,30 +245,26 @@ public sealed class VirtualizingCardPanel : VirtualizingPanel, IScrollInfo
             }
 
             generator.PrepareItemContainer(child);
-            _realized[itemIndex] = child;
+            AddRealizedChild(itemIndex, child);
         }
     }
 
-    private void CleanupChildren(IItemContainerGenerator generator, HashSet<int> keep)
+    private void CleanupChildren(IItemContainerGenerator generator, ref ArrayCollection<int> keep)
     {
-        foreach (var index in _realized.Keys.Except(keep).ToList())
+        var keepArray = keep.GetRawArray();
+        var keepCount = keep.Count;
+        var currentIndex = 0;
+        while (currentIndex < _realizedCount)
         {
-            var position = generator.GeneratorPositionFromIndex(index);
-            if (position.Index >= 0)
+            var entry = _realizedChildren[currentIndex];
+            if (!Contains(keepArray, keepCount, entry.Index))
             {
-                generator.Remove(position, 1);
-                RemoveInternalChildRange(position.Index, 1);
+                RemoveRealizedAt(currentIndex, generator, entry);
             }
-            else if (_realized.TryGetValue(index, out var child))
+            else
             {
-                var childIndex = InternalChildren.IndexOf(child);
-                if (childIndex >= 0)
-                {
-                    RemoveInternalChildRange(childIndex, 1);
-                }
+                currentIndex++;
             }
-
-            _realized.Remove(index);
         }
     }
 
@@ -270,7 +275,7 @@ public sealed class VirtualizingCardPanel : VirtualizingPanel, IScrollInfo
             RemoveInternalChildRange(0, InternalChildren.Count);
         }
 
-        _realized.Clear();
+        _realizedCount = 0;
         InvalidateMeasure();
     }
 
@@ -352,6 +357,103 @@ public sealed class VirtualizingCardPanel : VirtualizingPanel, IScrollInfo
         }
     }
 
+    private void EnsureRealizedCapacity(int required)
+    {
+        if (_realizedChildren.Length >= required)
+        {
+            return;
+        }
+
+        var newLength = _realizedChildren.Length == 0 ? 4 : _realizedChildren.Length;
+        while (newLength < required)
+        {
+            newLength <<= 1;
+        }
+
+        var newArray = new RealizedChild[newLength];
+        for (var i = 0; i < _realizedCount; i++)
+        {
+            newArray[i] = _realizedChildren[i];
+        }
+
+        _realizedChildren = newArray;
+    }
+
+    private void AddRealizedChild(int index, UIElement element)
+    {
+        EnsureRealizedCapacity(_realizedCount + 1);
+        _realizedChildren[_realizedCount].Index = index;
+        _realizedChildren[_realizedCount].Element = element;
+        _realizedCount++;
+    }
+
+    private void RemoveRealizedAt(int realizedIndex, IItemContainerGenerator generator, RealizedChild entry)
+    {
+        var position = generator.GeneratorPositionFromIndex(entry.Index);
+        if (position.Index >= 0)
+        {
+            generator.Remove(position, 1);
+            RemoveInternalChildRange(position.Index, 1);
+        }
+        else
+        {
+            var childIndex = InternalChildren.IndexOf(entry.Element);
+            if (childIndex >= 0)
+            {
+                RemoveInternalChildRange(childIndex, 1);
+            }
+        }
+
+        var next = realizedIndex + 1;
+        for (var i = next; i < _realizedCount; i++)
+        {
+            _realizedChildren[i - 1] = _realizedChildren[i];
+        }
+
+        _realizedCount--;
+    }
+
+    private int FindRealizedChild(int itemIndex)
+    {
+        for (var i = 0; i < _realizedCount; i++)
+        {
+            if (_realizedChildren[i].Index == itemIndex)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private static bool Contains(int[] array, int length, int value)
+    {
+        for (var i = 0; i < length; i++)
+        {
+            if (array[i] == value)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool Contains(ref ArrayCollection<int> collection, int value)
+    {
+        var array = collection.GetRawArray();
+        var count = collection.Count;
+        for (var i = 0; i < count; i++)
+        {
+            if (array[i] == value)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static double Clamp(double value, double min, double max)
     {
         if (double.IsNaN(value))
@@ -370,6 +472,12 @@ public sealed class VirtualizingCardPanel : VirtualizingPanel, IScrollInfo
         }
 
         return value;
+    }
+
+    private struct RealizedChild
+    {
+        public int Index;
+        public UIElement Element;
     }
 
     private static class DoubleUtil
