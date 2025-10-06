@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using FMUI.Wpf.Collections;
 using FMUI.Wpf.Infrastructure;
 using FMUI.Wpf.Models;
 using FMUI.Wpf.Services;
@@ -81,7 +81,7 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
         _catalog.LayoutsChanged += OnLayoutsChanged;
     }
 
-    public ObservableCollection<CardViewModel> Cards { get; } = new();
+    public CardPresenterCollection Cards { get; } = new(32);
 
     public CardSurfaceMetrics Metrics { get; }
 
@@ -97,7 +97,21 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
 
     public bool HasPreview => _previews.Count > 0;
 
-    public bool PreviewHasCollision => _previews.Any(preview => !preview.IsValid);
+    public bool PreviewHasCollision
+    {
+        get
+        {
+            for (var i = 0; i < _previews.Count; i++)
+            {
+                if (!_previews[i].IsValid)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
 
     public ReadOnlyObservableCollection<CardPresetViewModel> Palette { get; }
 
@@ -264,7 +278,7 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
             _interactionService.SetCards(Cards);
             _interactionService.UpdateViewport(_viewport);
             _openPaletteCommand.RaiseCanExecuteChanged();
-            SelectedPreset = _palette.FirstOrDefault();
+            SelectDefaultPreset();
             _removeSelectedCardsCommand.RaiseCanExecuteChanged();
         }
         else
@@ -286,9 +300,22 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var shouldReload = e.IsGlobal || e.Sections.Any(section =>
-            string.Equals(section.Tab, _currentTabIdentifier, StringComparison.OrdinalIgnoreCase) &&
-            string.Equals(section.Section, _currentSectionIdentifier, StringComparison.OrdinalIgnoreCase));
+        var shouldReload = e.IsGlobal;
+
+        if (!shouldReload)
+        {
+            var sections = e.Sections;
+            for (var i = 0; i < sections.Count; i++)
+            {
+                var section = sections[i];
+                if (string.Equals(section.Tab, _currentTabIdentifier, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(section.Section, _currentSectionIdentifier, StringComparison.OrdinalIgnoreCase))
+                {
+                    shouldReload = true;
+                    break;
+                }
+            }
+        }
 
         if (!shouldReload)
         {
@@ -442,6 +469,21 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
         }
 
         _interactionService.RemoveCards(selection);
+    }
+
+    private void SelectDefaultPreset()
+    {
+        if (_palette.Count == 0)
+        {
+            SelectedPreset = null;
+            return;
+        }
+
+        var firstPreset = _palette[0];
+        if (!ReferenceEquals(SelectedPreset, firstPreset))
+        {
+            SelectedPreset = firstPreset;
+        }
     }
 
     private void ConfigureEditor(CardViewModel card)

@@ -10,6 +10,7 @@ using System.Windows.Media;
 using FMUI.Wpf.Infrastructure;
 using FMUI.Wpf.Models;
 using FMUI.Wpf.Services;
+using FMUI.Wpf.UI.Cards;
 
 namespace FMUI.Wpf.ViewModels;
 
@@ -134,14 +135,6 @@ public sealed class CardViewModel : ObservableObject
             ? new MedicalTimelineViewModel(definition.MedicalTimeline)
             : null;
 
-        ClubVisionRoadmap = definition.ClubVisionRoadmap is not null
-            ? new ClubVisionRoadmapViewModel(definition.ClubVisionRoadmap, clubDataService)
-            : null;
-
-        ClubVisionExpectations = definition.ClubVisionExpectations is not null
-            ? new ClubVisionExpectationBoardViewModel(definition.ClubVisionExpectations, clubDataService)
-            : null;
-
         TimelineEntries = definition.Timeline is { Count: > 0 }
             ? new ReadOnlyCollection<TimelineEntryViewModel>(CreateTimeline(definition.Timeline))
             : System.Array.Empty<TimelineEntryViewModel>();
@@ -210,6 +203,12 @@ public sealed class CardViewModel : ObservableObject
 
     public CardKind Kind => _definition.Kind;
 
+    public bool HasContentHost => _definition.ContentType.HasValue;
+
+    public CardType ContentType => _definition.ContentType ?? CardType.TacticalOverview;
+
+    public uint PrimaryEntityId => _definition.PrimaryEntityId;
+
     public IReadOnlyList<CardListItemViewModel> ListItems { get; }
 
     public IReadOnlyList<FormationLineViewModel> FormationLines { get; }
@@ -249,10 +248,6 @@ public sealed class CardViewModel : ObservableObject
     public ShotMapViewModel? ShotMap { get; }
 
     public MedicalTimelineViewModel? MedicalTimeline { get; }
-
-    public ClubVisionRoadmapViewModel? ClubVisionRoadmap { get; }
-
-    public ClubVisionExpectationBoardViewModel? ClubVisionExpectations { get; }
 
     public IReadOnlyList<TimelineEntryViewModel> TimelineEntries { get; }
 

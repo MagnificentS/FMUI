@@ -6,6 +6,7 @@
              xmlns:vm="clr-namespace:FMUI.Wpf.ViewModels"
              xmlns:editors="clr-namespace:FMUI.Wpf.ViewModels.Editors"
              xmlns:controls="clr-namespace:FMUI.Wpf.Controls"
+             xmlns:cards="clr-namespace:FMUI.Wpf.UI.Cards"
              xmlns:behaviors="clr-namespace:FMUI.Wpf.Infrastructure.Behaviors"
              xmlns:views="clr-namespace:FMUI.Wpf.Views"
              mc:Ignorable="d"
@@ -683,14 +684,6 @@
             <views:TrainingUnitBoardView DataContext="{Binding TrainingUnitBoard}" />
         </DataTemplate>
 
-        <DataTemplate x:Key="ClubVisionRoadmapCardBodyTemplate">
-            <views:ClubVisionRoadmapView DataContext="{Binding ClubVisionRoadmap}" />
-        </DataTemplate>
-
-        <DataTemplate x:Key="ClubVisionExpectationBoardCardBodyTemplate">
-            <views:ClubVisionExpectationBoardView DataContext="{Binding ClubVisionExpectations}" />
-        </DataTemplate>
-
         <DataTemplate x:Key="ShotMapCardBodyTemplate">
             <views:ShotMapView DataContext="{Binding ShotMap}" />
         </DataTemplate>
@@ -1039,62 +1032,11 @@
             </StackPanel>
         </DataTemplate>
 
-        <DataTemplate x:Key="FormationCardBodyTemplate">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <Border Grid.Row="0"
-                        Background="#0E4022"
-                        CornerRadius="16"
-                        Padding="18"
-                        BorderBrush="#1ABF8F"
-                        BorderThickness="1">
-                    <Grid>
-                        <Rectangle Height="2"
-                                   Fill="#1ABF8F"
-                                   Opacity="0.35"
+        <DataTemplate x:Key="CardContentHostBodyTemplate">
+            <cards:CardContentHost CardType="{Binding ContentType}"
+                                   PrimaryEntityId="{Binding PrimaryEntityId}"
                                    HorizontalAlignment="Stretch"
-                                   VerticalAlignment="Center" />
-
-                        <ItemsControl ItemsSource="{Binding FormationPlayers}"
-                                      ItemTemplate="{StaticResource FormationPlayerTemplate}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <Canvas />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemContainerStyle>
-                                <Style TargetType="ContentPresenter">
-                                    <Setter Property="Canvas.Left">
-                                        <Setter.Value>
-                                            <MultiBinding Converter="{StaticResource RelativePositionConverter}" ConverterParameter="56">
-                                                <Binding Path="NormalizedX" />
-                                                <Binding RelativeSource="{RelativeSource AncestorType=Canvas}" Path="ActualWidth" />
-                                            </MultiBinding>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter Property="Canvas.Top">
-                                        <Setter.Value>
-                                            <MultiBinding Converter="{StaticResource RelativePositionConverter}" ConverterParameter="56">
-                                                <Binding Path="NormalizedY" />
-                                                <Binding RelativeSource="{RelativeSource AncestorType=Canvas}" Path="ActualHeight" />
-                                            </MultiBinding>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </ItemsControl.ItemContainerStyle>
-                        </ItemsControl>
-                    </Grid>
-                </Border>
-
-                <ItemsControl Grid.Row="1"
-                              Margin="0,16,0,0"
-                              ItemsSource="{Binding FormationLines}"
-                              ItemTemplate="{StaticResource FormationLineTemplate}" />
-            </Grid>
+                                   VerticalAlignment="Stretch" />
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type editors:FormationEditorViewModel}">
@@ -3787,7 +3729,7 @@
         <views:CardBodyTemplateSelector x:Key="CardBodyTemplateSelector"
                                         MetricTemplate="{StaticResource MetricCardBodyTemplate}"
                                         ListTemplate="{StaticResource ListCardBodyTemplate}"
-                                        FormationTemplate="{StaticResource FormationCardBodyTemplate}"
+                                        FormationTemplate="{StaticResource CardContentHostBodyTemplate}"
                                         FixtureTemplate="{StaticResource FixtureCardBodyTemplate}"
                                         StatusTemplate="{StaticResource StatusCardBodyTemplate}"
                                         LineChartTemplate="{StaticResource LineChartCardBodyTemplate}"
@@ -3801,15 +3743,14 @@
                                         FinanceCashflowTemplate="{StaticResource FinanceCashflowCardBodyTemplate}"
                                         FinanceBudgetAllocatorTemplate="{StaticResource FinanceBudgetAllocatorCardBodyTemplate}"
                                         FinanceScenarioTemplate="{StaticResource FinanceScenarioCardBodyTemplate}"
+                                        ContentHostTemplate="{StaticResource CardContentHostBodyTemplate}"
                                         TransferNegotiationTemplate="{StaticResource TransferNegotiationCardBodyTemplate}"
                                         ScoutAssignmentsTemplate="{StaticResource ScoutAssignmentsCardBodyTemplate}"
                                         ShortlistBoardTemplate="{StaticResource ShortlistBoardCardBodyTemplate}"
                                         TrainingUnitBoardTemplate="{StaticResource TrainingUnitBoardCardBodyTemplate}"
                                         TrainingProgressionTemplate="{StaticResource TrainingProgressionCardBodyTemplate}"
                                         ShotMapTemplate="{StaticResource ShotMapCardBodyTemplate}"
-                                        MedicalTimelineTemplate="{StaticResource MedicalTimelineCardBodyTemplate}"
-                                        ClubVisionRoadmapTemplate="{StaticResource ClubVisionRoadmapCardBodyTemplate}"
-                                        ClubVisionExpectationsTemplate="{StaticResource ClubVisionExpectationBoardCardBodyTemplate}" />
+                                        MedicalTimelineTemplate="{StaticResource MedicalTimelineCardBodyTemplate}" />
 
         <DataTemplate DataType="{x:Type vm:CardViewModel}">
             <Grid Width="{Binding Width}" Height="{Binding Height}">
