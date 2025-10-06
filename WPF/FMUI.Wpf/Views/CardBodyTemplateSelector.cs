@@ -31,8 +31,6 @@ public sealed class CardBodyTemplateSelector : DataTemplateSelector
 
     public DataTemplate? MoraleHeatmapTemplate { get; set; }
 
-    public DataTemplate? SquadTableTemplate { get; set; }
-
     public DataTemplate? FixtureCalendarTemplate { get; set; }
 
     public DataTemplate? TransferNegotiationTemplate { get; set; }
@@ -49,20 +47,23 @@ public sealed class CardBodyTemplateSelector : DataTemplateSelector
 
     public DataTemplate? MedicalTimelineTemplate { get; set; }
 
-    public DataTemplate? ClubVisionRoadmapTemplate { get; set; }
-
-    public DataTemplate? ClubVisionExpectationsTemplate { get; set; }
-
     public DataTemplate? FinanceCashflowTemplate { get; set; }
 
     public DataTemplate? FinanceBudgetAllocatorTemplate { get; set; }
 
     public DataTemplate? FinanceScenarioTemplate { get; set; }
 
+    public DataTemplate? ContentHostTemplate { get; set; }
+
     public override DataTemplate? SelectTemplate(object item, DependencyObject container)
     {
         if (item is CardViewModel card)
         {
+            if (card.HasContentHost && ContentHostTemplate is not null)
+            {
+                return ContentHostTemplate;
+            }
+
             return card.Kind switch
             {
                 CardKind.Metric => MetricTemplate ?? base.SelectTemplate(item, container),
@@ -77,7 +78,6 @@ public sealed class CardBodyTemplateSelector : DataTemplateSelector
                 CardKind.Forecast => ForecastTemplate ?? base.SelectTemplate(item, container),
                 CardKind.WorkloadHeatmap => WorkloadHeatmapTemplate ?? base.SelectTemplate(item, container),
                 CardKind.MoraleHeatmap => MoraleHeatmapTemplate ?? base.SelectTemplate(item, container),
-                CardKind.SquadTable => SquadTableTemplate ?? base.SelectTemplate(item, container),
                 CardKind.FixtureCalendar => FixtureCalendarTemplate ?? base.SelectTemplate(item, container),
                 CardKind.TransferNegotiation => TransferNegotiationTemplate ?? base.SelectTemplate(item, container),
                 CardKind.ScoutAssignments => ScoutAssignmentsTemplate ?? base.SelectTemplate(item, container),
@@ -86,11 +86,10 @@ public sealed class CardBodyTemplateSelector : DataTemplateSelector
                 CardKind.TrainingProgression => TrainingProgressionTemplate ?? base.SelectTemplate(item, container),
                 CardKind.ShotMap => ShotMapTemplate ?? base.SelectTemplate(item, container),
                 CardKind.MedicalTimeline => MedicalTimelineTemplate ?? base.SelectTemplate(item, container),
-                CardKind.ClubVisionRoadmap => ClubVisionRoadmapTemplate ?? base.SelectTemplate(item, container),
-                CardKind.ClubVisionExpectations => ClubVisionExpectationsTemplate ?? base.SelectTemplate(item, container),
                 CardKind.FinanceCashflow => FinanceCashflowTemplate ?? base.SelectTemplate(item, container),
                 CardKind.FinanceBudgetAllocator => FinanceBudgetAllocatorTemplate ?? base.SelectTemplate(item, container),
                 CardKind.FinanceScenarioBoard => FinanceScenarioTemplate ?? base.SelectTemplate(item, container),
+                CardKind.ContentHost => ContentHostTemplate ?? base.SelectTemplate(item, container),
                 _ => base.SelectTemplate(item, container)
             };
         }

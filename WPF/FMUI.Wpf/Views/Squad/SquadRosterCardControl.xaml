@@ -1,0 +1,266 @@
+<UserControl x:Class="FMUI.Wpf.Views.Squad.SquadRosterCardControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="clr-namespace:FMUI.Wpf.Models"
+             xmlns:views="clr-namespace:FMUI.Wpf.Views"
+             d:DesignHeight="600"
+             d:DesignWidth="800"
+             mc:Ignorable="d"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <WrapPanel Grid.Column="0"
+                       VerticalAlignment="Center"
+                       Margin="0,0,16,0">
+                <StackPanel Width="160" Margin="0,0,12,0">
+                    <TextBlock Text="Position"
+                               Style="{StaticResource CardListSecondaryTextStyle}" />
+                    <ComboBox ItemsSource="{Binding PositionFilters}"
+                              SelectedItem="{Binding SelectedPositionFilter, Mode=TwoWay}"
+                              Background="{StaticResource SurfaceMediumBrush}"
+                              Foreground="{StaticResource PrimaryTextBrush}"
+                              BorderBrush="{StaticResource SurfaceToolbarBorderBrush}"
+                              Margin="0,4,0,0"
+                              Padding="6,4"
+                              AutomationProperties.Name="Filter squad by position" />
+                </StackPanel>
+                <StackPanel Width="160" Margin="0,0,12,0">
+                    <TextBlock Text="Role"
+                               Style="{StaticResource CardListSecondaryTextStyle}" />
+                    <ComboBox ItemsSource="{Binding RoleFilters}"
+                              SelectedItem="{Binding SelectedRoleFilter, Mode=TwoWay}"
+                              Background="{StaticResource SurfaceMediumBrush}"
+                              Foreground="{StaticResource PrimaryTextBrush}"
+                              BorderBrush="{StaticResource SurfaceToolbarBorderBrush}"
+                              Margin="0,4,0,0"
+                              Padding="6,4"
+                              AutomationProperties.Name="Filter squad by role" />
+                </StackPanel>
+                <StackPanel Width="200" Margin="0,0,12,0">
+                    <TextBlock Text="Search"
+                               Style="{StaticResource CardListSecondaryTextStyle}" />
+                    <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Background="{StaticResource SurfaceMediumBrush}"
+                             Foreground="{StaticResource PrimaryTextBrush}"
+                             BorderBrush="{StaticResource SurfaceToolbarBorderBrush}"
+                             Margin="0,4,0,0"
+                             Padding="6,4"
+                             AutomationProperties.Name="Search squad roster" />
+                </StackPanel>
+            </WrapPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="{Binding SelectedCount, StringFormat=Selected: {0}}"
+                           Style="{StaticResource CardListSecondaryTextStyle}"
+                           Margin="0,0,16,0" />
+                <Button Content="Clear Filters"
+                        Command="{Binding ClearFiltersCommand}"
+                        Style="{StaticResource CardHeaderButtonStyle}"
+                        Margin="0,0,8,0"
+                        Padding="16,6"
+                        AutomationProperties.Name="Clear squad filters" />
+                <Button Content="Clear Selection"
+                        Command="{Binding ClearSelectionCommand}"
+                        Style="{StaticResource CardHeaderButtonStyle}"
+                        Margin="0,0,8,0"
+                        Padding="16,6"
+                        AutomationProperties.Name="Clear squad selection" />
+                <Button Content="Compare Selected"
+                        Command="{Binding CompareCommand}"
+                        Style="{StaticResource CardHeaderButtonStyle}"
+                        Padding="18,6"
+                        AutomationProperties.Name="Compare selected players" />
+            </StackPanel>
+        </Grid>
+
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding PlayersView}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  CanUserResizeRows="False"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="None"
+                  BorderThickness="0"
+                  RowHeight="42"
+                  ColumnHeaderHeight="34"
+                  IsReadOnly="True"
+                  AlternationCount="2"
+                  AlternatingRowBackground="#152030"
+                  Background="{StaticResource SurfaceDarkBrush}"
+                  Foreground="{StaticResource PrimaryTextBrush}"
+                  ScrollViewer.CanContentScroll="True">
+            <DataGrid.Resources>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="{StaticResource SurfaceMediumBrush}" />
+                    <Setter Property="Foreground" Value="{StaticResource NeutralTextBrush}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource SurfaceToolbarBorderBrush}" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                    <Setter Property="FontSize" Value="12" />
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                </Style>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="{StaticResource SurfaceDarkBrush}" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                    <Setter Property="BorderBrush" Value="#1A2A3A" />
+                    <Setter Property="SnapsToDevicePixels" Value="True" />
+                    <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+                </Style>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Background" Value="{StaticResource SurfaceDarkBrush}" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Padding" Value="8,4" />
+                </Style>
+            </DataGrid.Resources>
+
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Width="40" IsReadOnly="False" SortMemberPath="IsSelected">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" HorizontalAlignment="Center" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />
+                <DataGridTextColumn Header="Position" Binding="{Binding Position}" Width="1.1*" SortMemberPath="Position" />
+                <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="1.2*" SortMemberPath="Role" />
+                <DataGridTextColumn Header="Morale" Binding="{Binding Morale}" Width="1.2*" SortMemberPath="Morale" />
+                <DataGridTemplateColumn Header="Condition" SortMemberPath="Condition" Width="1.2*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <ProgressBar Value="{Binding ConditionPercentage}"
+                                             Maximum="100"
+                                             Height="6"
+                                             Foreground="{StaticResource AccentPrimaryBrush}"
+                                             Background="#152030" />
+                                <TextBlock Text="{Binding ConditionDisplay}"
+                                           Foreground="{StaticResource NeutralTextBrush}"
+                                           FontSize="11"
+                                           Margin="0,4,0,0" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Sharpness" SortMemberPath="MatchSharpness" Width="1.2*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <ProgressBar Value="{Binding MatchSharpnessPercentage}"
+                                             Maximum="100"
+                                             Height="6"
+                                             Foreground="{StaticResource AccentSecondaryBrush}"
+                                             Background="#152030" />
+                                <TextBlock Text="{Binding MatchSharpnessDisplay}"
+                                           Foreground="{StaticResource NeutralTextBrush}"
+                                           FontSize="11"
+                                           Margin="0,4,0,0" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Avg Rating" Binding="{Binding AverageRatingDisplay}" SortMemberPath="AverageRating" Width="1.1*" />
+                <DataGridTextColumn Header="Apps" Binding="{Binding AppearancesDisplay}" SortMemberPath="Appearances" Width="0.9*" />
+                <DataGridTextColumn Header="Minutes" Binding="{Binding MinutesDisplay}" SortMemberPath="Minutes" Width="1.1*" />
+                <DataGridTextColumn Header="Nation" Binding="{Binding Nationality}" Width="1*" SortMemberPath="Nationality" />
+                <DataGridTemplateColumn Header="Status" Width="1.2*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border Background="{StaticResource AccentPrimaryBrush}"
+                                    CornerRadius="8"
+                                    Padding="8,2"
+                                    Visibility="{Binding Status, Converter={StaticResource NullToVisibilityConverter}}">
+                                <TextBlock Text="{Binding Status}"
+                                           Foreground="White"
+                                           FontSize="11"
+                                           FontWeight="SemiBold" />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="2" Margin="0,16,0,0">
+            <Border Background="{StaticResource SurfaceMediumBrush}"
+                    BorderBrush="{StaticResource SurfaceToolbarBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="16"
+                    Visibility="{Binding HasComparison, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding ComparisonSummary}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource PrimaryTextBrush}" />
+                        <Button Content="Dismiss"
+                                Command="{Binding DismissComparisonCommand}"
+                                Style="{StaticResource CardHeaderButtonStyle}"
+                                Margin="12,0,0,0"
+                                Padding="14,4"
+                                AutomationProperties.Name="Dismiss squad comparison" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding ComparisonPlayersDisplay}"
+                               Margin="0,6,0,0"
+                               Foreground="{StaticResource NeutralTextBrush}" />
+                    <ItemsControl ItemsSource="{Binding ComparisonMetrics}"
+                                  Margin="0,12,0,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:SquadComparisonMetric}">
+                                <Border Background="{StaticResource SurfaceMediumBrush}"
+                                        BorderBrush="{StaticResource SurfaceToolbarBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="10"
+                                        Padding="12"
+                                        Margin="0,0,12,12">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Metric}"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource PrimaryTextBrush}" />
+                                            <Border Background="{StaticResource AccentPrimaryBrush}"
+                                                    CornerRadius="10"
+                                                    Padding="8,2"
+                                                    Margin="12,0,0,0"
+                                                    Visibility="{Binding TieBadge, Converter={StaticResource NullToVisibilityConverter}}">
+                                                <TextBlock Text="{Binding TieBadge}"
+                                                           FontSize="11"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="White" />
+                                            </Border>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding LeaderName}"
+                                                   Margin="0,6,0,0"
+                                                   Foreground="{StaticResource NeutralTextBrush}" />
+                                        <TextBlock Text="{Binding LeaderValue}"
+                                                   Margin="0,4,0,0"
+                                                   FontSize="16"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource PrimaryTextBrush}" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>
