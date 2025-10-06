@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using FMUI.Wpf.Configuration;
+using FMUI.Wpf.Infrastructure;
 using FMUI.Wpf.Models;
 
 namespace FMUI.Wpf.Services;
@@ -58,14 +60,24 @@ public sealed class NavigationIndicatorService : INavigationIndicatorService
     };
 
     private readonly IClubDataService _clubDataService;
-    private readonly Dictionary<(string Tab, string Section), Func<ClubDataSnapshot, NavigationIndicatorSnapshot>> _evaluators;
+    private readonly IModuleSnapshotProvider _snapshotProvider;
+    private readonly IndicatorLocalizationConfig _localization;
+    private readonly IStringDatabase _strings;
+    private readonly Dictionary<(string Tab, string Section), Func<NavigationIndicatorSnapshot>> _evaluators;
 
-    public NavigationIndicatorService(IClubDataService clubDataService)
+    public NavigationIndicatorService(
+        IClubDataService clubDataService,
+        IModuleSnapshotProvider snapshotProvider,
+        IndicatorLocalizationConfig localization,
+        IStringDatabase strings)
     {
         _clubDataService = clubDataService ?? throw new ArgumentNullException(nameof(clubDataService));
+        _snapshotProvider = snapshotProvider ?? throw new ArgumentNullException(nameof(snapshotProvider));
+        _localization = localization ?? throw new ArgumentNullException(nameof(localization));
+        _strings = strings ?? throw new ArgumentNullException(nameof(strings));
         _clubDataService.SnapshotChanged += OnSnapshotChanged;
 
-        _evaluators = new Dictionary<(string Tab, string Section), Func<ClubDataSnapshot, NavigationIndicatorSnapshot>>(StringComparer.OrdinalIgnoreCase)
+        _evaluators = new Dictionary<(string Tab, string Section), Func<NavigationIndicatorSnapshot>>(StringComparer.OrdinalIgnoreCase)
         {
             [("overview", "club-vision")] = EvaluateClubVision,
             [("overview", "dynamics")] = EvaluateDynamics,
@@ -94,8 +106,7 @@ public sealed class NavigationIndicatorService : INavigationIndicatorService
 
         if (_evaluators.TryGetValue((tabIdentifier, sectionIdentifier), out var evaluator))
         {
-            var snapshot = _clubDataService.GetSnapshot();
-            return evaluator(snapshot);
+            return evaluator();
         }
 
         return NavigationIndicatorSnapshot.None;
@@ -106,88 +117,66 @@ public sealed class NavigationIndicatorService : INavigationIndicatorService
         IndicatorsChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    private static NavigationIndicatorSnapshot EvaluateClubVision(ClubDataSnapshot snapshot)
+    private NavigationIndicatorSnapshot EvaluateClubVision()
     {
-        var expectations = snapshot.Overview.ClubVision.CompetitionExpectations;
-        return BuildListIndicator(
-            expectations,
-            singularMessage: "{0} expectation is off target",
-            pluralMessage: "{0} competition expectations need action");
+        var expectations = _snapshotProvider.GetOverview().ClubVision.CompetitionExpectations;
+        return BuildListIndicator(expectations, _localization.ClubVision);
     }
 
-    private static NavigationIndicatorSnapshot EvaluateDynamics(ClubDataSnapshot snapshot)
+    private NavigationIndicatorSnapshot EvaluateDynamics()
     {
-        var issues = snapshot.Overview.Dynamics.PlayerIssues;
-        return BuildListIndicator(
-            issues,
-            singularMessage: "Issue raised by {0}",
-            pluralMessage: "{0} player issues require attention");
+        var issues = _snapshotProvider.GetOverview().Dynamics.PlayerIssues;
+        return BuildListIndicator(issues, _localization.Dynamics);
     }
 
-    private static NavigationIndicatorSnapshot EvaluateMedical(ClubDataSnapshot snapshot)
+    private NavigationIndicatorSnapshot EvaluateMedical()
     {
-        var injuries = snapshot.Overview.Medical.InjuryList;
-        return BuildListIndicator(
-            injuries,
-            singularMessage: "Medical flag for {0}",
-            pluralMessage: "{0} medical cases active");
+        var injuries = _snapshotProvider.GetOverview().Medical.InjuryList;
+        return BuildListIndicator(injuries, _localization.Medical);
     }
 
-    private static NavigationIndicatorSnapshot EvaluateSelectionInfo(ClubDataSnapshot snapshot)
+    private NavigationIndicatorSnapshot EvaluateSelectionInfo()
     {
-        var concerns = snapshot.Squad.SelectionInfo.FitnessConcerns;
-        return BuildListIndicator(
-            concerns,
-            singularMessage: "Fitness concern: {0}",
-            pluralMessage: "{0} fitness concerns to manage");
+        var concerns = _snapshotProvider.GetSquad().SelectionInfo.FitnessConcerns;
+        return BuildListIndicator(concerns, _localization.SquadSelection);
     }
 
-    private static NavigationIndicatorSnapshot EvaluateSquadTransfers(ClubDataSnapshot snapshot)
+    private NavigationIndicatorSnapshot EvaluateSquadTransfers()
     {
-        var interest = snapshot.Squad.Players.TransferInterest;
-        return BuildListIndicator(
-            interest,
-            singularMessage: "Transfer interest in {0}",
-            pluralMessage: "{0} players attracting bids");
+        var interest = _snapshotProvider.GetSquad().Players.TransferInterest;
+        return BuildListIndicator(interest, _localization.SquadTransfers);
     }
 
-    private static NavigationIndicatorSnapshot EvaluateTrainingMedicalLoad(ClubDataSnapshot snapshot)
+    private NavigationIndicatorSnapshot EvaluateTrainingMedicalLoad()
     {
-        var workload = snapshot.Training.Overview.MedicalWorkload;
-        return BuildListIndicator(
-            workload,
-            singularMessage: "Training risk: {0}",
-            pluralMessage: "{0} players flagged by medical team");
+        var workload = _snapshotProvider.GetTraining().Overview.MedicalWorkload;
+        return BuildListIndicator(workload, _localization.TrainingMedical);
     }
 
-    private static NavigationIndicatorSnapshot EvaluateTransferCentre(ClubDataSnapshot snapshot)
+    private NavigationIndicatorSnapshot EvaluateTransferCentre()
     {
-        var deals = snapshot.Transfers.Centre.ActiveDeals;
-        return BuildListIndicator(
-            deals,
-            singularMessage: "Deal in progress: {0}",
-            pluralMessage: "{0} active deals underway");
+        var deals = _snapshotProvider.GetTransfers().Centre.ActiveDeals;
+        return BuildListIndicator(deals, _localization.TransferCentre);
     }
 
-    private static NavigationIndicatorSnapshot EvaluateFixtureSchedule(ClubDataSnapshot snapshot)
+    private NavigationIndicatorSnapshot EvaluateFixtureSchedule()
     {
-        var fixtures = snapshot.Fixtures.Schedule.UpcomingFixtures;
+        var fixtures = _snapshotProvider.GetFixtures().Schedule.UpcomingFixtures;
         if (fixtures.Count == 0)
         {
             return NavigationIndicatorSnapshot.None;
         }
 
         var tooltip = fixtures.Count == 1
-            ? string.Format(CultureInfo.CurrentCulture, "Next fixture: {0}", fixtures[0].Primary)
-            : string.Format(CultureInfo.CurrentCulture, "{0} fixtures this fortnight", fixtures.Count);
+            ? string.Format(CultureInfo.CurrentCulture, _strings.Resolve(_localization.FixtureSchedule.NextFixture), fixtures[0].Primary)
+            : string.Format(CultureInfo.CurrentCulture, _strings.Resolve(_localization.FixtureSchedule.MultipleFixtures), fixtures.Count);
 
         return new NavigationIndicatorSnapshot(fixtures.Count, NavigationIndicatorSeverity.Info, tooltip);
     }
 
-    private static NavigationIndicatorSnapshot BuildListIndicator(
+    private NavigationIndicatorSnapshot BuildListIndicator(
         IReadOnlyList<ListEntrySnapshot> entries,
-        string singularMessage,
-        string pluralMessage)
+        IndicatorMessageConfig messages)
     {
         if (entries is null || entries.Count == 0)
         {
@@ -214,6 +203,9 @@ public sealed class NavigationIndicatorService : INavigationIndicatorService
         {
             return NavigationIndicatorSnapshot.None;
         }
+
+        var singularMessage = _strings.Resolve(messages.Singular);
+        var pluralMessage = _strings.Resolve(messages.Plural);
 
         var tooltip = concerningCount == 1
             ? string.Format(CultureInfo.CurrentCulture, singularMessage, firstLabel)

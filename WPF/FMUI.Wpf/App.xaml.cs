@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Windows;
+using System.Collections.Generic;
+using FMUI.Wpf.Configuration;
 using FMUI.Wpf.Infrastructure;
 using FMUI.Wpf.Models;
 using FMUI.Wpf.Services;
@@ -45,6 +47,25 @@ public partial class App : Application
     {
         services.AddSingleton<IEventAggregator, EventAggregator>();
         services.AddSingleton<IClubDataService, ClubDataService>();
+        services.AddSingleton<IModuleSnapshotProvider, ModuleSnapshotProvider>();
+
+        var navigationLocalization = NavigationLocalizationConfig.CreateDefault();
+        var indicatorLocalization = IndicatorLocalizationConfig.CreateDefault();
+        services.AddSingleton(navigationLocalization);
+        services.AddSingleton(indicatorLocalization);
+
+        var resources = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var pair in NavigationLocalizationConfig.GetResources(navigationLocalization))
+        {
+            resources[pair.Key] = pair.Value;
+        }
+
+        foreach (var pair in IndicatorLocalizationConfig.GetResources(indicatorLocalization))
+        {
+            resources[pair.Key] = pair.Value;
+        }
+
+        services.AddSingleton<IStringDatabase>(new StringDatabase(resources));
         services.AddSingleton<ICardLayoutCatalog, CardLayoutCatalog>();
         services.AddSingleton<ICardEditorCatalog, CardEditorCatalog>();
         services.AddSingleton<INavigationCatalog, NavigationCatalog>();

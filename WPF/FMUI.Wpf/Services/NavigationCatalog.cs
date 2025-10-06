@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using FMUI.Wpf.Configuration;
+using FMUI.Wpf.Infrastructure;
 using FMUI.Wpf.Models;
 
 namespace FMUI.Wpf.Services;
@@ -10,51 +13,29 @@ public interface INavigationCatalog
 
 public sealed class NavigationCatalog : INavigationCatalog
 {
-    public IReadOnlyList<NavigationTab> GetTabs() => new List<NavigationTab>
+    private readonly NavigationLocalizationConfig _config;
+    private readonly IStringDatabase _strings;
+
+    public NavigationCatalog(NavigationLocalizationConfig config, IStringDatabase strings)
     {
-        new("Overview", "overview", new List<NavigationSubItem>
+        _config = config ?? throw new ArgumentNullException(nameof(config));
+        _strings = strings ?? throw new ArgumentNullException(nameof(strings));
+    }
+
+    public IReadOnlyList<NavigationTab> GetTabs()
+    {
+        var tabs = new List<NavigationTab>(_config.Tabs.Count);
+        foreach (var tab in _config.Tabs)
         {
-            new("Club Vision", "club-vision"),
-            new("Dynamics", "dynamics"),
-            new("Medical Centre", "medical-centre"),
-            new("Analytics", "analytics"),
-        }),
-        new("Squad", "squad", new List<NavigationSubItem>
-        {
-            new("Selection Info", "selection-info"),
-            new("Players", "players"),
-            new("International", "international"),
-            new("Squad Depth", "squad-depth"),
-        }),
-        new("Tactics", "tactics", new List<NavigationSubItem>
-        {
-            new("Overview", "tactics-overview"),
-            new("Set Pieces", "set-pieces"),
-            new("Analysis", "tactics-analysis"),
-        }),
-        new("Training", "training", new List<NavigationSubItem>
-        {
-            new("Overview", "training-overview"),
-            new("Calendar", "training-calendar"),
-            new("Units", "training-units"),
-        }),
-        new("Transfers", "transfers", new List<NavigationSubItem>
-        {
-            new("Centre", "transfer-centre"),
-            new("Scouting", "scouting"),
-            new("Shortlist", "shortlist"),
-        }),
-        new("Finances", "finances", new List<NavigationSubItem>
-        {
-            new("Summary", "finances-summary"),
-            new("Income", "finances-income"),
-            new("Expenditure", "finances-expenditure"),
-        }),
-        new("Fixtures", "fixtures", new List<NavigationSubItem>
-        {
-            new("Schedule", "fixtures-schedule"),
-            new("Results", "fixtures-results"),
-            new("Calendar", "fixtures-calendar"),
-        }),
-    };
+            var sections = new List<NavigationSubItem>(tab.Sections.Count);
+            foreach (var section in tab.Sections)
+            {
+                sections.Add(new NavigationSubItem(_strings.Resolve(section.Label), section.Identifier));
+            }
+
+            tabs.Add(new NavigationTab(_strings.Resolve(tab.Label), tab.Identifier, sections));
+        }
+
+        return tabs;
+    }
 }

@@ -16,14 +16,16 @@ public interface ICardLayoutCatalog
 public sealed class CardLayoutCatalog : ICardLayoutCatalog, IDisposable
 {
     private readonly IClubDataService _clubDataService;
+    private readonly IModuleSnapshotProvider _moduleSnapshotProvider;
     private readonly object _sync = new();
     private Dictionary<(string Tab, string Section), CardLayout> _layouts;
     private bool _disposed;
 
-    public CardLayoutCatalog(IClubDataService clubDataService)
+    public CardLayoutCatalog(IClubDataService clubDataService, IModuleSnapshotProvider moduleSnapshotProvider)
     {
-        _clubDataService = clubDataService;
-        _layouts = BuildLayouts(clubDataService.GetSnapshot());
+        _clubDataService = clubDataService ?? throw new ArgumentNullException(nameof(clubDataService));
+        _moduleSnapshotProvider = moduleSnapshotProvider ?? throw new ArgumentNullException(nameof(moduleSnapshotProvider));
+        _layouts = BuildLayouts();
         _clubDataService.SnapshotChanged += OnSnapshotChanged;
     }
 
@@ -51,7 +53,7 @@ public sealed class CardLayoutCatalog : ICardLayoutCatalog, IDisposable
 
     private void OnSnapshotChanged(object? sender, ClubDataSnapshot snapshot)
     {
-        var layouts = BuildLayouts(snapshot);
+        var layouts = BuildLayouts();
 
         lock (_sync)
         {
@@ -62,33 +64,43 @@ public sealed class CardLayoutCatalog : ICardLayoutCatalog, IDisposable
         LayoutsChanged?.Invoke(this, new LayoutsChangedEventArgs(keys, isGlobal: true));
     }
 
-    private static Dictionary<(string, string), CardLayout> BuildLayouts(ClubDataSnapshot snapshot) =>
-        new()
+    private Dictionary<(string, string), CardLayout> BuildLayouts()
+    {
+        var overview = _moduleSnapshotProvider.GetOverview();
+        var squad = _moduleSnapshotProvider.GetSquad();
+        var tactics = _moduleSnapshotProvider.GetTactics();
+        var training = _moduleSnapshotProvider.GetTraining();
+        var transfers = _moduleSnapshotProvider.GetTransfers();
+        var finance = _moduleSnapshotProvider.GetFinance();
+        var fixtures = _moduleSnapshotProvider.GetFixtures();
+
+        return new Dictionary<(string, string), CardLayout>
         {
-            [("overview", "club-vision")] = BuildClubVisionOverview(snapshot.Overview.ClubVision),
-            [("overview", "dynamics")] = BuildDynamicsOverview(snapshot.Overview.Dynamics),
-            [("overview", "medical-centre")] = BuildMedicalCentre(snapshot.Overview.Medical),
-            [("overview", "analytics")] = BuildAnalyticsOverview(snapshot.Overview.Analytics),
-            [("squad", "selection-info")] = BuildSquadSelectionInfo(snapshot.Squad.SelectionInfo),
-            [("squad", "players")] = BuildSquadPlayers(snapshot.Squad.Players),
-            [("squad", "international")] = BuildSquadInternational(snapshot.Squad.International),
-            [("squad", "squad-depth")] = BuildSquadDepth(snapshot.Squad.Depth),
-            [("tactics", "tactics-overview")] = BuildTacticsOverview(snapshot.Tactics),
-            [("tactics", "set-pieces")] = BuildTacticsSetPieces(snapshot.Tactics.SetPieces),
-            [("tactics", "tactics-analysis")] = BuildTacticsAnalysis(snapshot.Tactics.Analysis),
-            [("training", "training-overview")] = BuildTrainingOverview(snapshot.Training.Overview),
-            [("training", "training-calendar")] = BuildTrainingCalendar(snapshot.Training.Calendar),
-            [("training", "training-units")] = BuildTrainingUnits(snapshot.Training.Units),
-            [("transfers", "transfer-centre")] = BuildTransferCentre(snapshot.Transfers.Centre),
-            [("transfers", "scouting")] = BuildTransfersScouting(snapshot.Transfers.Scouting),
-            [("transfers", "shortlist")] = BuildTransfersShortlist(snapshot.Transfers.Shortlist),
-            [("finances", "finances-summary")] = BuildFinancesSummary(snapshot.Finance.Summary),
-            [("finances", "finances-income")] = BuildFinancesIncome(snapshot.Finance.Income),
-            [("finances", "finances-expenditure")] = BuildFinancesExpenditure(snapshot.Finance.Expenditure),
-            [("fixtures", "fixtures-schedule")] = BuildFixturesSchedule(snapshot.Fixtures.Schedule),
-            [("fixtures", "fixtures-results")] = BuildFixturesResults(snapshot.Fixtures.Results),
-            [("fixtures", "fixtures-calendar")] = BuildFixturesCalendar(snapshot.Fixtures.Calendar),
+            [("overview", "club-vision")] = BuildClubVisionOverview(overview.ClubVision),
+            [("overview", "dynamics")] = BuildDynamicsOverview(overview.Dynamics),
+            [("overview", "medical-centre")] = BuildMedicalCentre(overview.Medical),
+            [("overview", "analytics")] = BuildAnalyticsOverview(overview.Analytics),
+            [("squad", "selection-info")] = BuildSquadSelectionInfo(squad.SelectionInfo),
+            [("squad", "players")] = BuildSquadPlayers(squad.Players),
+            [("squad", "international")] = BuildSquadInternational(squad.International),
+            [("squad", "squad-depth")] = BuildSquadDepth(squad.Depth),
+            [("tactics", "tactics-overview")] = BuildTacticsOverview(tactics),
+            [("tactics", "set-pieces")] = BuildTacticsSetPieces(tactics.SetPieces),
+            [("tactics", "tactics-analysis")] = BuildTacticsAnalysis(tactics.Analysis),
+            [("training", "training-overview")] = BuildTrainingOverview(training.Overview),
+            [("training", "training-calendar")] = BuildTrainingCalendar(training.Calendar),
+            [("training", "training-units")] = BuildTrainingUnits(training.Units),
+            [("transfers", "transfer-centre")] = BuildTransferCentre(transfers.Centre),
+            [("transfers", "scouting")] = BuildTransfersScouting(transfers.Scouting),
+            [("transfers", "shortlist")] = BuildTransfersShortlist(transfers.Shortlist),
+            [("finances", "finances-summary")] = BuildFinancesSummary(finance.Summary),
+            [("finances", "finances-income")] = BuildFinancesIncome(finance.Income),
+            [("finances", "finances-expenditure")] = BuildFinancesExpenditure(finance.Expenditure),
+            [("fixtures", "fixtures-schedule")] = BuildFixturesSchedule(fixtures.Schedule),
+            [("fixtures", "fixtures-results")] = BuildFixturesResults(fixtures.Results),
+            [("fixtures", "fixtures-calendar")] = BuildFixturesCalendar(fixtures.Calendar),
         };
+    }
 
     private static CardLayout BuildTacticsOverview(TacticalSnapshot snapshot)
     {
