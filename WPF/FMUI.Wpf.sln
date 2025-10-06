@@ -4,6 +4,8 @@ VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMUI.Wpf", "FMUI.Wpf\FMUI.Wpf.csproj", "{2CB85502-47C7-4F6A-9F57-EB2762DB4F70}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMUI.Wpf.DiagnosticsRunner", "FMUI.Wpf.DiagnosticsRunner\FMUI.Wpf.DiagnosticsRunner.csproj", "{17BC06B0-AC3B-458C-8544-41D813646FE1}"
+EndProject
 Global
 GlobalSection(SolutionConfigurationPlatforms) = preSolution
 Debug|Any CPU = Debug|Any CPU
@@ -14,6 +16,10 @@ GlobalSection(ProjectConfigurationPlatforms) = postSolution
 {2CB85502-47C7-4F6A-9F57-EB2762DB4F70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 {2CB85502-47C7-4F6A-9F57-EB2762DB4F70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 {2CB85502-47C7-4F6A-9F57-EB2762DB4F70}.Release|Any CPU.Build.0 = Release|Any CPU
+{17BC06B0-AC3B-458C-8544-41D813646FE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+{17BC06B0-AC3B-458C-8544-41D813646FE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+{17BC06B0-AC3B-458C-8544-41D813646FE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+{17BC06B0-AC3B-458C-8544-41D813646FE1}.Release|Any CPU.Build.0 = Release|Any CPU
 EndGlobalSection
 GlobalSection(SolutionProperties) = preSolution
 HideSolutionNode = FALSE

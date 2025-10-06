@@ -114,4 +114,14 @@ WPF/
 4. Extend formation and status-specific overlays (role presets, contextual menus) to reuse the shared tooltip/animation system while continuing to harden accessibility semantics.
 5. Build automation and performance coverage (UI/integration tests, telemetry) to protect the growing interaction surface as live data workflows expand.
 
+## UI Performance Diagnostics Harness
+
+- A dedicated console harness (`FMUI.Wpf.DiagnosticsRunner`) now executes the headless `UiPerformanceMonitor` against every navigation slice, capturing frame-time and GC metrics before and after simulated migrations.
+- Invoke it after building the solution:
+  ```bash
+  dotnet run --project WPF/FMUI.Wpf.DiagnosticsRunner -- --diagnostics-root WPF/diagnostics
+  ```
+- Baseline snapshots are persisted to `WPF/diagnostics/ui-performance-baseline.json`; rerunning the harness compares against the stored baseline and surfaces regressions. Pass `--enforce-baseline` in CI once all tabs are descriptor-driven to fail builds on frame or GC regressions.
+- Override defaults via `--before-frames`, `--after-frames`, `--frame-variance`, and `--frame-interval` to tune sampling windows for stress scenarios.
+
 The scaffold now reflects the navigation, theming, messaging, and interaction patterns required for the full Football Manager UI conversion.
