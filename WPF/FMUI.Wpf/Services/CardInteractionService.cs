@@ -13,29 +13,29 @@ public interface ICardInteractionService
 
     void SetActiveSection(string tabIdentifier, string sectionIdentifier);
 
-    void SetCards(IReadOnlyList<CardViewModel> cards);
+    void SetPresenters(ReadOnlySpan<CardPresenter> presenters);
 
-    void SelectCard(CardViewModel card, SelectionModifier modifier);
+    void SelectCard(int presenterId, SelectionModifier modifier);
 
     void ClearSelection();
 
-    void BeginDrag(CardViewModel card);
+    void BeginDrag(int presenterId);
 
-    void UpdateDrag(CardViewModel card, CardDragDelta delta);
+    void UpdateDrag(int presenterId, CardDragDelta delta);
 
-    void CompleteDrag(CardViewModel card, CardDragCompleted completed);
+    void CompleteDrag(int presenterId, CardDragCompleted completed);
 
-    void BeginResize(CardViewModel card, ResizeHandle handle);
+    void BeginResize(int presenterId, ResizeHandle handle);
 
-    void UpdateResize(CardViewModel card, CardResizeDelta delta);
+    void UpdateResize(int presenterId, CardResizeDelta delta);
 
-    void CompleteResize(CardViewModel card, CardResizeCompleted completed);
+    void CompleteResize(int presenterId, CardResizeCompleted completed);
 
-    void BeginPlayerDrag(CardViewModel card, FormationPlayerViewModel player);
+    void BeginPlayerDrag(int presenterId, FormationPlayerViewModel player);
 
-    void UpdatePlayerDrag(CardViewModel card, FormationPlayerViewModel player, FormationPlayerDragDelta delta);
+    void UpdatePlayerDrag(int presenterId, FormationPlayerViewModel player, FormationPlayerDragDelta delta);
 
-    void CompletePlayerDrag(CardViewModel card, FormationPlayerViewModel player, FormationPlayerDragCompleted completed);
+    void CompletePlayerDrag(int presenterId, FormationPlayerViewModel player, FormationPlayerDragCompleted completed);
 
     void UpdateViewport(Rect viewport);
 
@@ -72,6 +72,7 @@ public sealed class CardInteractionService : ICardInteractionService
     private readonly List<CardViewModel> _trackedCards = new();
     private readonly Dictionary<string, CardViewModel> _cardLookup = new(StringComparer.Ordinal);
     private readonly HashSet<CardViewModel> _selectedCards = new();
+    private readonly Dictionary<int, CardViewModel> _presentersById = new();
     private readonly Stack<CardHistoryEntry> _undoStack = new();
     private readonly Stack<CardHistoryEntry> _redoStack = new();
     private readonly ICardLayoutStateService _stateService;
@@ -92,6 +93,16 @@ public sealed class CardInteractionService : ICardInteractionService
         _clubDataService = clubDataService;
     }
 
+    private CardViewModel? GetCardByPresenterId(int presenterId)
+    {
+        if (presenterId == CardPresenter.InvalidId)
+        {
+            return null;
+        }
+
+        return _presentersById.TryGetValue(presenterId, out var card) ? card : null;
+    }
+
     public void Initialize(CardSurfaceMetrics metrics)
     {
         _metrics = metrics;
@@ -104,7 +115,32 @@ public sealed class CardInteractionService : ICardInteractionService
         _activeSection = sectionIdentifier;
     }
 
-    public void SetCards(IReadOnlyList<CardViewModel> cards)
+    public void SetPresenters(ReadOnlySpan<CardPresenter> presenters)
+    {
+        _presentersById.Clear();
+
+        if (presenters.Length == 0)
+        {
+            SetCardsInternal(Array.Empty<CardViewModel>());
+            return;
+        }
+
+        var cards = new List<CardViewModel>(presenters.Length);
+        for (var i = 0; i < presenters.Length; i++)
+        {
+            var presenter = presenters[i];
+            if (presenter.Descriptor is CardViewModelDescriptorAdapter adapter)
+            {
+                var card = adapter.ViewModel;
+                _presentersById[presenter.PresenterId] = card;
+                cards.Add(card);
+            }
+        }
+
+        SetCardsInternal(cards);
+    }
+
+    private void SetCardsInternal(IReadOnlyList<CardViewModel> cards)
     {
         _activeStates.Clear();
         _trackedCards.Clear();
@@ -145,7 +181,18 @@ public sealed class CardInteractionService : ICardInteractionService
         }
     }
 
-    public void SelectCard(CardViewModel card, SelectionModifier modifier)
+    public void SelectCard(int presenterId, SelectionModifier modifier)
+    {
+        var card = GetCardByPresenterId(presenterId);
+        if (card is null)
+        {
+            return;
+        }
+
+        SelectCardInternal(card, modifier);
+    }
+
+    private void SelectCardInternal(CardViewModel card, SelectionModifier modifier)
     {
         if (!_trackedCards.Contains(card))
         {
@@ -222,15 +269,26 @@ public sealed class CardInteractionService : ICardInteractionService
         ClearPreview();
     }
 
-    public void BeginDrag(CardViewModel card)
+    public void BeginDrag(int presenterId)
+    {
+        var card = GetCardByPresenterId(presenterId);
+        if (card is null)
+        {
+            return;
+        }
+
+        BeginDragInternal(card);
+    }
+
+    private void BeginDragInternal(CardViewModel card)
     {
         if (_selectedCards.Count == 0)
         {
-            SelectCard(card, SelectionModifier.Replace);
+            SelectCardInternal(card, SelectionModifier.Replace);
         }
         else if (!_selectedCards.Contains(card))
         {
-            SelectCard(card, SelectionModifier.Replace);
+            SelectCardInternal(card, SelectionModifier.Replace);
         }
 
         _activeStates.Clear();
@@ -245,7 +303,18 @@ public sealed class CardInteractionService : ICardInteractionService
         UpdatePreview();
     }
 
-    public void UpdateDrag(CardViewModel card, CardDragDelta delta)
+    public void UpdateDrag(int presenterId, CardDragDelta delta)
+    {
+        var card = GetCardByPresenterId(presenterId);
+        if (card is null)
+        {
+            return;
+        }
+
+        UpdateDragInternal(card, delta);
+    }
+
+    private void UpdateDragInternal(CardViewModel card, CardDragDelta delta)
     {
         if (_activeDragController != card)
         {
@@ -284,7 +353,18 @@ public sealed class CardInteractionService : ICardInteractionService
         UpdatePreview();
     }
 
-    public void CompleteDrag(CardViewModel card, CardDragCompleted completed)
+    public void CompleteDrag(int presenterId, CardDragCompleted completed)
+    {
+        var card = GetCardByPresenterId(presenterId);
+        if (card is null)
+        {
+            return;
+        }
+
+        CompleteDragInternal(card, completed);
+    }
+
+    private void CompleteDragInternal(CardViewModel card, CardDragCompleted completed)
     {
         if (_activeDragController != card)
         {
@@ -346,7 +426,18 @@ public sealed class CardInteractionService : ICardInteractionService
         _activeStates.Clear();
     }
 
-    public void BeginResize(CardViewModel card, ResizeHandle handle)
+    public void BeginResize(int presenterId, ResizeHandle handle)
+    {
+        var card = GetCardByPresenterId(presenterId);
+        if (card is null)
+        {
+            return;
+        }
+
+        BeginResizeInternal(card, handle);
+    }
+
+    private void BeginResizeInternal(CardViewModel card, ResizeHandle handle)
     {
         _activeStates.Clear();
         _activeStates[card] = InteractionState.CreateResize(card.Geometry, handle);
@@ -354,7 +445,18 @@ public sealed class CardInteractionService : ICardInteractionService
         UpdatePreview();
     }
 
-    public void UpdateResize(CardViewModel card, CardResizeDelta delta)
+    public void UpdateResize(int presenterId, CardResizeDelta delta)
+    {
+        var card = GetCardByPresenterId(presenterId);
+        if (card is null)
+        {
+            return;
+        }
+
+        UpdateResizeInternal(card, delta);
+    }
+
+    private void UpdateResizeInternal(CardViewModel card, CardResizeDelta delta)
     {
         if (!_activeStates.TryGetValue(card, out var state) || state.Mode != InteractionMode.Resize)
         {
@@ -388,7 +490,18 @@ public sealed class CardInteractionService : ICardInteractionService
         UpdatePreview();
     }
 
-    public void CompleteResize(CardViewModel card, CardResizeCompleted completed)
+    public void CompleteResize(int presenterId, CardResizeCompleted completed)
+    {
+        var card = GetCardByPresenterId(presenterId);
+        if (card is null)
+        {
+            return;
+        }
+
+        CompleteResizeInternal(card, completed);
+    }
+
+    private void CompleteResizeInternal(CardViewModel card, CardResizeCompleted completed)
     {
         if (!_activeStates.Remove(card, out var state) || state.Mode != InteractionMode.Resize)
         {
@@ -449,7 +562,18 @@ public sealed class CardInteractionService : ICardInteractionService
         }
     }
 
-    public void BeginPlayerDrag(CardViewModel card, FormationPlayerViewModel player)
+    public void BeginPlayerDrag(int presenterId, FormationPlayerViewModel player)
+    {
+        var card = GetCardByPresenterId(presenterId);
+        if (card is null)
+        {
+            return;
+        }
+
+        BeginPlayerDragInternal(card, player);
+    }
+
+    private void BeginPlayerDragInternal(CardViewModel card, FormationPlayerViewModel player)
     {
         if (!_trackedCards.Contains(card) || !card.HasFormationPlayers)
         {
@@ -460,7 +584,18 @@ public sealed class CardInteractionService : ICardInteractionService
         _activePlayerState = PlayerInteractionState.Create(card, player, snapshot);
     }
 
-    public void UpdatePlayerDrag(CardViewModel card, FormationPlayerViewModel player, FormationPlayerDragDelta delta)
+    public void UpdatePlayerDrag(int presenterId, FormationPlayerViewModel player, FormationPlayerDragDelta delta)
+    {
+        var card = GetCardByPresenterId(presenterId);
+        if (card is null)
+        {
+            return;
+        }
+
+        UpdatePlayerDragInternal(card, player, delta);
+    }
+
+    private void UpdatePlayerDragInternal(CardViewModel card, FormationPlayerViewModel player, FormationPlayerDragDelta delta)
     {
         if (_activePlayerState is not { } state || state.Card != card || state.Player != player)
         {
@@ -489,7 +624,18 @@ public sealed class CardInteractionService : ICardInteractionService
         state.CurrentY = clampedY;
     }
 
-    public void CompletePlayerDrag(CardViewModel card, FormationPlayerViewModel player, FormationPlayerDragCompleted completed)
+    public void CompletePlayerDrag(int presenterId, FormationPlayerViewModel player, FormationPlayerDragCompleted completed)
+    {
+        var card = GetCardByPresenterId(presenterId);
+        if (card is null)
+        {
+            return;
+        }
+
+        CompletePlayerDragInternal(card, player, completed);
+    }
+
+    private void CompletePlayerDragInternal(CardViewModel card, FormationPlayerViewModel player, FormationPlayerDragCompleted completed)
     {
         if (_activePlayerState is not { } state || state.Card != card || state.Player != player)
         {

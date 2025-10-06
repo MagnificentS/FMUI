@@ -22,6 +22,7 @@ public sealed class CardViewModel : ObservableObject
     private readonly Dictionary<string, FormationPlayerViewModel> _formationPlayerLookup = new(StringComparer.OrdinalIgnoreCase);
     private readonly RelayCommand _openEditorCommand;
     private Action<CardViewModel>? _requestEditor;
+    private int _presenterId = CardPresenter.InvalidId;
     private int _column;
     private int _row;
     private int _columnSpan;
@@ -145,25 +146,25 @@ public sealed class CardViewModel : ObservableObject
         TimelineEntries = definition.Timeline is { Count: > 0 }
             ? new ReadOnlyCollection<TimelineEntryViewModel>(CreateTimeline(definition.Timeline))
             : System.Array.Empty<TimelineEntryViewModel>();
-        BeginDragCommand = new RelayCommand(_ => _interactionService.BeginDrag(this));
+        BeginDragCommand = new RelayCommand(_ => _interactionService.BeginDrag(_presenterId));
         DragDeltaCommand = new RelayCommand(param =>
         {
             if (param is CardDragDelta delta)
             {
-                _interactionService.UpdateDrag(this, delta);
+                _interactionService.UpdateDrag(_presenterId, delta);
             }
         });
         CompleteDragCommand = new RelayCommand(param =>
         {
             var completed = param as CardDragCompleted ?? new CardDragCompleted(false);
-            _interactionService.CompleteDrag(this, completed);
+            _interactionService.CompleteDrag(_presenterId, completed);
         });
 
         BeginResizeCommand = new RelayCommand(param =>
         {
             if (param is ResizeHandle handle)
             {
-                _interactionService.BeginResize(this, handle);
+                _interactionService.BeginResize(_presenterId, handle);
             }
         });
 
@@ -171,7 +172,7 @@ public sealed class CardViewModel : ObservableObject
         {
             if (param is CardResizeDelta delta)
             {
-                _interactionService.UpdateResize(this, delta);
+                _interactionService.UpdateResize(_presenterId, delta);
             }
         });
 
@@ -179,7 +180,7 @@ public sealed class CardViewModel : ObservableObject
         {
             if (param is CardResizeCompleted completed)
             {
-                _interactionService.CompleteResize(this, completed);
+                _interactionService.CompleteResize(_presenterId, completed);
             }
         });
 
@@ -356,7 +357,10 @@ public sealed class CardViewModel : ObservableObject
 
     internal void RequestSelection(SelectionModifier modifier)
     {
-        _interactionService.SelectCard(this, modifier);
+        if (_presenterId != CardPresenter.InvalidId)
+        {
+            _interactionService.SelectCard(_presenterId, modifier);
+        }
     }
 
     internal void ConfigureEditor(Action<CardViewModel>? requestEditor, bool isAvailable)
@@ -401,6 +405,13 @@ public sealed class CardViewModel : ObservableObject
     {
         IsSelected = selected;
     }
+
+    internal void AttachPresenter(int presenterId)
+    {
+        _presenterId = presenterId;
+    }
+
+    internal int PresenterId => _presenterId;
 
     internal bool TryGetFormationPlayer(string playerId, out FormationPlayerViewModel player)
         => _formationPlayerLookup.TryGetValue(playerId, out player!);
@@ -1748,18 +1759,18 @@ public sealed class FormationPlayerViewModel : ObservableObject
         _interactionService = interactionService;
         _owner = owner;
 
-        BeginDragCommand = new RelayCommand(_ => _interactionService.BeginPlayerDrag(_owner, this));
+        BeginDragCommand = new RelayCommand(_ => _interactionService.BeginPlayerDrag(_owner.PresenterId, this));
         DragDeltaCommand = new RelayCommand(parameter =>
         {
             if (parameter is FormationPlayerDragDelta delta)
             {
-                _interactionService.UpdatePlayerDrag(_owner, this, delta);
+                _interactionService.UpdatePlayerDrag(_owner.PresenterId, this, delta);
             }
         });
         CompleteDragCommand = new RelayCommand(parameter =>
         {
             var completed = parameter as FormationPlayerDragCompleted ?? new FormationPlayerDragCompleted(false);
-            _interactionService.CompletePlayerDrag(_owner, this, completed);
+            _interactionService.CompletePlayerDrag(_owner.PresenterId, this, completed);
         });
     }
 
