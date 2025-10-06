@@ -31,8 +31,6 @@ public sealed class CardBodyTemplateSelector : DataTemplateSelector
 
     public DataTemplate? MoraleHeatmapTemplate { get; set; }
 
-    public DataTemplate? SquadTableTemplate { get; set; }
-
     public DataTemplate? FixtureCalendarTemplate { get; set; }
 
     public DataTemplate? TransferNegotiationTemplate { get; set; }
@@ -77,7 +75,6 @@ public sealed class CardBodyTemplateSelector : DataTemplateSelector
                 CardKind.Forecast => ForecastTemplate ?? base.SelectTemplate(item, container),
                 CardKind.WorkloadHeatmap => WorkloadHeatmapTemplate ?? base.SelectTemplate(item, container),
                 CardKind.MoraleHeatmap => MoraleHeatmapTemplate ?? base.SelectTemplate(item, container),
-                CardKind.SquadTable => SquadTableTemplate ?? base.SelectTemplate(item, container),
                 CardKind.FixtureCalendar => FixtureCalendarTemplate ?? base.SelectTemplate(item, container),
                 CardKind.TransferNegotiation => TransferNegotiationTemplate ?? base.SelectTemplate(item, container),
                 CardKind.ScoutAssignments => ScoutAssignmentsTemplate ?? base.SelectTemplate(item, container),

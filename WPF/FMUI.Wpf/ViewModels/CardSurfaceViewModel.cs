@@ -226,7 +226,15 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
                     continue;
                 }
 
-                var card = new CardViewModel(definition, Metrics, _interactionService, _clubDataService, isCustom: false, presetId: null);
+                var card = new CardViewModel(
+                    definition,
+                    Metrics,
+                    _interactionService,
+                    _clubDataService,
+                    tabIdentifier,
+                    sectionIdentifier,
+                    isCustom: false,
+                    presetId: null);
                 ApplyPersistedState(tabIdentifier, sectionIdentifier, card);
                 ConfigureEditor(card);
                 Cards.Add(card);
@@ -235,7 +243,15 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
             var customCards = _stateService.GetCustomCards(tabIdentifier, sectionIdentifier);
             foreach (var custom in customCards)
             {
-                var card = new CardViewModel(custom.Definition, Metrics, _interactionService, _clubDataService, isCustom: true, presetId: custom.PresetId);
+                var card = new CardViewModel(
+                    custom.Definition,
+                    Metrics,
+                    _interactionService,
+                    _clubDataService,
+                    tabIdentifier,
+                    sectionIdentifier,
+                    isCustom: true,
+                    presetId: custom.PresetId);
                 ApplyPersistedState(tabIdentifier, sectionIdentifier, card);
                 ConfigureEditor(card);
                 Cards.Add(card);

@@ -16,15 +16,18 @@ public interface ICardLayoutCatalog
 public sealed class CardLayoutCatalog : ICardLayoutCatalog, IDisposable
 {
     private readonly IClubDataService _clubDataService;
+    private readonly ISquadService _squadService;
     private readonly object _sync = new();
     private Dictionary<(string Tab, string Section), CardLayout> _layouts;
     private bool _disposed;
 
-    public CardLayoutCatalog(IClubDataService clubDataService)
+    public CardLayoutCatalog(IClubDataService clubDataService, ISquadService squadService)
     {
         _clubDataService = clubDataService;
-        _layouts = BuildLayouts(clubDataService.GetSnapshot());
+        _squadService = squadService;
+        _layouts = BuildLayouts(clubDataService.GetSnapshot(), squadService.GetSnapshot());
         _clubDataService.SnapshotChanged += OnSnapshotChanged;
+        _squadService.SnapshotChanged += OnSquadSnapshotChanged;
     }
 
     public event EventHandler<LayoutsChangedEventArgs>? LayoutsChanged;
@@ -46,12 +49,23 @@ public sealed class CardLayoutCatalog : ICardLayoutCatalog, IDisposable
 
         _disposed = true;
         _clubDataService.SnapshotChanged -= OnSnapshotChanged;
+        _squadService.SnapshotChanged -= OnSquadSnapshotChanged;
         GC.SuppressFinalize(this);
     }
 
     private void OnSnapshotChanged(object? sender, ClubDataSnapshot snapshot)
     {
-        var layouts = BuildLayouts(snapshot);
+        UpdateLayouts(snapshot, _squadService.GetSnapshot(), isGlobal: true);
+    }
+
+    private void OnSquadSnapshotChanged(object? sender, SquadSnapshot snapshot)
+    {
+        UpdateLayouts(_clubDataService.GetSnapshot(), snapshot, isGlobal: false);
+    }
+
+    private void UpdateLayouts(ClubDataSnapshot clubSnapshot, SquadSnapshot squadSnapshot, bool isGlobal)
+    {
+        var layouts = BuildLayouts(clubSnapshot, squadSnapshot);
 
         lock (_sync)
         {
@@ -59,20 +73,22 @@ public sealed class CardLayoutCatalog : ICardLayoutCatalog, IDisposable
         }
 
         var keys = layouts.Keys.ToArray();
-        LayoutsChanged?.Invoke(this, new LayoutsChangedEventArgs(keys, isGlobal: true));
+        LayoutsChanged?.Invoke(this, new LayoutsChangedEventArgs(keys, isGlobal: isGlobal));
     }
 
-    private static Dictionary<(string, string), CardLayout> BuildLayouts(ClubDataSnapshot snapshot) =>
+    private static Dictionary<(string, string), CardLayout> BuildLayouts(
+        ClubDataSnapshot snapshot,
+        SquadSnapshot squad) =>
         new()
         {
             [("overview", "club-vision")] = BuildClubVisionOverview(snapshot.Overview.ClubVision),
             [("overview", "dynamics")] = BuildDynamicsOverview(snapshot.Overview.Dynamics),
             [("overview", "medical-centre")] = BuildMedicalCentre(snapshot.Overview.Medical),
             [("overview", "analytics")] = BuildAnalyticsOverview(snapshot.Overview.Analytics),
-            [("squad", "selection-info")] = BuildSquadSelectionInfo(snapshot.Squad.SelectionInfo),
-            [("squad", "players")] = BuildSquadPlayers(snapshot.Squad.Players),
-            [("squad", "international")] = BuildSquadInternational(snapshot.Squad.International),
-            [("squad", "squad-depth")] = BuildSquadDepth(snapshot.Squad.Depth),
+            [("squad", "selection-info")] = BuildSquadSelectionInfo(squad.SelectionInfo),
+            [("squad", "players")] = BuildSquadPlayers(squad.Players),
+            [("squad", "international")] = BuildSquadInternational(squad.International),
+            [("squad", "squad-depth")] = BuildSquadDepth(squad.Depth),
             [("tactics", "tactics-overview")] = BuildTacticsOverview(snapshot.Tactics),
             [("tactics", "set-pieces")] = BuildTacticsSetPieces(snapshot.Tactics.SetPieces),
             [("tactics", "tactics-analysis")] = BuildTacticsAnalysis(snapshot.Tactics.Analysis),
