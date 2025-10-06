@@ -11,8 +11,6 @@ public interface IClubDataService
 {
     ClubDataSnapshot Current { get; }
 
-    ClubDataSnapshot GetSnapshot();
-
     event EventHandler<ClubDataSnapshot>? SnapshotChanged;
 
     Task RefreshAsync(CancellationToken cancellationToken = default);
@@ -49,8 +47,6 @@ public sealed class ClubDataService : IClubDataService
     public event EventHandler<ClubDataSnapshot>? SnapshotChanged;
 
     public ClubDataSnapshot Current => _snapshot;
-
-    public ClubDataSnapshot GetSnapshot() => _snapshot;
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
