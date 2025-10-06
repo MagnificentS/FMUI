@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using FMUI.Wpf.UI.Cards;
 using FMUI.Wpf.ViewModels;
 
 namespace FMUI.Wpf.Collections;
 
-public sealed class CardPresenterCollection : IList<CardViewModel>, IReadOnlyList<CardViewModel>, INotifyCollectionChanged, INotifyPropertyChanged
+public sealed class CardPresenterCollection : IList<CardPresenter>, IReadOnlyList<CardPresenter>, INotifyCollectionChanged, INotifyPropertyChanged
 {
-    private ArrayCollection<CardViewModel> _items;
+    private ArrayCollection<CardPresenterHandle> _items;
 
     public CardPresenterCollection(int capacity = 16)
     {
@@ -18,7 +19,7 @@ public sealed class CardPresenterCollection : IList<CardViewModel>, IReadOnlyLis
             capacity = 4;
         }
 
-        _items = new ArrayCollection<CardViewModel>(capacity);
+        _items = new ArrayCollection<CardPresenterHandle>(capacity);
     }
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
@@ -29,9 +30,9 @@ public sealed class CardPresenterCollection : IList<CardViewModel>, IReadOnlyLis
 
     public bool IsReadOnly => false;
 
-    public CardViewModel this[int index]
+    public CardPresenter this[int index]
     {
-        get => _items[index];
+        get => _items[index].ViewModel;
         set
         {
             if ((uint)index >= (uint)_items.Count)
@@ -39,20 +40,21 @@ public sealed class CardPresenterCollection : IList<CardViewModel>, IReadOnlyLis
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
 
-            var oldItem = _items[index];
+            var oldHandle = _items[index];
+            var oldItem = oldHandle.ViewModel;
             if (ReferenceEquals(oldItem, value))
             {
                 return;
             }
 
-            _items[index] = value;
+            _items[index] = new CardPresenterHandle(value);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldItem, index));
         }
     }
 
-    public void Add(CardViewModel item)
+    public void Add(CardPresenter item)
     {
-        _items.Add(item);
+        _items.Add(new CardPresenterHandle(item));
         OnCountChanged();
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, _items.Count - 1));
     }
@@ -69,12 +71,12 @@ public sealed class CardPresenterCollection : IList<CardViewModel>, IReadOnlyLis
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     }
 
-    public bool Contains(CardViewModel item)
+    public bool Contains(CardPresenter item)
     {
         return IndexOf(item) >= 0;
     }
 
-    public void CopyTo(CardViewModel[] array, int arrayIndex)
+    public void CopyTo(CardPresenter[] array, int arrayIndex)
     {
         if (array is null)
         {
@@ -94,21 +96,21 @@ public sealed class CardPresenterCollection : IList<CardViewModel>, IReadOnlyLis
 
         for (int i = 0; i < span.Length; i++)
         {
-            array[arrayIndex + i] = span[i];
+            array[arrayIndex + i] = span[i].ViewModel;
         }
     }
 
-    public IEnumerator<CardViewModel> GetEnumerator()
+    public IEnumerator<CardPresenter> GetEnumerator()
     {
         return new Enumerator(_items.AsSpan());
     }
 
-    public int IndexOf(CardViewModel item)
+    public int IndexOf(CardPresenter item)
     {
         var span = _items.AsSpan();
         for (int i = 0; i < span.Length; i++)
         {
-            if (ReferenceEquals(span[i], item))
+            if (ReferenceEquals(span[i].ViewModel, item))
             {
                 return i;
             }
@@ -117,7 +119,7 @@ public sealed class CardPresenterCollection : IList<CardViewModel>, IReadOnlyLis
         return -1;
     }
 
-    public void Insert(int index, CardViewModel item)
+    public void Insert(int index, CardPresenter item)
     {
         if ((uint)index > (uint)_items.Count)
         {
@@ -125,19 +127,19 @@ public sealed class CardPresenterCollection : IList<CardViewModel>, IReadOnlyLis
         }
 
         // Append to ensure capacity, then shift items into place.
-        _items.Add(item);
+        _items.Add(new CardPresenterHandle(item));
         var span = _items.AsSpan();
         for (int i = span.Length - 1; i > index; i--)
         {
             span[i] = span[i - 1];
         }
 
-        span[index] = item;
+        span[index] = new CardPresenterHandle(item);
         OnCountChanged();
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
     }
 
-    public bool Remove(CardViewModel item)
+    public bool Remove(CardPresenter item)
     {
         var index = IndexOf(item);
         if (index < 0)
@@ -159,13 +161,25 @@ public sealed class CardPresenterCollection : IList<CardViewModel>, IReadOnlyLis
         var removed = _items[index];
         _items.RemoveAt(index);
         OnCountChanged();
-        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removed, index));
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removed.ViewModel, index));
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
     }
+
+    public CardPresenterHandle GetHandle(int index)
+    {
+        if ((uint)index >= (uint)_items.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index));
+        }
+
+        return _items[index];
+    }
+
+    public ReadOnlySpan<CardPresenterHandle> AsHandlesSpan() => _items.AsSpan();
 
     private void OnCollectionChanged(NotifyCollectionChangedEventArgs args)
     {
@@ -177,18 +191,18 @@ public sealed class CardPresenterCollection : IList<CardViewModel>, IReadOnlyLis
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
     }
 
-    private struct Enumerator : IEnumerator<CardViewModel>
+    private struct Enumerator : IEnumerator<CardPresenter>
     {
-        private readonly ReadOnlySpan<CardViewModel> _span;
+        private readonly ReadOnlySpan<CardPresenterHandle> _span;
         private int _index;
 
-        public Enumerator(ReadOnlySpan<CardViewModel> span)
+        public Enumerator(ReadOnlySpan<CardPresenterHandle> span)
         {
             _span = span;
             _index = -1;
         }
 
-        public CardViewModel Current => _span[_index];
+        public CardPresenter Current => _span[_index].ViewModel;
 
         object IEnumerator.Current => Current;
 

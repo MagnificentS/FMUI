@@ -57,7 +57,7 @@ public sealed class CardBodyTemplateSelector : DataTemplateSelector
 
     public override DataTemplate? SelectTemplate(object item, DependencyObject container)
     {
-        if (item is CardViewModel card)
+        if (item is CardPresenter card)
         {
             if (card.HasContentHost && ContentHostTemplate is not null)
             {

@@ -1,7 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
 using FMUI.Wpf.Services;
-using FMUI.Wpf.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FMUI.Wpf.UI.Cards;
@@ -155,13 +154,12 @@ public sealed class CardContentHost : ContentControl
     {
         context = default;
 
-        if (DataContext is not CardViewModel viewModel)
+        if (DataContext is not ICardContentContextSource source)
         {
             return false;
         }
 
         var services = App.ServiceProvider;
-        context = new CardContentContext(viewModel.Definition, viewModel.PrimaryEntityId, viewModel, services);
-        return true;
+        return source.TryCreateContext(services, PrimaryEntityId, out context);
     }
 }

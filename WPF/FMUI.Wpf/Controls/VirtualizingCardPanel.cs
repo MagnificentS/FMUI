@@ -81,7 +81,7 @@ public sealed class VirtualizingCardPanel : VirtualizingPanel, IScrollInfo
     {
         if (visual is UIElement element && InternalChildren.Contains(element))
         {
-            if (ItemContainerGenerator.ItemFromContainer(element) is CardViewModel card)
+            if (ItemContainerGenerator.ItemFromContainer(element) is CardPresenter card)
             {
                 var bounds = new Rect(new Point(card.Left, card.Top), new Size(card.Width, card.Height));
                 EnsureVisible(bounds);
@@ -164,7 +164,7 @@ public sealed class VirtualizingCardPanel : VirtualizingPanel, IScrollInfo
 
         for (var index = 0; index < owner.Items.Count; index++)
         {
-            if (owner.Items[index] is not CardViewModel card)
+            if (owner.Items[index] is not CardPresenter card)
             {
                 continue;
             }
@@ -189,7 +189,7 @@ public sealed class VirtualizingCardPanel : VirtualizingPanel, IScrollInfo
         {
             var itemIndex = requiredArray[i];
             var realizedIndex = FindRealizedChild(itemIndex);
-            if (realizedIndex >= 0 && owner.Items[itemIndex] is CardViewModel card)
+            if (realizedIndex >= 0 && owner.Items[itemIndex] is CardPresenter card)
             {
                 _realizedChildren[realizedIndex].Element.Measure(new Size(card.Width, card.Height));
             }
@@ -204,7 +204,7 @@ public sealed class VirtualizingCardPanel : VirtualizingPanel, IScrollInfo
         {
             var entry = _realizedChildren[i];
             var child = entry.Element;
-            if (ItemContainerGenerator.ItemFromContainer(child) is not CardViewModel card)
+            if (ItemContainerGenerator.ItemFromContainer(child) is not CardPresenter card)
             {
                 continue;
             }
