@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FMUI.Wpf.UI.Cards;
 
 namespace FMUI.Wpf.Models;
 
@@ -29,7 +30,8 @@ public enum CardKind
     ClubVisionExpectations,
     FinanceCashflow,
     FinanceBudgetAllocator,
-    FinanceScenarioBoard
+    FinanceScenarioBoard,
+    ContentHost
 }
 
 public sealed record ChartDataPointDefinition(string Label, double Value);
@@ -422,7 +424,9 @@ public sealed record CardDefinition(
     ClubVisionExpectationBoardDefinition? ClubVisionExpectations = null,
     FinanceCashflowDefinition? FinanceCashflow = null,
     FinanceBudgetAllocatorDefinition? FinanceBudgetAllocator = null,
-    FinanceScenarioDefinition? FinanceScenario = null);
+    FinanceScenarioDefinition? FinanceScenario = null,
+    CardType? ContentType = null,
+    uint PrimaryEntityId = 0);
 
 public sealed record CardPresetDefinition(string Id, string DisplayName, string? Description, CardDefinition Template);
 
