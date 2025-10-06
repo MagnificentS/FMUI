@@ -832,7 +832,15 @@ public sealed class CardInteractionService : ICardInteractionService
             return null;
         }
 
-        var card = new CardViewModel(snapshot.Definition, _metrics, this, _clubDataService, snapshot.IsCustom, snapshot.PresetId);
+        var card = new CardViewModel(
+            snapshot.Definition,
+            _metrics,
+            this,
+            _clubDataService,
+            _activeTab,
+            _activeSection,
+            snapshot.IsCustom,
+            snapshot.PresetId);
         RegisterCard(card, select);
         PersistGeometry(card);
 

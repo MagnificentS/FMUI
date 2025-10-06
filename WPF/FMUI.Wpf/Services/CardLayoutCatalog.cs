@@ -16,18 +16,20 @@ public interface ICardLayoutCatalog
 public sealed class CardLayoutCatalog : ICardLayoutCatalog, IDisposable
 {
     private readonly IClubDataService _clubDataService;
+    private readonly ISquadService _squadService;
     private readonly object _sync = new();
     private CardLayoutCatalogEntry[] _layouts;
     private (string Tab, string Section)[] _layoutKeys;
     private bool _disposed;
 
-    public CardLayoutCatalog(IClubDataService clubDataService)
+    public CardLayoutCatalog(IClubDataService clubDataService, ISquadService squadService)
     {
         _clubDataService = clubDataService;
         var buildResult = BuildLayouts(clubDataService.GetSnapshot());
         _layouts = buildResult.Layouts;
         _layoutKeys = buildResult.Keys;
         _clubDataService.SnapshotChanged += OnSnapshotChanged;
+        _squadService.SnapshotChanged += OnSquadSnapshotChanged;
     }
 
     public event EventHandler<LayoutsChangedEventArgs>? LayoutsChanged;
@@ -62,6 +64,7 @@ public sealed class CardLayoutCatalog : ICardLayoutCatalog, IDisposable
 
         _disposed = true;
         _clubDataService.SnapshotChanged -= OnSnapshotChanged;
+        _squadService.SnapshotChanged -= OnSquadSnapshotChanged;
         GC.SuppressFinalize(this);
     }
 

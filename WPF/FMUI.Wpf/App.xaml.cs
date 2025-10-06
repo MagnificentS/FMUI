@@ -12,6 +12,7 @@ using FMUI.Wpf.Modules;
 using FMUI.Wpf.Services;
 using FMUI.Wpf.ViewModels;
 using FMUI.Wpf.Views;
+using FMUI.Wpf.Views.Squad;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -122,11 +123,15 @@ public partial class App : Application
 
         services.AddSingleton<IEventAggregator, EventAggregator>();
         services.AddSingleton<IClubDataService, ClubDataService>();
+        services.AddSingleton<ISquadService, SquadService>();
         services.AddSingleton<ICardLayoutCatalog, CardLayoutCatalog>();
         services.AddSingleton<ICardEditorCatalog, CardEditorCatalog>();
         services.AddSingleton<INavigationCatalog, NavigationCatalog>();
         services.AddSingleton<INavigationPermissionService, NavigationPermissionService>();
         services.AddSingleton<INavigationIndicatorService, NavigationIndicatorService>();
+        services.AddSingleton<IUiPerformanceMonitor, UiPerformanceMonitor>();
+        services.AddSingleton<ISquadCardDescriptorAdapter, SquadCardDescriptorAdapter>();
+        services.AddSingleton<SquadCardContentPool>();
         services.AddSingleton(provider =>
         {
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
