@@ -40,8 +40,8 @@ public partial class App : Application
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
         base.OnStartup(e);
 
-        _host = Host.CreateDefaultBuilder(e.Args)
-            .ConfigureServices(ConfigureServices)
+        _host = AppHostBuilder
+            .Create(e.Args)
             .Build();
 
         await _host.StartAsync().ConfigureAwait(true);
