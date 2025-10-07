@@ -16,9 +16,10 @@ namespace FMUI.Wpf.ViewModels;
 
 public sealed partial class CardPresenter : ObservableObject
 {
-    private readonly CardDefinition _definition;
+    private CardDefinition _definition;
     private readonly CardSurfaceMetrics _metrics;
     private readonly ICardInteractionService _interactionService;
+    private readonly IClubDataService _clubDataService;
     private readonly Dictionary<string, FormationPlayerViewModel> _formationPlayerLookup = new(StringComparer.OrdinalIgnoreCase);
     private readonly RelayCommand _openEditorCommand;
 <<<<<<<< HEAD:WPF/FMUI.Wpf/ViewModels/CardViewModel.cs
@@ -46,9 +47,14 @@ public sealed partial class CardPresenter : ObservableObject
         bool isCustom = false,
         string? presetId = null)
     {
-        _definition = definition;
+        if (definition is null)
+        {
+            throw new ArgumentNullException(nameof(definition));
+        }
+
         _metrics = metrics;
-        _interactionService = interactionService;
+        _interactionService = interactionService ?? throw new ArgumentNullException(nameof(interactionService));
+        _clubDataService = clubDataService ?? throw new ArgumentNullException(nameof(clubDataService));
         TabIdentifier = tabIdentifier;
         SectionIdentifier = sectionIdentifier;
         _column = definition.Column;
@@ -57,91 +63,7 @@ public sealed partial class CardPresenter : ObservableObject
         _rowSpan = definition.RowSpan;
         IsCustom = isCustom;
         PresetId = presetId;
-        ListItems = definition.ListItems is { Count: > 0 }
-            ? new ReadOnlyCollection<CardListItemViewModel>(CreateListItems(definition.ListItems))
-            : System.Array.Empty<CardListItemViewModel>();
-
-        if (definition.FormationLines is { Count: > 0 })
-        {
-            var formation = CreateFormationViewModels(definition.FormationLines, interactionService, this);
-            FormationLines = formation.Lines;
-            FormationPlayers = formation.Players;
-        }
-        else
-        {
-            FormationLines = System.Array.Empty<FormationLineViewModel>();
-            FormationPlayers = System.Array.Empty<FormationPlayerViewModel>();
-        }
-
-        ChartSeries = definition.ChartSeries is { Count: > 0 }
-            ? new ReadOnlyCollection<ChartSeriesViewModel>(CreateChartSeries(definition.ChartSeries))
-            : System.Array.Empty<ChartSeriesViewModel>();
-
-        Gauge = definition.Gauge is not null ? new GaugeViewModel(definition.Gauge) : null;
-
-        Forecast = definition.Forecast is not null
-            ? new FinanceForecastViewModel(definition.Forecast, clubDataService)
-            : null;
-
-        FinanceCashflow = definition.FinanceCashflow is not null
-            ? new FinanceCashflowViewModel(definition.FinanceCashflow)
-            : null;
-
-        FinanceBudgetAllocator = definition.FinanceBudgetAllocator is not null
-            ? new FinanceBudgetAllocatorViewModel(definition.FinanceBudgetAllocator, clubDataService)
-            : null;
-
-        FinanceScenario = definition.FinanceScenario is not null
-            ? new FinanceScenarioBoardViewModel(definition.FinanceScenario, clubDataService)
-            : null;
-
-        WorkloadHeatmap = definition.WorkloadHeatmap is not null
-            ? new TrainingWorkloadHeatmapViewModel(definition.WorkloadHeatmap)
-            : null;
-
-        MoraleHeatmap = definition.MoraleHeatmap is not null
-            ? new MoraleHeatmapViewModel(definition.MoraleHeatmap)
-            : null;
-
-        TrainingCalendar = definition.TrainingCalendar is not null
-            ? new TrainingCalendarViewModel(definition.TrainingCalendar, clubDataService)
-            : null;
-
-        FixtureCalendar = definition.FixtureCalendar is not null
-            ? new FixtureCalendarViewModel(definition.FixtureCalendar, clubDataService)
-            : null;
-
-        Negotiations = definition.Negotiations is not null
-            ? new TransferNegotiationCardViewModel(definition.Negotiations)
-            : null;
-
-        ScoutAssignments = definition.ScoutAssignments is not null
-            ? new ScoutAssignmentBoardViewModel(definition.ScoutAssignments)
-            : null;
-
-        ShortlistBoard = definition.ShortlistBoard is not null
-            ? new ShortlistBoardViewModel(definition.ShortlistBoard)
-            : null;
-
-        TrainingUnitBoard = definition.TrainingUnitBoard is not null
-            ? new TrainingUnitBoardViewModel(definition.TrainingUnitBoard)
-            : null;
-
-        TrainingProgression = definition.TrainingProgression is not null
-            ? new TrainingProgressionViewModel(definition.TrainingProgression)
-            : null;
-
-        ShotMap = definition.ShotMap is not null
-            ? new ShotMapViewModel(definition.ShotMap)
-            : null;
-
-        MedicalTimeline = definition.MedicalTimeline is not null
-            ? new MedicalTimelineViewModel(definition.MedicalTimeline)
-            : null;
-
-        TimelineEntries = definition.Timeline is { Count: > 0 }
-            ? new ReadOnlyCollection<TimelineEntryViewModel>(CreateTimeline(definition.Timeline))
-            : System.Array.Empty<TimelineEntryViewModel>();
+        ApplyDefinition(definition, notifyChanges: false);
         BeginDragCommand = new RelayCommand(_ => _interactionService.BeginDrag(_presenterId));
         DragDeltaCommand = new RelayCommand(param =>
         {
@@ -213,47 +135,47 @@ public sealed partial class CardPresenter : ObservableObject
 
     public uint PrimaryEntityId => _definition.PrimaryEntityId;
 
-    public IReadOnlyList<CardListItemViewModel> ListItems { get; }
+    public IReadOnlyList<CardListItemViewModel> ListItems { get; private set; }
 
-    public IReadOnlyList<FormationLineViewModel> FormationLines { get; }
+    public IReadOnlyList<FormationLineViewModel> FormationLines { get; private set; }
 
-    public IReadOnlyList<FormationPlayerViewModel> FormationPlayers { get; }
+    public IReadOnlyList<FormationPlayerViewModel> FormationPlayers { get; private set; }
 
-    public IReadOnlyList<ChartSeriesViewModel> ChartSeries { get; }
+    public IReadOnlyList<ChartSeriesViewModel> ChartSeries { get; private set; }
 
-    public GaugeViewModel? Gauge { get; }
+    public GaugeViewModel? Gauge { get; private set; }
 
-    public FinanceForecastViewModel? Forecast { get; }
+    public FinanceForecastViewModel? Forecast { get; private set; }
 
-    public FinanceCashflowViewModel? FinanceCashflow { get; }
+    public FinanceCashflowViewModel? FinanceCashflow { get; private set; }
 
-    public FinanceBudgetAllocatorViewModel? FinanceBudgetAllocator { get; }
+    public FinanceBudgetAllocatorViewModel? FinanceBudgetAllocator { get; private set; }
 
-    public FinanceScenarioBoardViewModel? FinanceScenario { get; }
+    public FinanceScenarioBoardViewModel? FinanceScenario { get; private set; }
 
-    public TrainingWorkloadHeatmapViewModel? WorkloadHeatmap { get; }
+    public TrainingWorkloadHeatmapViewModel? WorkloadHeatmap { get; private set; }
 
-    public MoraleHeatmapViewModel? MoraleHeatmap { get; }
+    public MoraleHeatmapViewModel? MoraleHeatmap { get; private set; }
 
-    public TrainingCalendarViewModel? TrainingCalendar { get; }
+    public TrainingCalendarViewModel? TrainingCalendar { get; private set; }
 
-    public FixtureCalendarViewModel? FixtureCalendar { get; }
+    public FixtureCalendarViewModel? FixtureCalendar { get; private set; }
 
-    public TransferNegotiationCardViewModel? Negotiations { get; }
+    public TransferNegotiationCardViewModel? Negotiations { get; private set; }
 
-    public ScoutAssignmentBoardViewModel? ScoutAssignments { get; }
+    public ScoutAssignmentBoardViewModel? ScoutAssignments { get; private set; }
 
-    public ShortlistBoardViewModel? ShortlistBoard { get; }
+    public ShortlistBoardViewModel? ShortlistBoard { get; private set; }
 
-    public TrainingUnitBoardViewModel? TrainingUnitBoard { get; }
+    public TrainingUnitBoardViewModel? TrainingUnitBoard { get; private set; }
 
-    public TrainingProgressionViewModel? TrainingProgression { get; }
+    public TrainingProgressionViewModel? TrainingProgression { get; private set; }
 
-    public ShotMapViewModel? ShotMap { get; }
+    public ShotMapViewModel? ShotMap { get; private set; }
 
-    public MedicalTimelineViewModel? MedicalTimeline { get; }
+    public MedicalTimelineViewModel? MedicalTimeline { get; private set; }
 
-    public IReadOnlyList<TimelineEntryViewModel> TimelineEntries { get; }
+    public IReadOnlyList<TimelineEntryViewModel> TimelineEntries { get; private set; }
 
     public bool HasSubtitle => !string.IsNullOrWhiteSpace(Subtitle);
 
@@ -375,6 +297,143 @@ public sealed partial class CardPresenter : ObservableObject
         }
 
         return _squadRosterState ??= new SquadRosterState(_definition.SquadTable);
+    }
+
+    internal void UpdateDefinition(CardDefinition definition, bool isInitialDefinition)
+    {
+        ApplyDefinition(definition, notifyChanges: true);
+
+        if (!isInitialDefinition)
+        {
+            UpdateGeometry(definition.Column, definition.Row, definition.ColumnSpan, definition.RowSpan);
+        }
+    }
+
+    internal void RefreshDefinition(CardDefinition definition, bool isInitialDefinition)
+    {
+        UpdateDefinition(definition, isInitialDefinition);
+    }
+
+    private void ApplyDefinition(CardDefinition definition, bool notifyChanges)
+    {
+        if (definition is null)
+        {
+            throw new ArgumentNullException(nameof(definition));
+        }
+
+        _definition = definition;
+        _squadRosterState = null;
+        _formationPlayerLookup.Clear();
+
+        ListItems = definition.ListItems is { Count: > 0 }
+            ? new ReadOnlyCollection<CardListItemViewModel>(CreateListItems(definition.ListItems))
+            : Array.Empty<CardListItemViewModel>();
+
+        if (definition.FormationLines is { Count: > 0 })
+        {
+            var formation = CreateFormationViewModels(definition.FormationLines, _interactionService, this);
+            FormationLines = formation.Lines;
+            FormationPlayers = formation.Players;
+        }
+        else
+        {
+            FormationLines = Array.Empty<FormationLineViewModel>();
+            FormationPlayers = Array.Empty<FormationPlayerViewModel>();
+        }
+
+        ChartSeries = definition.ChartSeries is { Count: > 0 }
+            ? new ReadOnlyCollection<ChartSeriesViewModel>(CreateChartSeries(definition.ChartSeries))
+            : Array.Empty<ChartSeriesViewModel>();
+
+        Gauge = definition.Gauge is not null ? new GaugeViewModel(definition.Gauge) : null;
+        Forecast = definition.Forecast is not null ? new FinanceForecastViewModel(definition.Forecast, _clubDataService) : null;
+        FinanceCashflow = definition.FinanceCashflow is not null ? new FinanceCashflowViewModel(definition.FinanceCashflow) : null;
+        FinanceBudgetAllocator = definition.FinanceBudgetAllocator is not null
+            ? new FinanceBudgetAllocatorViewModel(definition.FinanceBudgetAllocator, _clubDataService)
+            : null;
+        FinanceScenario = definition.FinanceScenario is not null
+            ? new FinanceScenarioBoardViewModel(definition.FinanceScenario, _clubDataService)
+            : null;
+        WorkloadHeatmap = definition.WorkloadHeatmap is not null ? new TrainingWorkloadHeatmapViewModel(definition.WorkloadHeatmap) : null;
+        MoraleHeatmap = definition.MoraleHeatmap is not null ? new MoraleHeatmapViewModel(definition.MoraleHeatmap) : null;
+        TrainingCalendar = definition.TrainingCalendar is not null
+            ? new TrainingCalendarViewModel(definition.TrainingCalendar, _clubDataService)
+            : null;
+        FixtureCalendar = definition.FixtureCalendar is not null
+            ? new FixtureCalendarViewModel(definition.FixtureCalendar, _clubDataService)
+            : null;
+        Negotiations = definition.Negotiations is not null ? new TransferNegotiationCardViewModel(definition.Negotiations) : null;
+        ScoutAssignments = definition.ScoutAssignments is not null ? new ScoutAssignmentBoardViewModel(definition.ScoutAssignments) : null;
+        ShortlistBoard = definition.ShortlistBoard is not null ? new ShortlistBoardViewModel(definition.ShortlistBoard) : null;
+        TrainingUnitBoard = definition.TrainingUnitBoard is not null ? new TrainingUnitBoardViewModel(definition.TrainingUnitBoard) : null;
+        TrainingProgression = definition.TrainingProgression is not null ? new TrainingProgressionViewModel(definition.TrainingProgression) : null;
+        ShotMap = definition.ShotMap is not null ? new ShotMapViewModel(definition.ShotMap) : null;
+        MedicalTimeline = definition.MedicalTimeline is not null ? new MedicalTimelineViewModel(definition.MedicalTimeline) : null;
+        TimelineEntries = definition.Timeline is { Count: > 0 }
+            ? new ReadOnlyCollection<TimelineEntryViewModel>(CreateTimeline(definition.Timeline))
+            : Array.Empty<TimelineEntryViewModel>();
+
+        if (notifyChanges)
+        {
+            NotifyDefinitionChanged();
+        }
+    }
+
+    private void NotifyDefinitionChanged()
+    {
+        OnPropertyChanged(nameof(Definition));
+        OnPropertyChanged(nameof(Title));
+        OnPropertyChanged(nameof(Subtitle));
+        OnPropertyChanged(nameof(Description));
+        OnPropertyChanged(nameof(PillText));
+        OnPropertyChanged(nameof(MetricValue));
+        OnPropertyChanged(nameof(MetricLabel));
+        OnPropertyChanged(nameof(Kind));
+        OnPropertyChanged(nameof(ContentType));
+        OnPropertyChanged(nameof(HasContentHost));
+        OnPropertyChanged(nameof(PrimaryEntityId));
+        OnPropertyChanged(nameof(HasSubtitle));
+        OnPropertyChanged(nameof(HasDescription));
+        OnPropertyChanged(nameof(HasPill));
+        OnPropertyChanged(nameof(HasMetric));
+        OnPropertyChanged(nameof(ListItems));
+        OnPropertyChanged(nameof(HasListItems));
+        OnPropertyChanged(nameof(FormationLines));
+        OnPropertyChanged(nameof(HasFormation));
+        OnPropertyChanged(nameof(FormationPlayers));
+        OnPropertyChanged(nameof(HasFormationPlayers));
+        OnPropertyChanged(nameof(ChartSeries));
+        OnPropertyChanged(nameof(HasChartSeries));
+        OnPropertyChanged(nameof(Gauge));
+        OnPropertyChanged(nameof(HasGauge));
+        OnPropertyChanged(nameof(Forecast));
+        OnPropertyChanged(nameof(HasForecast));
+        OnPropertyChanged(nameof(FinanceCashflow));
+        OnPropertyChanged(nameof(FinanceBudgetAllocator));
+        OnPropertyChanged(nameof(FinanceScenario));
+        OnPropertyChanged(nameof(WorkloadHeatmap));
+        OnPropertyChanged(nameof(HasWorkloadHeatmap));
+        OnPropertyChanged(nameof(MoraleHeatmap));
+        OnPropertyChanged(nameof(HasMoraleHeatmap));
+        OnPropertyChanged(nameof(TrainingCalendar));
+        OnPropertyChanged(nameof(HasTrainingCalendar));
+        OnPropertyChanged(nameof(FixtureCalendar));
+        OnPropertyChanged(nameof(HasFixtureCalendar));
+        OnPropertyChanged(nameof(Negotiations));
+        OnPropertyChanged(nameof(HasNegotiations));
+        OnPropertyChanged(nameof(ScoutAssignments));
+        OnPropertyChanged(nameof(HasScoutAssignments));
+        OnPropertyChanged(nameof(ShortlistBoard));
+        OnPropertyChanged(nameof(HasShortlistBoard));
+        OnPropertyChanged(nameof(TrainingUnitBoard));
+        OnPropertyChanged(nameof(TrainingProgression));
+        OnPropertyChanged(nameof(HasTrainingProgression));
+        OnPropertyChanged(nameof(ShotMap));
+        OnPropertyChanged(nameof(HasShotMap));
+        OnPropertyChanged(nameof(MedicalTimeline));
+        OnPropertyChanged(nameof(HasMedicalTimeline));
+        OnPropertyChanged(nameof(TimelineEntries));
+        OnPropertyChanged(nameof(HasTimeline));
     }
 
     internal void UpdateGeometry(int column, int row, int columnSpan, int rowSpan)
