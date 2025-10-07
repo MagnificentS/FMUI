@@ -223,16 +223,6 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
         _currentTabIdentifier = tabIdentifier;
         _currentSectionIdentifier = sectionIdentifier;
 
-        var existingCards = new Dictionary<string, CardPresenter>(StringComparer.OrdinalIgnoreCase);
-        if (Cards.Count > 0)
-        {
-            for (var i = 0; i < Cards.Count; i++)
-            {
-                var existing = Cards[i];
-                existingCards[existing.Id] = existing;
-            }
-        }
-
         if (_catalog.TryGetLayout(tabIdentifier, sectionIdentifier, out var layout))
         {
             foreach (var preset in layout.Palette)
@@ -250,26 +240,7 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
                     continue;
                 }
 
-                CardPresenter card;
-                if (existingCards.TryGetValue(definition.Id, out var existing) && !existing.IsCustom)
-                {
-                    card = existing;
-                    card.RefreshDefinition(definition, isInitialDefinition: false);
-                    existingCards.Remove(definition.Id);
-                }
-                else
-                {
-                    card = new CardPresenter(
-                        definition,
-                        Metrics,
-                        _interactionService,
-                        _clubDataService,
-                        tabIdentifier,
-                        sectionIdentifier,
-                        isCustom: false,
-                        presetId: null);
-                }
-
+                var card = new CardPresenter(definition, Metrics, _interactionService, _clubDataService, isCustom: false, presetId: null);
                 ApplyPersistedState(tabIdentifier, sectionIdentifier, card);
                 ConfigureEditor(card);
                 Cards.Add(card);
@@ -278,26 +249,7 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
             var customCards = _stateService.GetCustomCards(tabIdentifier, sectionIdentifier);
             foreach (var custom in customCards)
             {
-                CardPresenter card;
-                if (existingCards.TryGetValue(custom.Definition.Id, out var existing) && existing.IsCustom)
-                {
-                    card = existing;
-                    card.RefreshDefinition(custom.Definition, isInitialDefinition: false);
-                    existingCards.Remove(custom.Definition.Id);
-                }
-                else
-                {
-                    card = new CardPresenter(
-                        custom.Definition,
-                        Metrics,
-                        _interactionService,
-                        _clubDataService,
-                        tabIdentifier,
-                        sectionIdentifier,
-                        isCustom: true,
-                        presetId: custom.PresetId);
-                }
-
+                var card = new CardPresenter(custom.Definition, Metrics, _interactionService, _clubDataService, isCustom: true, presetId: custom.PresetId);
                 ApplyPersistedState(tabIdentifier, sectionIdentifier, card);
                 ConfigureEditor(card);
                 Cards.Add(card);
