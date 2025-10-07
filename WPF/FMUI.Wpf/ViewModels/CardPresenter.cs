@@ -14,7 +14,7 @@ using FMUI.Wpf.UI.Cards;
 
 namespace FMUI.Wpf.ViewModels;
 
-public sealed partial class CardPresenter : ObservableObject
+public sealed partial class CardPresenter : ObservableObject, ICardPresenterDescriptor
 {
     private CardDefinition _definition;
     private readonly CardSurfaceMetrics _metrics;
@@ -22,12 +22,8 @@ public sealed partial class CardPresenter : ObservableObject
     private readonly IClubDataService _clubDataService;
     private readonly Dictionary<string, FormationPlayerViewModel> _formationPlayerLookup = new(StringComparer.OrdinalIgnoreCase);
     private readonly RelayCommand _openEditorCommand;
-<<<<<<<< HEAD:WPF/FMUI.Wpf/ViewModels/CardViewModel.cs
-    private Action<CardViewModel>? _requestEditor;
-    private SquadRosterState? _squadRosterState;
-========
     private Action<CardPresenter>? _requestEditor;
->>>>>>>> codex/review-wpf/xaml-implementation-for-feature-parity-gloazr:WPF/FMUI.Wpf/ViewModels/CardPresenter.cs
+    private SquadRosterState? _squadRosterState;
     private int _column;
     private int _row;
     private int _columnSpan;
@@ -40,7 +36,8 @@ public sealed partial class CardPresenter : ObservableObject
     public CardPresenter(
         CardDefinition definition,
         CardSurfaceMetrics metrics,
-        ICardInteractionService interactionService,
+        ICardInteractionBehavior interactionBehavior,
+        ICardSelectionBehavior selectionBehavior,
         IClubDataService clubDataService,
         string tabIdentifier,
         string sectionIdentifier,
@@ -69,20 +66,20 @@ public sealed partial class CardPresenter : ObservableObject
         {
             if (param is CardDragDelta delta)
             {
-                _interactionService.UpdateDrag(_presenterId, delta);
+                _interactionBehavior.UpdateDrag(Id, delta);
             }
         });
         CompleteDragCommand = new RelayCommand(param =>
         {
             var completed = param as CardDragCompleted ?? new CardDragCompleted(false);
-            _interactionService.CompleteDrag(_presenterId, completed);
+            _interactionBehavior.CompleteDrag(Id, completed);
         });
 
         BeginResizeCommand = new RelayCommand(param =>
         {
             if (param is ResizeHandle handle)
             {
-                _interactionService.BeginResize(_presenterId, handle);
+                _interactionBehavior.BeginResize(Id, handle);
             }
         });
 
@@ -90,7 +87,7 @@ public sealed partial class CardPresenter : ObservableObject
         {
             if (param is CardResizeDelta delta)
             {
-                _interactionService.UpdateResize(_presenterId, delta);
+                _interactionBehavior.UpdateResize(Id, delta);
             }
         });
 
@@ -98,7 +95,7 @@ public sealed partial class CardPresenter : ObservableObject
         {
             if (param is CardResizeCompleted completed)
             {
-                _interactionService.CompleteResize(_presenterId, completed);
+                _interactionBehavior.CompleteResize(Id, completed);
             }
         });
 
@@ -112,6 +109,8 @@ public sealed partial class CardPresenter : ObservableObject
     public string Title => _definition.Title;
 
     public string Id => _definition.Id;
+
+    string ICardPresenterDescriptor.CardId => Id;
 
     public string TabIdentifier { get; }
 
@@ -275,11 +274,26 @@ public sealed partial class CardPresenter : ObservableObject
 
     public Rect GetBounds() => new(Left, Top, Width, Height);
 
+    public void UpdateDefinition(CardDefinition definition)
+    {
+        if (definition is null)
+        {
+            throw new ArgumentNullException(nameof(definition));
+        }
+
+        if (!string.Equals(definition.Id, _definition.Id, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException("Cannot replace card definition with a different identifier.");
+        }
+
+        RefreshDefinition(definition, false);
+    }
+
     internal void RequestSelection(SelectionModifier modifier)
     {
-        if (_presenterId != CardPresenter.InvalidId)
+        if (!string.IsNullOrWhiteSpace(Id))
         {
-            _interactionService.SelectCard(_presenterId, modifier);
+            _selectionBehavior.Select(Id, modifier);
         }
     }
 
@@ -473,13 +487,6 @@ public sealed partial class CardPresenter : ObservableObject
         IsSelected = selected;
     }
 
-    internal void AttachPresenter(int presenterId)
-    {
-        _presenterId = presenterId;
-    }
-
-    internal int PresenterId => _presenterId;
-
     internal bool TryGetFormationPlayer(string playerId, out FormationPlayerViewModel player)
         => _formationPlayerLookup.TryGetValue(playerId, out player!);
 
@@ -523,6 +530,328 @@ public sealed partial class CardPresenter : ObservableObject
         }
     }
 
+    private void RefreshDefinition(CardDefinition definition, bool isInitial)
+    {
+        _definition = definition;
+
+        if (!isInitial)
+        {
+            OnPropertyChanged(nameof(Definition));
+            OnPropertyChanged(nameof(Title));
+            OnPropertyChanged(nameof(Subtitle));
+            OnPropertyChanged(nameof(Description));
+            OnPropertyChanged(nameof(PillText));
+            OnPropertyChanged(nameof(MetricValue));
+            OnPropertyChanged(nameof(MetricLabel));
+            OnPropertyChanged(nameof(Kind));
+            OnPropertyChanged(nameof(ContentType));
+            OnPropertyChanged(nameof(HasContentHost));
+            OnPropertyChanged(nameof(PrimaryEntityId));
+            OnPropertyChanged(nameof(HasSubtitle));
+            OnPropertyChanged(nameof(HasDescription));
+            OnPropertyChanged(nameof(HasPill));
+            OnPropertyChanged(nameof(HasMetric));
+        }
+
+        IReadOnlyList<CardListItemViewModel> listItems;
+        if (definition.ListItems is { Count: > 0 })
+        {
+            listItems = new ReadOnlyCollection<CardListItemViewModel>(CreateListItems(definition.ListItems));
+        }
+        else
+        {
+            listItems = System.Array.Empty<CardListItemViewModel>();
+        }
+
+        if (!ReferenceEquals(ListItems, listItems))
+        {
+            ListItems = listItems;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(ListItems));
+                OnPropertyChanged(nameof(HasListItems));
+            }
+        }
+
+        ReadOnlyCollection<FormationLineViewModel> formationLines;
+        ReadOnlyCollection<FormationPlayerViewModel> formationPlayers;
+        if (definition.FormationLines is { Count: > 0 })
+        {
+            _formationPlayerLookup.Clear();
+            var formation = CreateFormationViewModels(definition.FormationLines, _interactionBehavior, this);
+            formationLines = formation.Lines;
+            formationPlayers = formation.Players;
+        }
+        else
+        {
+            _formationPlayerLookup.Clear();
+            formationLines = new ReadOnlyCollection<FormationLineViewModel>(System.Array.Empty<FormationLineViewModel>());
+            formationPlayers = new ReadOnlyCollection<FormationPlayerViewModel>(System.Array.Empty<FormationPlayerViewModel>());
+        }
+
+        if (!ReferenceEquals(FormationLines, formationLines))
+        {
+            FormationLines = formationLines;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(FormationLines));
+                OnPropertyChanged(nameof(HasFormation));
+            }
+        }
+
+        if (!ReferenceEquals(FormationPlayers, formationPlayers))
+        {
+            FormationPlayers = formationPlayers;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(FormationPlayers));
+                OnPropertyChanged(nameof(HasFormationPlayers));
+            }
+        }
+
+        IReadOnlyList<ChartSeriesViewModel> chartSeries;
+        if (definition.ChartSeries is { Count: > 0 })
+        {
+            chartSeries = new ReadOnlyCollection<ChartSeriesViewModel>(CreateChartSeries(definition.ChartSeries));
+        }
+        else
+        {
+            chartSeries = System.Array.Empty<ChartSeriesViewModel>();
+        }
+
+        if (!ReferenceEquals(ChartSeries, chartSeries))
+        {
+            ChartSeries = chartSeries;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(ChartSeries));
+                OnPropertyChanged(nameof(HasChartSeries));
+            }
+        }
+
+        var gauge = definition.Gauge is not null ? new GaugeViewModel(definition.Gauge) : null;
+        if (!Equals(Gauge, gauge))
+        {
+            Gauge = gauge;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(Gauge));
+                OnPropertyChanged(nameof(HasGauge));
+            }
+        }
+
+        var forecast = definition.Forecast is not null
+            ? new FinanceForecastViewModel(definition.Forecast, _clubDataService)
+            : null;
+        if (!Equals(Forecast, forecast))
+        {
+            Forecast = forecast;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(Forecast));
+                OnPropertyChanged(nameof(HasForecast));
+            }
+        }
+
+        var workloadHeatmap = definition.WorkloadHeatmap is not null
+            ? new TrainingWorkloadHeatmapViewModel(definition.WorkloadHeatmap)
+            : null;
+        if (!Equals(WorkloadHeatmap, workloadHeatmap))
+        {
+            WorkloadHeatmap = workloadHeatmap;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(WorkloadHeatmap));
+                OnPropertyChanged(nameof(HasWorkloadHeatmap));
+            }
+        }
+
+        var moraleHeatmap = definition.MoraleHeatmap is not null
+            ? new MoraleHeatmapViewModel(definition.MoraleHeatmap)
+            : null;
+        if (!Equals(MoraleHeatmap, moraleHeatmap))
+        {
+            MoraleHeatmap = moraleHeatmap;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(MoraleHeatmap));
+                OnPropertyChanged(nameof(HasMoraleHeatmap));
+            }
+        }
+
+        var trainingCalendar = definition.TrainingCalendar is not null
+            ? new TrainingCalendarViewModel(definition.TrainingCalendar, _clubDataService)
+            : null;
+        if (!Equals(TrainingCalendar, trainingCalendar))
+        {
+            TrainingCalendar = trainingCalendar;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(TrainingCalendar));
+                OnPropertyChanged(nameof(HasTrainingCalendar));
+            }
+        }
+
+        var fixtureCalendar = definition.FixtureCalendar is not null
+            ? new FixtureCalendarViewModel(definition.FixtureCalendar, _clubDataService)
+            : null;
+        if (!Equals(FixtureCalendar, fixtureCalendar))
+        {
+            FixtureCalendar = fixtureCalendar;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(FixtureCalendar));
+                OnPropertyChanged(nameof(HasFixtureCalendar));
+            }
+        }
+
+        var negotiations = definition.Negotiations is not null
+            ? new TransferNegotiationCardViewModel(definition.Negotiations)
+            : null;
+        if (!Equals(Negotiations, negotiations))
+        {
+            Negotiations = negotiations;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(Negotiations));
+                OnPropertyChanged(nameof(HasNegotiations));
+            }
+        }
+
+        var scoutAssignments = definition.ScoutAssignments is not null
+            ? new ScoutAssignmentBoardViewModel(definition.ScoutAssignments)
+            : null;
+        if (!Equals(ScoutAssignments, scoutAssignments))
+        {
+            ScoutAssignments = scoutAssignments;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(ScoutAssignments));
+                OnPropertyChanged(nameof(HasScoutAssignments));
+            }
+        }
+
+        var shortlistBoard = definition.ShortlistBoard is not null
+            ? new ShortlistBoardViewModel(definition.ShortlistBoard)
+            : null;
+        if (!Equals(ShortlistBoard, shortlistBoard))
+        {
+            ShortlistBoard = shortlistBoard;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(ShortlistBoard));
+                OnPropertyChanged(nameof(HasShortlistBoard));
+            }
+        }
+
+        var trainingUnitBoard = definition.TrainingUnitBoard is not null
+            ? new TrainingUnitBoardViewModel(definition.TrainingUnitBoard)
+            : null;
+        if (!Equals(TrainingUnitBoard, trainingUnitBoard))
+        {
+            TrainingUnitBoard = trainingUnitBoard;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(TrainingUnitBoard));
+            }
+        }
+
+        var trainingProgression = definition.TrainingProgression is not null
+            ? new TrainingProgressionViewModel(definition.TrainingProgression)
+            : null;
+        if (!Equals(TrainingProgression, trainingProgression))
+        {
+            TrainingProgression = trainingProgression;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(TrainingProgression));
+                OnPropertyChanged(nameof(HasTrainingProgression));
+            }
+        }
+
+        var shotMap = definition.ShotMap is not null
+            ? new ShotMapViewModel(definition.ShotMap)
+            : null;
+        if (!Equals(ShotMap, shotMap))
+        {
+            ShotMap = shotMap;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(ShotMap));
+                OnPropertyChanged(nameof(HasShotMap));
+            }
+        }
+
+        var medicalTimeline = definition.MedicalTimeline is not null
+            ? new MedicalTimelineViewModel(definition.MedicalTimeline)
+            : null;
+        if (!Equals(MedicalTimeline, medicalTimeline))
+        {
+            MedicalTimeline = medicalTimeline;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(MedicalTimeline));
+                OnPropertyChanged(nameof(HasMedicalTimeline));
+            }
+        }
+
+        IReadOnlyList<TimelineEntryViewModel> timelineEntries;
+        if (definition.Timeline is { Count: > 0 })
+        {
+            timelineEntries = new ReadOnlyCollection<TimelineEntryViewModel>(CreateTimeline(definition.Timeline));
+        }
+        else
+        {
+            timelineEntries = System.Array.Empty<TimelineEntryViewModel>();
+        }
+
+        if (!ReferenceEquals(TimelineEntries, timelineEntries))
+        {
+            TimelineEntries = timelineEntries;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(TimelineEntries));
+                OnPropertyChanged(nameof(HasTimeline));
+            }
+        }
+
+        var financeCashflow = definition.FinanceCashflow is not null
+            ? new FinanceCashflowViewModel(definition.FinanceCashflow)
+            : null;
+        if (!Equals(FinanceCashflow, financeCashflow))
+        {
+            FinanceCashflow = financeCashflow;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(FinanceCashflow));
+            }
+        }
+
+        var financeBudgetAllocator = definition.FinanceBudgetAllocator is not null
+            ? new FinanceBudgetAllocatorViewModel(definition.FinanceBudgetAllocator, _clubDataService)
+            : null;
+        if (!Equals(FinanceBudgetAllocator, financeBudgetAllocator))
+        {
+            FinanceBudgetAllocator = financeBudgetAllocator;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(FinanceBudgetAllocator));
+            }
+        }
+
+        var financeScenario = definition.FinanceScenario is not null
+            ? new FinanceScenarioBoardViewModel(definition.FinanceScenario, _clubDataService)
+            : null;
+        if (!Equals(FinanceScenario, financeScenario))
+        {
+            FinanceScenario = financeScenario;
+            if (!isInitial)
+            {
+                OnPropertyChanged(nameof(FinanceScenario));
+            }
+        }
+    }
+
     private static IList<CardListItemViewModel> CreateListItems(IReadOnlyList<CardListItem> items)
     {
         var list = new List<CardListItemViewModel>(items.Count);
@@ -536,7 +865,7 @@ public sealed partial class CardPresenter : ObservableObject
 
     private static (ReadOnlyCollection<FormationLineViewModel> Lines, ReadOnlyCollection<FormationPlayerViewModel> Players) CreateFormationViewModels(
         IReadOnlyList<FormationLineDefinition> definitions,
-        ICardInteractionService interactionService,
+        ICardInteractionBehavior interactionBehavior,
         CardPresenter owner)
     {
         var allPlayers = new List<FormationPlayerViewModel>();
@@ -552,8 +881,8 @@ public sealed partial class CardPresenter : ObservableObject
                     player.Name,
                     player.X,
                     player.Y,
-                    interactionService,
-                    owner);
+                    interactionBehavior,
+                    owner.Id);
                 linePlayers.Add(playerViewModel);
                 allPlayers.Add(playerViewModel);
                 owner._formationPlayerLookup[player.Id] = playerViewModel;
@@ -1402,8 +1731,8 @@ public sealed class FormationLineViewModel
 
 public sealed class FormationPlayerViewModel : ObservableObject
 {
-    private readonly ICardInteractionService _interactionService;
-    private readonly CardPresenter _owner;
+    private readonly ICardInteractionBehavior _interactionBehavior;
+    private readonly string _cardId;
     private double _normalizedX;
     private double _normalizedY;
 
@@ -1412,28 +1741,28 @@ public sealed class FormationPlayerViewModel : ObservableObject
         string name,
         double normalizedX,
         double normalizedY,
-        ICardInteractionService interactionService,
-        CardPresenter owner)
+        ICardInteractionBehavior interactionBehavior,
+        string cardId)
     {
         Id = id;
         Name = name;
         _normalizedX = normalizedX;
         _normalizedY = normalizedY;
-        _interactionService = interactionService;
-        _owner = owner;
+        _interactionBehavior = interactionBehavior;
+        _cardId = cardId;
 
-        BeginDragCommand = new RelayCommand(_ => _interactionService.BeginPlayerDrag(_owner.PresenterId, this));
+        BeginDragCommand = new RelayCommand(_ => _interactionBehavior.BeginPlayerDrag(_cardId, Id));
         DragDeltaCommand = new RelayCommand(parameter =>
         {
             if (parameter is FormationPlayerDragDelta delta)
             {
-                _interactionService.UpdatePlayerDrag(_owner.PresenterId, this, delta);
+                _interactionBehavior.UpdatePlayerDrag(_cardId, Id, delta);
             }
         });
         CompleteDragCommand = new RelayCommand(parameter =>
         {
             var completed = parameter as FormationPlayerDragCompleted ?? new FormationPlayerDragCompleted(false);
-            _interactionService.CompletePlayerDrag(_owner.PresenterId, this, completed);
+            _interactionBehavior.CompletePlayerDrag(_cardId, Id, completed);
         });
     }
 

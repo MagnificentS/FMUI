@@ -39,7 +39,11 @@ public interface ICardInteractionService
     event EventHandler<CardMutationEventArgs>? CardsMutated;
 }
 
-public sealed class CardInteractionService : ICardInteractionService
+public sealed class CardInteractionService :
+    ICardInteractionService,
+    ICardInteractionBehavior,
+    ICardSelectionBehavior,
+    ICardGeometryManager
 {
     private readonly ICardLayoutStateService _stateService;
     private readonly IClubDataService _clubDataService;
@@ -589,7 +593,16 @@ public sealed class CardInteractionService : ICardInteractionService
             };
         }
 
-        var card = new CardPresenter(definition, _metrics, this, _clubDataService, isCustom, presetId);
+        var card = new CardPresenter(
+            definition,
+            _metrics,
+            this,
+            this,
+            _clubDataService,
+            _activeTab,
+            _activeSection,
+            isCustom,
+            presetId);
         card.UpdateGeometry(geometry.Column, geometry.Row, geometry.ColumnSpan, geometry.RowSpan);
 
         RegisterCard(card, select: true);
@@ -672,6 +685,223 @@ public sealed class CardInteractionService : ICardInteractionService
         }
 
         return result;
+    }
+
+    void ICardInteractionBehavior.BeginDrag(string cardId)
+    {
+        var card = FindCardById(cardId);
+        if (card is null)
+        {
+            return;
+        }
+
+        BeginDrag(card);
+    }
+
+    void ICardInteractionBehavior.UpdateDrag(string cardId, in CardDragDelta delta)
+    {
+        var card = FindCardById(cardId);
+        if (card is null)
+        {
+            return;
+        }
+
+        UpdateDrag(card, delta);
+    }
+
+    void ICardInteractionBehavior.CompleteDrag(string cardId, in CardDragCompleted completed)
+    {
+        var card = FindCardById(cardId);
+        if (card is null)
+        {
+            return;
+        }
+
+        CompleteDrag(card, completed);
+    }
+
+    void ICardInteractionBehavior.BeginResize(string cardId, ResizeHandle handle)
+    {
+        var card = FindCardById(cardId);
+        if (card is null)
+        {
+            return;
+        }
+
+        BeginResize(card, handle);
+    }
+
+    void ICardInteractionBehavior.UpdateResize(string cardId, in CardResizeDelta delta)
+    {
+        var card = FindCardById(cardId);
+        if (card is null)
+        {
+            return;
+        }
+
+        UpdateResize(card, delta);
+    }
+
+    void ICardInteractionBehavior.CompleteResize(string cardId, in CardResizeCompleted completed)
+    {
+        var card = FindCardById(cardId);
+        if (card is null)
+        {
+            return;
+        }
+
+        CompleteResize(card, completed);
+    }
+
+    void ICardInteractionBehavior.BeginPlayerDrag(string cardId, string playerId)
+    {
+        var card = FindCardById(cardId);
+        if (card is null)
+        {
+            return;
+        }
+
+        if (!card.TryGetFormationPlayer(playerId, out var player))
+        {
+            return;
+        }
+
+        BeginPlayerDrag(card, player);
+    }
+
+    void ICardInteractionBehavior.UpdatePlayerDrag(string cardId, string playerId, in FormationPlayerDragDelta delta)
+    {
+        var card = FindCardById(cardId);
+        if (card is null)
+        {
+            return;
+        }
+
+        if (!card.TryGetFormationPlayer(playerId, out var player))
+        {
+            return;
+        }
+
+        UpdatePlayerDrag(card, player, delta);
+    }
+
+    void ICardInteractionBehavior.CompletePlayerDrag(string cardId, string playerId, in FormationPlayerDragCompleted completed)
+    {
+        var card = FindCardById(cardId);
+        if (card is null)
+        {
+            return;
+        }
+
+        if (!card.TryGetFormationPlayer(playerId, out var player))
+        {
+            return;
+        }
+
+        CompletePlayerDrag(card, player, completed);
+    }
+
+    void ICardSelectionBehavior.Select(string cardId, SelectionModifier modifier)
+    {
+        var card = FindCardById(cardId);
+        if (card is null)
+        {
+            return;
+        }
+
+        SelectCard(card, modifier);
+    }
+
+    void ICardSelectionBehavior.ClearSelection()
+    {
+        ClearSelection();
+    }
+
+    bool ICardSelectionBehavior.IsSelected(string cardId)
+    {
+        var card = FindCardById(cardId);
+        if (card is null)
+        {
+            return false;
+        }
+
+        return IsCardSelected(card);
+    }
+
+    IReadOnlyList<string> ICardSelectionBehavior.GetSelection()
+    {
+        if (_selectedCards.Count == 0)
+        {
+            return Array.Empty<string>();
+        }
+
+        var span = _selectedCards.AsSpan();
+        var result = new string[span.Length];
+        for (var i = 0; i < span.Length; i++)
+        {
+            result[i] = span[i].Id;
+        }
+
+        return result;
+    }
+
+    bool ICardGeometryManager.TryGetGeometry(string cardId, out CardGeometry geometry)
+    {
+        var card = FindCardById(cardId);
+        if (card is null)
+        {
+            geometry = default;
+            return false;
+        }
+
+        geometry = card.Geometry;
+        return true;
+    }
+
+    bool ICardGeometryManager.TryUpdateGeometry(string cardId, CardGeometry geometry)
+    {
+        var card = FindCardById(cardId);
+        if (card is null)
+        {
+            return false;
+        }
+
+        if (!((ICardGeometryManager)this).IsPlacementValid(geometry, card.Id))
+        {
+            return false;
+        }
+
+        card.UpdateGeometry(geometry.Column, geometry.Row, geometry.ColumnSpan, geometry.RowSpan);
+        PersistGeometry(card);
+        return true;
+    }
+
+    bool ICardGeometryManager.IsPlacementValid(CardGeometry geometry, string? ignoreCardId)
+    {
+        if (geometry.Column < 0 || geometry.Row < 0)
+        {
+            return false;
+        }
+
+        var maxColumn = _metrics.Columns;
+        var maxRow = _metrics.Rows;
+
+        if (geometry.ColumnSpan <= 0 || geometry.RowSpan <= 0)
+        {
+            return false;
+        }
+
+        if (geometry.Column + geometry.ColumnSpan > maxColumn)
+        {
+            return false;
+        }
+
+        if (geometry.Row + geometry.RowSpan > maxRow)
+        {
+            return false;
+        }
+
+        return !HasCollision(geometry, ignoreCardId);
     }
 
     public void Undo()
@@ -832,7 +1062,16 @@ public sealed class CardInteractionService : ICardInteractionService
             return null;
         }
 
-        var card = new CardPresenter(snapshot.Definition, _metrics, this, _clubDataService, snapshot.IsCustom, snapshot.PresetId);
+        var card = new CardPresenter(
+            snapshot.Definition,
+            _metrics,
+            this,
+            this,
+            _clubDataService,
+            _activeTab,
+            _activeSection,
+            snapshot.IsCustom,
+            snapshot.PresetId);
         RegisterCard(card, select);
         PersistGeometry(card);
 
@@ -1317,12 +1556,19 @@ public sealed class CardInteractionService : ICardInteractionService
         return new CardGeometry(startColumn, startRow, spanColumns, spanRows);
     }
 
-    private bool HasCollision(CardGeometry candidate)
+    private bool HasCollision(CardGeometry candidate, string? ignoreCardId = null)
     {
         var span = _trackedCards.AsSpan();
         for (var i = 0; i < span.Length; i++)
         {
-            if (IsOverlap(candidate, span[i].Geometry))
+            var other = span[i];
+            if (ignoreCardId is not null &&
+                string.Equals(other.Id, ignoreCardId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (IsOverlap(candidate, other.Geometry))
             {
                 return true;
             }

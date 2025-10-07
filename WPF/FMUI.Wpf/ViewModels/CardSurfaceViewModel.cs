@@ -8,13 +8,16 @@ using FMUI.Wpf.Collections;
 using FMUI.Wpf.Infrastructure;
 using FMUI.Wpf.Models;
 using FMUI.Wpf.Services;
+using FMUI.Wpf.UI.Cards;
 using FMUI.Wpf.ViewModels.Editors;
 
 namespace FMUI.Wpf.ViewModels;
 
 public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
 {
-    private readonly ICardLayoutCatalog _catalog;
+    private readonly IModuleCardLayoutProvider _moduleLayoutProvider;
+    private readonly ICardInteractionBehavior _interactionBehavior;
+    private readonly ICardSelectionBehavior _selectionBehavior;
     private readonly ICardInteractionService _interactionService;
     private readonly ICardLayoutStateService _stateService;
     private readonly ICardEditorCatalog _editorCatalog;
@@ -42,14 +45,18 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
     private bool _isEditorOpen;
 
     public CardSurfaceViewModel(
-        ICardLayoutCatalog catalog,
+        IModuleCardLayoutProvider moduleLayoutProvider,
+        ICardInteractionBehavior interactionBehavior,
+        ICardSelectionBehavior selectionBehavior,
         ICardInteractionService interactionService,
         ICardLayoutStateService stateService,
         ICardEditorCatalog editorCatalog,
         IEventAggregator eventAggregator,
         IClubDataService clubDataService)
     {
-        _catalog = catalog;
+        _moduleLayoutProvider = moduleLayoutProvider;
+        _interactionBehavior = interactionBehavior;
+        _selectionBehavior = selectionBehavior;
         _interactionService = interactionService;
         _stateService = stateService;
         _editorCatalog = editorCatalog;
@@ -78,7 +85,7 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
         _interactionService.CardsMutated += OnCardsMutated;
         Previews = new ReadOnlyObservableCollection<CardPreviewViewModel>(_previews);
         Palette = new ReadOnlyObservableCollection<CardPresetViewModel>(_palette);
-        _catalog.LayoutsChanged += OnLayoutsChanged;
+        _moduleLayoutProvider.LayoutChanged += OnModuleLayoutChanged;
     }
 
     public CardPresenterCollection Cards { get; } = new(32);
@@ -92,6 +99,8 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
     public bool HasCards => Cards.Count > 0;
 
     public bool HasSelection => _interactionService.HasSelection;
+
+    public IReadOnlyList<ICardPresenterDescriptor> CardDescriptors => Cards.DescriptorView;
 
     public ReadOnlyObservableCollection<CardPreviewViewModel> Previews { get; }
 
@@ -194,7 +203,7 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
         _interactionService.PreviewChanged -= OnPreviewChanged;
         _interactionService.CardsMutated -= OnCardsMutated;
         _subscription.Dispose();
-        _catalog.LayoutsChanged -= OnLayoutsChanged;
+        _moduleLayoutProvider.LayoutChanged -= OnModuleLayoutChanged;
         _interactionService.SetCards(Array.Empty<CardPresenter>());
     }
 
@@ -240,11 +249,53 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
                 _palette.Add(new CardPresetViewModel(preset));
             }
 
-            Cards.Clear();
             _interactionService.SetActiveSection(tabIdentifier, sectionIdentifier);
 
-            foreach (var definition in layout.Cards)
+            var customCards = _stateService.GetCustomCards(tabIdentifier, sectionIdentifier);
+            var capacity = layout.Cards.Count + customCards.Count;
+            var orderedCards = new ArrayCollection<CardPresenter>(capacity <= 0 ? 4 : capacity);
+            ArrayCollection<CardPresenter> reusableCards = default;
+            var canReuse = layoutKind == ModuleLayoutKind.Module && Cards.Count > 0;
+            if (canReuse)
             {
+                reusableCards = new ArrayCollection<CardPresenter>(Cards.Count);
+                for (var i = 0; i < Cards.Count; i++)
+                {
+                    var existing = Cards[i];
+                    if (!existing.IsCustom)
+                    {
+                        reusableCards.Add(existing);
+                    }
+                }
+            }
+
+            for (var i = 0; i < layout.Cards.Count; i++)
+            {
+                var definition = layout.Cards[i];
+                CardPresenter? card = null;
+                if (canReuse)
+                {
+                    card = TakeExistingCard(ref reusableCards, definition.Id);
+                }
+
+                if (card is null)
+                {
+                    card = new CardPresenter(
+                        definition,
+                        Metrics,
+                        _interactionBehavior,
+                        _selectionBehavior,
+                        _clubDataService,
+                        tabIdentifier,
+                        sectionIdentifier,
+                        isCustom: false,
+                        presetId: null);
+                }
+                else
+                {
+                    card.UpdateDefinition(definition);
+                }
+
                 if (_stateService.IsCardRemoved(tabIdentifier, sectionIdentifier, definition.Id))
                 {
                     continue;
@@ -272,10 +323,9 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
 
                 ApplyPersistedState(tabIdentifier, sectionIdentifier, card);
                 ConfigureEditor(card);
-                Cards.Add(card);
+                orderedCards.Add(card);
             }
 
-            var customCards = _stateService.GetCustomCards(tabIdentifier, sectionIdentifier);
             foreach (var custom in customCards)
             {
                 CardPresenter card;
@@ -300,7 +350,14 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
 
                 ApplyPersistedState(tabIdentifier, sectionIdentifier, card);
                 ConfigureEditor(card);
-                Cards.Add(card);
+                orderedCards.Add(card);
+            }
+
+            Cards.Clear();
+            var orderedSpan = orderedCards.AsSpan();
+            for (var i = 0; i < orderedSpan.Length; i++)
+            {
+                Cards.Add(orderedSpan[i]);
             }
 
             EmptyMessage = Cards.Count == 0
@@ -325,31 +382,31 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
         }
     }
 
-    private void OnLayoutsChanged(object? sender, LayoutsChangedEventArgs e)
+    private static CardPresenter? TakeExistingCard(ref ArrayCollection<CardPresenter> existingCards, string id)
+    {
+        var span = existingCards.AsSpan();
+        for (var i = 0; i < span.Length; i++)
+        {
+            var candidate = span[i];
+            if (string.Equals(candidate.Id, id, StringComparison.OrdinalIgnoreCase))
+            {
+                existingCards.RemoveAt(i);
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    private void OnModuleLayoutChanged(object? sender, ModuleLayoutChangedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(_currentTabIdentifier) || string.IsNullOrWhiteSpace(_currentSectionIdentifier))
         {
             return;
         }
 
-        var shouldReload = e.IsGlobal;
-
-        if (!shouldReload)
-        {
-            var sections = e.Sections;
-            for (var i = 0; i < sections.Count; i++)
-            {
-                var section = sections[i];
-                if (string.Equals(section.Tab, _currentTabIdentifier, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(section.Section, _currentSectionIdentifier, StringComparison.OrdinalIgnoreCase))
-                {
-                    shouldReload = true;
-                    break;
-                }
-            }
-        }
-
-        if (!shouldReload)
+        if (!string.Equals(e.TabIdentifier, _currentTabIdentifier, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(e.SectionIdentifier, _currentSectionIdentifier, StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
@@ -381,6 +438,7 @@ public sealed class CardSurfaceViewModel : ObservableObject, IDisposable
     private void OnCardsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         OnPropertyChanged(nameof(HasCards));
+        OnPropertyChanged(nameof(CardDescriptors));
     }
 
     public void UpdateViewport(Rect viewport)

@@ -11,6 +11,7 @@ namespace FMUI.Wpf.Collections;
 public sealed class CardPresenterCollection : IList<CardPresenter>, IReadOnlyList<CardPresenter>, INotifyCollectionChanged, INotifyPropertyChanged
 {
     private ArrayCollection<CardPresenterHandle> _items;
+    private readonly DescriptorCollectionView _descriptorView;
 
     public CardPresenterCollection(int capacity = 16)
     {
@@ -20,6 +21,7 @@ public sealed class CardPresenterCollection : IList<CardPresenter>, IReadOnlyLis
         }
 
         _items = new ArrayCollection<CardPresenterHandle>(capacity);
+        _descriptorView = new DescriptorCollectionView(this);
     }
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
@@ -29,6 +31,8 @@ public sealed class CardPresenterCollection : IList<CardPresenter>, IReadOnlyLis
     public int Count => _items.Count;
 
     public bool IsReadOnly => false;
+
+    public IReadOnlyList<ICardPresenterDescriptor> DescriptorView => _descriptorView;
 
     public CardPresenter this[int index]
     {
@@ -189,6 +193,79 @@ public sealed class CardPresenterCollection : IList<CardPresenter>, IReadOnlyLis
     private void OnCountChanged()
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+    }
+
+    private sealed class DescriptorCollectionView : IReadOnlyList<ICardPresenterDescriptor>, INotifyCollectionChanged, INotifyPropertyChanged
+    {
+        private readonly CardPresenterCollection _owner;
+
+        public DescriptorCollectionView(CardPresenterCollection owner)
+        {
+            _owner = owner;
+            _owner.CollectionChanged += OnOwnerCollectionChanged;
+            _owner.PropertyChanged += OnOwnerPropertyChanged;
+        }
+
+        public event NotifyCollectionChangedEventHandler? CollectionChanged;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public int Count => _owner.Count;
+
+        public ICardPresenterDescriptor this[int index] => _owner[index];
+
+        public DescriptorEnumerator GetEnumerator() => new DescriptorEnumerator(_owner);
+
+        IEnumerator<ICardPresenterDescriptor> IEnumerable<ICardPresenterDescriptor>.GetEnumerator() => new DescriptorEnumerator(_owner);
+
+        IEnumerator IEnumerable.GetEnumerator() => new DescriptorEnumerator(_owner);
+
+        private void OnOwnerCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            CollectionChanged?.Invoke(this, e);
+        }
+
+        private void OnOwnerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            PropertyChanged?.Invoke(this, e);
+        }
+
+        public struct DescriptorEnumerator : IEnumerator<ICardPresenterDescriptor>
+        {
+            private readonly CardPresenterCollection _owner;
+            private int _index;
+
+            public DescriptorEnumerator(CardPresenterCollection owner)
+            {
+                _owner = owner;
+                _index = -1;
+            }
+
+            public ICardPresenterDescriptor Current => _owner[_index];
+
+            object IEnumerator.Current => Current;
+
+            public void Dispose()
+            {
+            }
+
+            public bool MoveNext()
+            {
+                var next = _index + 1;
+                if (next >= _owner.Count)
+                {
+                    return false;
+                }
+
+                _index = next;
+                return true;
+            }
+
+            public void Reset()
+            {
+                _index = -1;
+            }
+        }
     }
 
     private struct Enumerator : IEnumerator<CardPresenter>
