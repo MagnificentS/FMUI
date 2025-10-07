@@ -473,6 +473,8 @@ public sealed partial class CardPresenter : ObservableObject, ICardPresenterDesc
 
     private void RefreshDefinition(CardDefinition definition, bool isInitial)
     {
+        UpdateGeometry(definition.Column, definition.Row, definition.ColumnSpan, definition.RowSpan);
+
         _definition = definition;
 
         if (!isInitial)
